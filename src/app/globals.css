@@ -36,6 +36,11 @@ body {
 }
 
 /* Markdown in messages */
+/* Safe area for mobile bottom nav */
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
 .message-content p { margin-bottom: 0.5rem; }
 .message-content p:last-child { margin-bottom: 0; }
 .message-content code {
