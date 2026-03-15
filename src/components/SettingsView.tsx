@@ -250,6 +250,12 @@ export default function SettingsView({
             <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="Website" value={<ChevronRight />} />
             </a>
+            <a href="https://ava-supernova.com/terms" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+              <Row label="Terms of Service" value={<ChevronRight />} />
+            </a>
+            <a href="https://ava-supernova.com/privacy" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+              <Row label="Privacy Policy" value={<ChevronRight />} />
+            </a>
           </div>
           <p className="text-xs text-gray-600 mt-3 text-center leading-relaxed">
             Your data stays yours. Local-first. No telemetry.<br />
