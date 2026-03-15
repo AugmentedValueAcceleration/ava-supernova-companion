@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { initI18n } from '@/lib/i18n';
 import type { Session } from '@supabase/supabase-js';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import CompanionApp from '@/components/CompanionApp';
 
 export default function Home() {
@@ -40,10 +41,12 @@ export default function Home() {
 
   // No auth gate — CompanionApp handles both signed-in and guest modes
   return (
-    <CompanionApp
-      session={session}
-      onSignIn={() => supabase.auth.getSession().then(({ data }) => setSession(data.session))}
-      onSignOut={() => { supabase.auth.signOut(); setSession(null); }}
-    />
+    <ErrorBoundary>
+      <CompanionApp
+        session={session}
+        onSignIn={() => supabase.auth.getSession().then(({ data }) => setSession(data.session))}
+        onSignOut={() => { supabase.auth.signOut(); setSession(null); }}
+      />
+    </ErrorBoundary>
   );
 }

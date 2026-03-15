@@ -5,8 +5,10 @@ import type { Session } from '@supabase/supabase-js';
 import { sendChat, MODELS } from '@/lib/api';
 import { t } from '@/lib/i18n';
 import { getConversations, getActiveConversationId, setActiveConversationId, getConversation, saveConversation, deleteConversation, clearAllConversations, generateTitle, createConversation, type Conversation } from '@/lib/chat-history';
+import { Markdown } from './Markdown';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
+import MemoryPanel from './MemoryPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';
@@ -18,7 +20,7 @@ interface Message {
   timestamp: Date;
 }
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'settings';
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings';
 
 const NUDGE_AFTER_MESSAGES = 6;
 
@@ -281,14 +283,14 @@ export default function CompanionApp({
     if (!input.trim() || streaming) return;
 
     const userMsg: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       role: 'user',
       content: input.trim(),
       timestamp: new Date(),
     };
 
     const avaMsg: Message = {
-      id: (Date.now() + 1).toString(),
+      id: crypto.randomUUID(),
       role: 'assistant',
       content: '',
       timestamp: new Date(),
@@ -739,12 +741,18 @@ export default function CompanionApp({
                           <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
                         </div>
                       )}
-                      <div className={`message-content ${textSizeClass} leading-relaxed whitespace-pre-wrap`}>
-                        {msg.content}
-                        {streaming && msg.role === 'assistant' && msg.id === messages[messages.length - 1]?.id && msg.content && (
-                          <span className="text-ava-purple animate-pulse">▊</span>
-                        )}
-                      </div>
+                      {msg.role === 'assistant' ? (
+                        <div className={`${textSizeClass} leading-relaxed`}>
+                          <Markdown content={msg.content} />
+                          {streaming && msg.id === messages[messages.length - 1]?.id && msg.content && (
+                            <span className="text-ava-purple animate-pulse">▊</span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className={`${textSizeClass} leading-relaxed whitespace-pre-wrap`}>
+                          {msg.content}
+                        </div>
+                      )}
                       <div className="text-[11px] text-gray-500 mt-1 text-right">
                         {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
@@ -821,6 +829,14 @@ export default function CompanionApp({
               </div>
               <JournalPanel token={token} />
             </div>
+          ) : mobileView === 'memory' ? (
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+                <h2 className="font-semibold text-white text-lg">{t('memory')}</h2>
+                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+              </div>
+              <MemoryPanel token={token} />
+            </div>
           ) : mobileView === 'settings' ? (
             <SettingsView
               isGuest={isGuest}
@@ -869,6 +885,12 @@ export default function CompanionApp({
           label={t('tasks')}
           active={mobileView === 'tasks'}
           onClick={() => handleMobileNav('tasks')}
+        />
+        <ThumbButton
+          icon={<MemoryIcon />}
+          label={t('memory')}
+          active={mobileView === 'memory'}
+          onClick={() => setMobileView('memory')}
         />
         <ThumbButton
           icon={<JournalIcon />}
@@ -975,6 +997,9 @@ function ChatIcon() {
 }
 function TasksIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
+}
+function MemoryIcon() {
+  return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>;
 }
 function JournalIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
