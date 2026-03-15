@@ -17,7 +17,7 @@ interface Props {
 }
 
 type TextSize = 'small' | 'default' | 'large';
-type Theme = 'dark' | 'system';
+type Theme = 'dark' | 'light' | 'system';
 
 export default function SettingsView({
   isGuest, session, apiKey, selectedModel,
@@ -51,7 +51,9 @@ export default function SettingsView({
 
     // Apply theme immediately
     if (key === 'theme') {
-      if (value === 'system') {
+      if (value === 'light') {
+        document.documentElement.classList.add('light');
+      } else if (value === 'system') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.classList.toggle('light', !prefersDark);
       } else {
@@ -186,7 +188,7 @@ export default function SettingsView({
                 label="Theme"
                 value={
                   <TogglePills
-                    options={[{ value: 'dark', label: 'Dark' }, { value: 'system', label: 'System' }]}
+                    options={[{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }, { value: 'system', label: 'System' }]}
                     selected={theme}
                     onChange={v => { setTheme(v as Theme); saveSetting('theme', v); }}
                   />

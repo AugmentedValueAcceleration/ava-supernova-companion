@@ -123,7 +123,9 @@ export default function CompanionApp({
     if (stored) {
       try {
         const s = JSON.parse(stored);
-        if (s.theme === 'system') {
+        if (s.theme === 'light') {
+          document.documentElement.classList.add('light');
+        } else if (s.theme === 'system') {
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           document.documentElement.classList.toggle('light', !prefersDark);
         } else {
@@ -139,7 +141,9 @@ export default function CompanionApp({
       try {
         const s = JSON.parse(localStorage.getItem('ava-companion-settings') || '{}');
         if (s.textSize) setTextSize(s.textSize);
-        if (s.theme === 'system') {
+        if (s.theme === 'light') {
+          document.documentElement.classList.add('light');
+        } else if (s.theme === 'system') {
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           document.documentElement.classList.toggle('light', !prefersDark);
         } else {
