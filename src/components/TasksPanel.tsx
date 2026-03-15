@@ -20,7 +20,7 @@ const priorityColors: Record<string, string> = {
   urgent: 'bg-red-500',
 };
 
-export default function TasksPanel({ token }: { token: string }) {
+export default function TasksPanel({ token }: { token: string | null }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<'today' | 'all'>('today');
   const [newTask, setNewTask] = useState('');
@@ -29,6 +29,15 @@ export default function TasksPanel({ token }: { token: string }) {
   const today = new Date().toISOString().split('T')[0];
 
   const loadTasks = useCallback(async () => {
+    if (!token) {
+      // Local-only mode — use localStorage
+      try {
+        const stored = localStorage.getItem('ava-companion-tasks');
+        setTasks(stored ? JSON.parse(stored) : []);
+      } catch { setTasks([]); }
+      setLoading(false);
+      return;
+    }
     try {
       const data = await tasksApi.list(token);
       setTasks(data.tasks || data || []);
@@ -39,10 +48,22 @@ export default function TasksPanel({ token }: { token: string }) {
     }
   }, [token]);
 
+  const saveLocal = (updated: Task[]) => {
+    localStorage.setItem('ava-companion-tasks', JSON.stringify(updated));
+  };
+
   useEffect(() => { loadTasks(); }, [loadTasks]);
 
   const addTask = async () => {
     if (!newTask.trim()) return;
+    if (!token) {
+      const task: Task = { id: Date.now().toString(), title: newTask.trim(), priority: 'medium', status: 'todo', category: 'personal', due_date: today, source: 'user' };
+      const updated = [...tasks, task];
+      setTasks(updated);
+      saveLocal(updated);
+      setNewTask('');
+      return;
+    }
     try {
       await tasksApi.create(token, { title: newTask.trim(), due_date: today, priority: 'medium', category: 'personal' });
       setNewTask('');
@@ -51,6 +72,12 @@ export default function TasksPanel({ token }: { token: string }) {
   };
 
   const toggleTask = async (task: Task) => {
+    if (!token) {
+      const updated = tasks.map(t => t.id === task.id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t);
+      setTasks(updated);
+      saveLocal(updated);
+      return;
+    }
     try {
       await tasksApi.update(token, task.id, {
         status: task.status === 'done' ? 'todo' : 'done',

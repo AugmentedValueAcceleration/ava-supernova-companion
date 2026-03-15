@@ -5,7 +5,7 @@ import { journalApi } from '@/lib/api';
 
 const moodEmojis = ['😔', '😕', '😐', '🙂', '😊'];
 
-export default function JournalPanel({ token }: { token: string }) {
+export default function JournalPanel({ token }: { token: string | null }) {
   const [tab, setTab] = useState<'yours' | 'ava'>('yours');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [userContent, setUserContent] = useState('');
@@ -19,6 +19,21 @@ export default function JournalPanel({ token }: { token: string }) {
 
   const loadEntry = useCallback(async () => {
     setLoading(true);
+    if (!token) {
+      try {
+        const stored = localStorage.getItem(`ava-journal-${selectedDate}`);
+        if (stored) {
+          const entry = JSON.parse(stored);
+          setUserContent(entry.user_content || '');
+          setAvaContent(entry.ava_content || '');
+          setMood(entry.user_mood ?? null);
+        } else {
+          setUserContent(''); setAvaContent(''); setMood(null);
+        }
+      } catch { setUserContent(''); setAvaContent(''); setMood(null); }
+      setLoading(false);
+      return;
+    }
     try {
       const data = await journalApi.get(token, selectedDate);
       if (data.entry) {
@@ -42,6 +57,13 @@ export default function JournalPanel({ token }: { token: string }) {
   useEffect(() => { loadEntry(); }, [loadEntry]);
 
   const saveEntry = async () => {
+    if (!token) {
+      localStorage.setItem(`ava-journal-${selectedDate}`, JSON.stringify({
+        user_content: userContent, user_mood: mood, ava_content: avaContent,
+      }));
+      setEditing(false);
+      return;
+    }
     try {
       await journalApi.upsert(token, {
         date: selectedDate,

@@ -148,18 +148,10 @@ export default function CompanionApp({
   };
 
   const handleMobileNav = (view: MobileView) => {
-    if ((view === 'tasks' || view === 'journal') && isGuest) {
-      setShowAuthModal(true);
-      return;
-    }
     setMobileView(view);
   };
 
   const toggleDesktopPanel = (panel: 'tasks' | 'journal') => {
-    if (isGuest) {
-      setShowAuthModal(true);
-      return;
-    }
     setShowSidePanel(prev => prev === panel ? 'none' : panel);
   };
 
@@ -239,32 +231,28 @@ export default function CompanionApp({
             onClick={() => toggleDesktopPanel('tasks')}
             className={`hidden md:block p-2 rounded-lg transition relative ${
               showSidePanel === 'tasks' ? 'bg-ava-purple text-white' :
-              isGuest ? 'text-gray-600 hover:text-gray-400' :
               'text-gray-400 hover:text-white hover:bg-ava-surface'
             }`}
-            title={isGuest ? 'Sign in to use Tasks' : 'Tasks'}
+            title="Tasks"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
-            {isGuest && <LockBadge />}
-          </button>
+                      </button>
 
           {/* Desktop-only: Journal button */}
           <button
             onClick={() => toggleDesktopPanel('journal')}
             className={`hidden md:block p-2 rounded-lg transition relative ${
               showSidePanel === 'journal' ? 'bg-ava-purple text-white' :
-              isGuest ? 'text-gray-600 hover:text-gray-400' :
               'text-gray-400 hover:text-white hover:bg-ava-surface'
             }`}
-            title={isGuest ? 'Sign in to use Journal' : 'Journal'}
+            title="Journal"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
-            {isGuest && <LockBadge />}
-          </button>
+                      </button>
         </div>
       </header>
 
@@ -353,17 +341,19 @@ export default function CompanionApp({
                 </div>
               </div>
             </>
-          ) : mobileView === 'tasks' && token ? (
+          ) : mobileView === 'tasks' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-ava-border">
+              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
                 <h2 className="font-semibold text-white text-lg">Tasks</h2>
+                {isGuest && <span className="text-[10px] text-gray-500">Local only — sign in to sync</span>}
               </div>
               <TasksPanel token={token} />
             </div>
-          ) : mobileView === 'journal' && token ? (
+          ) : mobileView === 'journal' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-ava-border">
+              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
                 <h2 className="font-semibold text-white text-lg">Journal</h2>
+                {isGuest && <span className="text-[10px] text-gray-500">Local only — sign in to sync</span>}
               </div>
               <JournalPanel token={token} />
             </div>
@@ -431,7 +421,7 @@ export default function CompanionApp({
         </div>
 
         {/* Desktop side panel */}
-        {showSidePanel !== 'none' && token && (
+        {showSidePanel !== 'none' && (
           <div className="hidden md:flex w-80 border-l border-ava-border shrink-0 flex-col bg-ava-bg overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-ava-border">
               <h2 className="font-semibold text-white">
@@ -463,14 +453,12 @@ export default function CompanionApp({
           icon={<TasksIcon />}
           label="Tasks"
           active={mobileView === 'tasks'}
-          locked={isGuest}
           onClick={() => handleMobileNav('tasks')}
         />
         <ThumbButton
           icon={<JournalIcon />}
           label="Journal"
           active={mobileView === 'journal'}
-          locked={isGuest}
           onClick={() => handleMobileNav('journal')}
         />
         <ThumbButton
@@ -516,25 +504,14 @@ export default function CompanionApp({
 }
 
 // Thumb menu button
-function ThumbButton({ icon, label, active, locked, onClick }: {
-  icon: React.ReactNode; label: string; active?: boolean; locked?: boolean; onClick: () => void;
+function ThumbButton({ icon, label, active, onClick }: {
+  icon: React.ReactNode; label: string; active?: boolean; onClick: () => void;
 }) {
   return (
-    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-4 py-1 relative transition ${active ? 'text-ava-purple' : locked ? 'text-gray-600' : 'text-gray-400'}`}>
-      <div className="relative">
-        {icon}
-        {locked && <LockBadge />}
-      </div>
+    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-4 py-1 transition ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
+      {icon}
       <span className="text-[10px] font-medium">{label}</span>
     </button>
-  );
-}
-
-function LockBadge() {
-  return (
-    <svg className="w-2.5 h-2.5 absolute -top-0.5 -right-1 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-    </svg>
   );
 }
 
