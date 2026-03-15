@@ -29,7 +29,12 @@ export default function SettingsView({
   const [taskReminders, setTaskReminders] = useState(true);
   const [journalPrompt, setJournalPrompt] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState<string | null>(null);
-  const [language, setLang] = useState(getLanguage);
+  const [language, setLang] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ava-companion-lang') || 'auto';
+    }
+    return 'auto';
+  });
 
   // Load settings from localStorage
   useEffect(() => {

@@ -309,14 +309,9 @@ const translations: Record<string, Translations> = {
 // response in their language via the system prompt language detection
 const SUPPORTED_LANGS = ['en', 'es', 'fr', 'de', 'ja', 'ko', 'zh-CN', 'pt', 'it', 'ar', 'hi', 'ru', 'tr'];
 
-function detectLanguage(): string {
+function detectBrowserLanguage(): string {
   if (typeof window === 'undefined') return 'en';
 
-  // Check saved preference
-  const saved = localStorage.getItem('ava-companion-lang');
-  if (saved && translations[saved]) return saved;
-
-  // Auto-detect from browser
   const browserLang = navigator.language || 'en';
 
   // Exact match
@@ -332,6 +327,17 @@ function detectLanguage(): string {
   return 'en';
 }
 
+function detectLanguage(): string {
+  if (typeof window === 'undefined') return 'en';
+
+  // Check saved preference
+  const saved = localStorage.getItem('ava-companion-lang');
+  if (saved === 'auto' || !saved) return detectBrowserLanguage();
+  if (translations[saved]) return saved;
+
+  return detectBrowserLanguage();
+}
+
 let currentLang = 'en';
 
 export function initI18n() {
@@ -339,7 +345,7 @@ export function initI18n() {
 }
 
 export function setLanguage(lang: string) {
-  currentLang = lang;
+  currentLang = lang === 'auto' ? detectBrowserLanguage() : lang;
   localStorage.setItem('ava-companion-lang', lang);
 }
 
@@ -352,12 +358,15 @@ export function t(key: TranslationKey): string {
 }
 
 export function getSupportedLanguages() {
-  return SUPPORTED_LANGS.map(code => ({
-    code,
-    name: {
-      en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
-      ja: '日本語', ko: '한국어', 'zh-CN': '中文', pt: 'Português',
-      it: 'Italiano', ar: 'العربية', hi: 'हिन्दी', ru: 'Русский', tr: 'Türkçe',
-    }[code] || code,
-  }));
+  return [
+    { code: 'auto', name: 'Auto (Browser)' },
+    ...SUPPORTED_LANGS.map(code => ({
+      code,
+      name: {
+        en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
+        ja: '日本語', ko: '한국어', 'zh-CN': '中文', pt: 'Português',
+        it: 'Italiano', ar: 'العربية', hi: 'हिन्दी', ru: 'Русский', tr: 'Türkçe',
+      }[code] || code,
+    })),
+  ];
 }
