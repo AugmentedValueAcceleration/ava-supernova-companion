@@ -214,29 +214,7 @@ export default function SettingsView({
           </div>
         </Section>
 
-        {/* Notifications */}
-        <Section title="NOTIFICATIONS">
-          <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
-            <div className="p-4">
-              <Row
-                label="Task reminders"
-                subtitle="Get notified about due tasks"
-                value={
-                  <Toggle checked={taskReminders} onChange={v => { setTaskReminders(v); saveSetting('taskReminders', v); }} />
-                }
-              />
-            </div>
-            <div className="p-4">
-              <Row
-                label="Journal prompt"
-                subtitle="Evening reminder to journal"
-                value={
-                  <Toggle checked={journalPrompt} onChange={v => { setJournalPrompt(v); saveSetting('journalPrompt', v); }} />
-                }
-              />
-            </div>
-          </div>
-        </Section>
+        {/* Notifications — only shown in native app (Capacitor) */}
 
         {/* Data */}
         <Section title="DATA">
