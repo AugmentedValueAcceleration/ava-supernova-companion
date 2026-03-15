@@ -128,13 +128,20 @@ export default function SettingsView({
               </div>
 
               <a
-                href="https://ava-supernova.com/pricing"
+                href={`https://ava-supernova.com/pricing${session?.access_token ? `?token=${session.access_token}` : ''}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium py-2.5 rounded-xl text-sm text-center hover:from-purple-700 hover:to-purple-600 transition"
               >
                 Upgrade Plan
               </a>
+
+              <button
+                onClick={onSignOut}
+                className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
+              >
+                {apiKey ? 'Disconnect API Key' : 'Sign Out'}
+              </button>
             </div>
           )}
         </Section>
@@ -229,15 +236,7 @@ export default function SettingsView({
           </div>
         </Section>
 
-        {/* Sign out */}
-        {!isGuest && (
-          <button
-            onClick={onSignOut}
-            className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
-          >
-            {apiKey ? 'Disconnect API Key' : 'Sign Out'}
-          </button>
-        )}
+
 
         {/* About */}
         <Section title="ABOUT">
