@@ -20,6 +20,11 @@ export default function Home() {
       setSession(s);
     });
 
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 
