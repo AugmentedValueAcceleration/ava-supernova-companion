@@ -43,8 +43,8 @@ export interface ModelOption {
 
 export const MODELS: ModelOption[] = [
   // Free
-  { id: 'glm-4-flash', name: 'GLM-4.5 Flash', provider: 'Zhipu AI', free: true },
   { id: 'glm-4.7-flash', name: 'GLM-4.7 Flash', provider: 'Zhipu AI', free: true },
+  { id: 'glm-4-flash', name: 'GLM-4.5 Flash', provider: 'Zhipu AI', free: true },
   // Paid
   { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false },
   { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false },

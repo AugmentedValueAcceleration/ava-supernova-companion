@@ -47,7 +47,7 @@ export default function CompanionApp({
   ]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('glm-4-flash');
+  const [selectedModel, setSelectedModel] = useState('glm-4.7-flash');
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [mobileView, setMobileView] = useState<MobileView>('chat');
   const [showSidePanel, setShowSidePanel] = useState<'none' | 'tasks' | 'journal'>('none');
