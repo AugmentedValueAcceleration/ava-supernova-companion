@@ -68,3 +68,22 @@ body {
 .message-content li { margin: 0.25rem 0; }
 .message-content strong { color: #fff; }
 .message-content a { color: #A855F7; }
+
+/* Light theme overrides */
+html.light body {
+  background-color: #FAFAFA;
+  color: #1A1A1A;
+}
+html.light .bg-ava-bg { background-color: #FAFAFA; }
+html.light .bg-ava-surface { background-color: #FFFFFF; }
+html.light .border-ava-border { border-color: #E5E5E5; }
+html.light .text-white { color: #1A1A1A; }
+html.light .text-gray-200 { color: #333; }
+html.light .text-gray-300 { color: #444; }
+html.light .text-gray-400 { color: #666; }
+html.light .text-gray-500 { color: #888; }
+html.light .message-content code { background: #F0F0F0; }
+html.light .message-content pre { background: #F5F5F5; border-color: #E5E5E5; }
+html.light .message-content strong { color: #1A1A1A; }
+html.light ::-webkit-scrollbar-thumb { background: #CCC; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #AAA; }

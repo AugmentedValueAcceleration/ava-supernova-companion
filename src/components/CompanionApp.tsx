@@ -95,9 +95,18 @@ export default function CompanionApp({
   });
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('glm-4.7-flash');
+  const [selectedModel, setSelectedModel] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'glm-4.7-flash';
+    return 'glm-4.7-flash';
+  });
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [textSize, setTextSize] = useState<'small' | 'default' | 'large'>(() => {
+    if (typeof window !== 'undefined') {
+      try { const s = JSON.parse(localStorage.getItem('ava-companion-settings') || '{}'); return s.textSize || 'default'; } catch { return 'default'; }
+    }
+    return 'default';
+  });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [mobileView, setMobileView] = useState<MobileView>('chat');
   const [showSidePanel, setShowSidePanel] = useState<'none' | 'tasks' | 'journal'>('none');
@@ -107,6 +116,43 @@ export default function CompanionApp({
   const [showWelcome, setShowWelcome] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Apply theme on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('ava-companion-settings');
+    if (stored) {
+      try {
+        const s = JSON.parse(stored);
+        if (s.theme === 'system') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('light', !prefersDark);
+        } else {
+          document.documentElement.classList.remove('light');
+        }
+      } catch {}
+    }
+  }, []);
+
+  // Listen for text size changes from settings
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const s = JSON.parse(localStorage.getItem('ava-companion-settings') || '{}');
+        if (s.textSize) setTextSize(s.textSize);
+        if (s.theme === 'system') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('light', !prefersDark);
+        } else {
+          document.documentElement.classList.remove('light');
+        }
+      } catch {}
+    };
+    window.addEventListener('storage', handler);
+    window.addEventListener('ava-settings-changed', handler);
+    return () => { window.removeEventListener('storage', handler); window.removeEventListener('ava-settings-changed', handler); };
+  }, []);
+
+  const textSizeClass = textSize === 'small' ? 'text-[13px]' : textSize === 'large' ? 'text-[17px]' : 'text-[15px]';
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -260,6 +306,7 @@ export default function CompanionApp({
       return;
     }
     setSelectedModel(modelId);
+    localStorage.setItem('ava-companion-model', modelId);
     setShowModelPicker(false);
   };
 
@@ -488,7 +535,7 @@ export default function CompanionApp({
                           <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
                         </div>
                       )}
-                      <div className="message-content text-[15px] leading-relaxed whitespace-pre-wrap">
+                      <div className={`message-content ${textSizeClass} leading-relaxed whitespace-pre-wrap`}>
                         {msg.content}
                         {streaming && msg.role === 'assistant' && msg.id === messages[messages.length - 1]?.id && msg.content && (
                           <span className="text-ava-purple animate-pulse">▊</span>
@@ -514,7 +561,7 @@ export default function CompanionApp({
                     placeholder="Message Ava..."
                     disabled={streaming}
                     rows={1}
-                    className="flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none text-[15px] max-h-[120px] disabled:opacity-50 transition"
+                    className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
                   />
                   <button
                     onClick={sendMessage}
@@ -550,7 +597,7 @@ export default function CompanionApp({
               session={session}
               apiKey={apiKey}
               selectedModel={selectedModel}
-              onSelectModel={setSelectedModel}
+              onSelectModel={(id) => { setSelectedModel(id); localStorage.setItem('ava-companion-model', id); }}
               onSignIn={() => setShowAuthModal(true)}
               onSignOut={() => { apiKey ? setApiKey(null) : onSignOut(); setMobileView('chat'); }}
               onClearChat={startNewChat}

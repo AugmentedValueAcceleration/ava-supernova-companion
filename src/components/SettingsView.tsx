@@ -48,6 +48,19 @@ export default function SettingsView({
     const settings = stored ? JSON.parse(stored) : {};
     settings[key] = value;
     localStorage.setItem('ava-companion-settings', JSON.stringify(settings));
+
+    // Apply theme immediately
+    if (key === 'theme') {
+      if (value === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('light', !prefersDark);
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+    }
+
+    // Notify CompanionApp of changes
+    window.dispatchEvent(new Event('ava-settings-changed'));
   };
 
   const clearLocalData = (type: string) => {
