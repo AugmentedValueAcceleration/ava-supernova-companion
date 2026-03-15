@@ -7,6 +7,7 @@ import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
+import SettingsView from './SettingsView';
 
 interface Message {
   id: string;
@@ -358,65 +359,21 @@ export default function CompanionApp({
               <JournalPanel token={token} />
             </div>
           ) : mobileView === 'settings' ? (
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <h2 className="font-semibold text-white text-lg">Settings</h2>
-
-              {isGuest ? (
-                <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
-                  <p className="text-sm text-gray-300">You&apos;re using Ava as a guest with free models.</p>
-                  <button
-                    onClick={() => setShowAuthModal(true)}
-                    className="w-full bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2.5 rounded-xl transition text-sm"
-                  >
-                    Sign In / Create Account
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-ava-purple flex items-center justify-center text-white font-bold">
-                        {(session?.user.user_metadata?.full_name?.[0] || session?.user.email?.[0] || 'A').toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-white">{session?.user.user_metadata?.full_name || 'Connected'}</p>
-                        <p className="text-xs text-gray-500">{session?.user.email || (apiKey ? 'API Key connected' : '')}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Memory</span>
-                      <span className="text-emerald-400">Synced</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Tasks</span>
-                      <span className="text-emerald-400">Synced</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Journal</span>
-                      <span className="text-emerald-400">Synced</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => { apiKey ? setApiKey(null) : onSignOut(); setMobileView('chat'); }}
-                    className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
-                  >
-                    {apiKey ? 'Disconnect API Key' : 'Sign Out'}
-                  </button>
-                </div>
-              )}
-
-              <div className="space-y-2 pt-2">
-                <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer"
-                  className="block text-sm text-gray-400 hover:text-white transition">GitHub</a>
-                <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer"
-                  className="block text-sm text-gray-400 hover:text-white transition">Website</a>
-                <p className="text-xs text-gray-600 pt-2">Ava Companion v0.1.0 — Apache 2.0</p>
-              </div>
-            </div>
+            <SettingsView
+              isGuest={isGuest}
+              session={session}
+              apiKey={apiKey}
+              selectedModel={selectedModel}
+              onSelectModel={setSelectedModel}
+              onSignIn={() => setShowAuthModal(true)}
+              onSignOut={() => { apiKey ? setApiKey(null) : onSignOut(); setMobileView('chat'); }}
+              onClearChat={() => setMessages([{
+                id: '1', role: 'assistant', timestamp: new Date(),
+                content: isGuest
+                  ? "Chat cleared! What's on your mind?"
+                  : `Chat cleared, ${userName}! What would you like to do?`,
+              }])}
+            />
           ) : null}
         </div>
 
