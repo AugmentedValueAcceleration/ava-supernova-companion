@@ -253,7 +253,7 @@ export default function SettingsView({
         <Section title={t('about')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4">
-              <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.0</span>} />
+              <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.1</span>} />
             </div>
             <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="GitHub" value={<ChevronRight />} />

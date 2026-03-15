@@ -115,6 +115,7 @@ export default function CompanionApp({
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -166,6 +167,37 @@ export default function CompanionApp({
   }, []);
 
   useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+
+  // Version check — poll every 5 minutes
+  useEffect(() => {
+    const APP_VERSION = '0.1.1';
+
+    const checkVersion = async () => {
+      try {
+        const res = await fetch('/version.json?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (data.version && data.version !== APP_VERSION) {
+            setUpdateAvailable(true);
+          }
+        }
+      } catch {}
+    };
+
+    checkVersion();
+    const interval = setInterval(checkVersion, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Listen for service worker updates
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        // New service worker took control — reload to get new code
+        window.location.reload();
+      });
+    }
+  }, []);
 
   // Auto-focus input on chat view
   useEffect(() => {
@@ -546,6 +578,22 @@ export default function CompanionApp({
           )}
         </div>
       </header>
+
+      {/* Update banner */}
+      {updateAvailable && (
+        <div className="shrink-0 bg-ava-purple/10 border-b border-ava-purple/20 px-4 py-2.5 flex items-center justify-between">
+          <p className="text-sm text-gray-300">
+            <span className="text-ava-purple-light font-medium">Update available</span>{' '}
+            — new features and improvements
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-xs font-medium text-white bg-ava-purple px-3 py-1 rounded-lg hover:bg-ava-purple-dark transition shrink-0 ml-3"
+          >
+            Refresh
+          </button>
+        </div>
+      )}
 
       {/* Nudge banner */}
       {showNudge && (
