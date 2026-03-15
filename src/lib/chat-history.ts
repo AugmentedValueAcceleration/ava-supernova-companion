@@ -80,6 +80,11 @@ export function generateTitle(messages: Array<{ role: string; content: string }>
   return title.length < firstUser.content.length ? title + '...' : title;
 }
 
+export function clearAllConversations() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(ACTIVE_KEY);
+}
+
 export function createConversation(model: string): Conversation {
   return {
     id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
