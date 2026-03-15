@@ -35,6 +35,17 @@ export const journalApi = {
     apiFetch(`/journal/${date}`, { method: 'DELETE' }, token).then(r => r.json()),
 };
 
+// Memories
+export const memoriesApi = {
+  list: (token: string) => apiFetch('/memories', {}, token).then(r => r.json()),
+  create: (token: string, memory: { key: string; content: string; category?: string; scope?: string }) =>
+    apiFetch('/memories', { method: 'POST', body: JSON.stringify(memory) }, token).then(r => r.json()),
+  update: (token: string, id: string, updates: Record<string, unknown>) =>
+    apiFetch(`/memories/${id}`, { method: 'PATCH', body: JSON.stringify(updates) }, token).then(r => r.json()),
+  delete: (token: string, id: string) =>
+    apiFetch(`/memories/${id}`, { method: 'DELETE' }, token).then(r => r.json()),
+};
+
 // Models
 export interface ModelOption {
   id: string;
