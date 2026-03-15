@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, fonts } from '../../src/theme';
 import { useAuth } from '../../src/context/AuthContext';
+import { chatApi } from '../../src/api';
 
 interface Message {
   id: string;
@@ -44,7 +45,6 @@ export default function ChatScreen() {
     setInput('');
     setStreaming(true);
 
-    // Placeholder — will connect to companion API
     const avaMsg: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
@@ -54,19 +54,31 @@ export default function ChatScreen() {
 
     setMessages(prev => [...prev, avaMsg]);
 
-    // Simulated streaming for now
-    const response = "I'm connected to your Ava platform account. Once the companion API is live, I'll have access to your tasks, journal, and memories. For now, I'm here to chat!";
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < response.length) {
-        const chunk = response.slice(0, i + 2);
-        setMessages(prev => prev.map(m => m.id === avaMsg.id ? { ...m, content: chunk } : m));
-        i += 2;
-      } else {
-        clearInterval(interval);
-        setStreaming(false);
-      }
-    }, 20);
+    // Build history (exclude system greeting and current message)
+    const history = messages
+      .filter(m => m.id !== '1') // skip greeting
+      .map(m => ({ role: m.role, content: m.content }));
+
+    try {
+      await chatApi.sendMessage(
+        input.trim(),
+        history,
+        { provider: '', model: 'glm-4-flash', apiKey: '' },
+        (text) => {
+          setMessages(prev => prev.map(m =>
+            m.id === avaMsg.id ? { ...m, content: m.content + text } : m
+          ));
+        },
+      );
+    } catch (err: any) {
+      setMessages(prev => prev.map(m =>
+        m.id === avaMsg.id
+          ? { ...m, content: `Sorry, I couldn't connect right now. ${err.message || 'Please try again.'}` }
+          : m
+      ));
+    } finally {
+      setStreaming(false);
+    }
   };
 
   useEffect(() => {
