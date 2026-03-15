@@ -74,6 +74,18 @@ export default function JournalPanel({ token }: { token: string | null }) {
     } catch {}
   };
 
+  const deleteEntry = async () => {
+    if (!token) {
+      localStorage.removeItem(`ava-journal-${selectedDate}`);
+      setUserContent(''); setAvaContent(''); setMood(null);
+      return;
+    }
+    try {
+      await journalApi.delete(token, selectedDate);
+      setUserContent(''); setAvaContent(''); setMood(null);
+    } catch {}
+  };
+
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() + offset);
@@ -169,10 +181,18 @@ export default function JournalPanel({ token }: { token: string | null }) {
               </div>
             </div>
           ) : userContent ? (
-            <button onClick={() => setEditing(true)} className="text-left w-full">
-              <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{userContent}</p>
-              <p className="text-[11px] text-gray-600 mt-2">Tap to edit</p>
-            </button>
+            <div>
+              <button onClick={() => setEditing(true)} className="text-left w-full">
+                <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{userContent}</p>
+                <p className="text-[11px] text-gray-600 mt-2">Tap to edit</p>
+              </button>
+              <button
+                onClick={deleteEntry}
+                className="mt-2 text-xs text-red-400/60 hover:text-red-400 transition"
+              >
+                Delete entry
+              </button>
+            </div>
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500 text-sm">No entry for this day</p>

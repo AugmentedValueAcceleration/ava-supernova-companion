@@ -31,6 +31,8 @@ export const journalApi = {
   get: (token: string, date: string) => apiFetch(`/journal/${date}`, {}, token).then(r => r.json()),
   upsert: (token: string, entry: { date: string; user_content?: string; user_mood?: number }) =>
     apiFetch('/journal', { method: 'POST', body: JSON.stringify(entry) }, token).then(r => r.json()),
+  delete: (token: string, date: string) =>
+    apiFetch(`/journal/${date}`, { method: 'DELETE' }, token).then(r => r.json()),
 };
 
 // Models

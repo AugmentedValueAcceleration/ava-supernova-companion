@@ -139,9 +139,9 @@ export default function SettingsView({
               </div>
 
               <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-2">
-                <Row label="Memory" value={<SyncBadge />} />
-                <Row label="Tasks" value={<SyncBadge />} />
-                <Row label="Journal" value={<SyncBadge />} />
+                <Row label={t('memory')} value={<span className="text-xs text-emerald-400">Connected</span>} />
+                <Row label={t('tasks')} value={<span className="text-xs text-emerald-400">Connected</span>} />
+                <Row label={t('journal')} value={<span className="text-xs text-emerald-400">Connected</span>} />
               </div>
 
               <a
@@ -217,9 +217,9 @@ export default function SettingsView({
         </Section>
 
         {/* Language */}
-        <Section title={t('appearance')}>
+        <Section title={t('language')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-2">Language</p>
+            <p className="text-xs text-gray-500 mb-2">{t('language')}</p>
             <CustomSelect
               value={language}
               onChange={(v) => { setLang(v); setLanguage(v); window.location.reload(); }}

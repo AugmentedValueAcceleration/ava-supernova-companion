@@ -71,6 +71,19 @@ export default function TasksPanel({ token }: { token: string | null }) {
     } catch {}
   };
 
+  const deleteTask = async (task: Task) => {
+    if (!token) {
+      const updated = tasks.filter(t => t.id !== task.id);
+      setTasks(updated);
+      saveLocal(updated);
+      return;
+    }
+    try {
+      await tasksApi.delete(token, task.id);
+      loadTasks();
+    } catch {}
+  };
+
   const toggleTask = async (task: Task) => {
     if (!token) {
       const updated = tasks.map(t => t.id === task.id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t);
@@ -167,6 +180,15 @@ export default function TasksPanel({ token }: { token: string | null }) {
                     )}
                   </div>
                 </div>
+                <button
+                  onClick={() => deleteTask(task)}
+                  className="shrink-0 p-1.5 text-gray-600 hover:text-red-400 transition"
+                  title="Delete task"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
               </div>
             );
           })}

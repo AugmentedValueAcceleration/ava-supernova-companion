@@ -241,6 +241,7 @@ export default function CompanionApp({
       setActiveConversationId(id);
       setMessages([greeting, ...conv.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }))]);
       setSelectedModel(conv.model);
+      localStorage.setItem('ava-companion-model', conv.model);
     }
     setShowHistory(false);
     setMobileView('chat');
