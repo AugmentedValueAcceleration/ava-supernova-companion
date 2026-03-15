@@ -305,13 +305,23 @@ export default function CompanionApp({
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
   };
 
-  const toggleVoice = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
-    }
+  const [micPermission, setMicPermission] = useState<'prompt' | 'granted' | 'denied'>('prompt');
+  const [showMicPrompt, setShowMicPrompt] = useState(false);
 
+  // Check mic permission on mount
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.permissions) {
+      navigator.permissions.query({ name: 'microphone' as PermissionName }).then(result => {
+        setMicPermission(result.state as 'prompt' | 'granted' | 'denied');
+        result.onchange = () => setMicPermission(result.state as 'prompt' | 'granted' | 'denied');
+      }).catch(() => {});
+    }
+    // Check if user previously consented
+    const consent = localStorage.getItem('ava-companion-mic-consent');
+    if (consent === 'granted') setMicPermission('granted');
+  }, []);
+
+  const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
@@ -345,15 +355,39 @@ export default function CompanionApp({
       inputRef.current?.focus();
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (e: any) => {
       setIsListening(false);
       recognitionRef.current = null;
+      if (e.error === 'not-allowed') {
+        setMicPermission('denied');
+        localStorage.setItem('ava-companion-mic-consent', 'denied');
+      }
     };
 
     recognitionRef.current = recognition;
     finalTranscript = '';
     recognition.start();
     setIsListening(true);
+    localStorage.setItem('ava-companion-mic-consent', 'granted');
+    setMicPermission('granted');
+  };
+
+  const toggleVoice = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    // First time — show explanation
+    if (micPermission === 'prompt' && !localStorage.getItem('ava-companion-mic-consent')) {
+      setShowMicPrompt(true);
+      return;
+    }
+
+    if (micPermission === 'denied') return;
+
+    startListening();
   };
 
   const handleMobileNav = (view: MobileView) => {
@@ -686,22 +720,28 @@ export default function CompanionApp({
                     className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
                   />
                   {/* Voice input */}
-                  {typeof window !== 'undefined' && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) && (
-                    <button
-                      onClick={toggleVoice}
-                      disabled={streaming}
-                      className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition ${
-                        isListening
-                          ? 'bg-red-500 text-white animate-pulse'
-                          : 'bg-ava-surface border border-ava-border text-gray-400 hover:text-white hover:border-ava-purple'
-                      } disabled:opacity-30`}
-                      title={isListening ? 'Stop listening' : 'Voice input'}
-                    >
+                  <button
+                    onClick={toggleVoice}
+                    disabled={streaming || micPermission === 'denied'}
+                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition ${
+                      isListening
+                        ? 'bg-red-500 text-white animate-pulse'
+                        : micPermission === 'denied'
+                        ? 'bg-ava-surface border border-ava-border text-gray-600 cursor-not-allowed'
+                        : 'bg-ava-surface border border-ava-border text-gray-400 hover:text-white hover:border-ava-purple'
+                    } disabled:opacity-30`}
+                    title={micPermission === 'denied' ? 'Microphone access denied — check browser settings' : isListening ? 'Stop listening' : 'Voice input'}
+                  >
+                    {micPermission === 'denied' ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                    ) : (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
                       </svg>
-                    </button>
-                  )}
+                    )}
+                  </button>
 
                   {/* Send */}
                   <button
@@ -804,6 +844,45 @@ export default function CompanionApp({
             localStorage.setItem('ava-companion-welcomed', 'true');
           }}
         />
+      )}
+
+      {/* Mic permission prompt */}
+      {showMicPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm bg-ava-surface border border-ava-border rounded-2xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-ava-purple/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-ava-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Voice Input</h3>
+                <p className="text-xs text-gray-400">Speak instead of typing</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-300 leading-relaxed">
+              Ava can listen to your voice and convert it to text. Your audio is processed entirely by your browser — <strong className="text-white">nothing is recorded, stored, or sent to any server</strong>.
+            </p>
+            <p className="text-xs text-gray-500">
+              You can revoke microphone access at any time in your browser settings.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => { setShowMicPrompt(false); startListening(); }}
+                className="flex-1 bg-ava-purple text-white font-medium py-2.5 rounded-xl hover:bg-ava-purple-dark transition text-sm"
+              >
+                Allow Microphone
+              </button>
+              <button
+                onClick={() => { setShowMicPrompt(false); localStorage.setItem('ava-companion-mic-consent', 'denied'); setMicPermission('denied'); }}
+                className="flex-1 bg-ava-border text-gray-300 font-medium py-2.5 rounded-xl hover:bg-gray-600 transition text-sm"
+              >
+                No Thanks
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Auth modal */}
