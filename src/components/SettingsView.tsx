@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { MODELS } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
+import { t, getLanguage, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 
 interface Props {
   isGuest: boolean;
@@ -28,6 +29,7 @@ export default function SettingsView({
   const [taskReminders, setTaskReminders] = useState(true);
   const [journalPrompt, setJournalPrompt] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState<string | null>(null);
+  const [language, setLang] = useState(getLanguage);
 
   // Load settings from localStorage
   useEffect(() => {
@@ -88,12 +90,12 @@ export default function SettingsView({
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="px-4 py-3 border-b border-ava-border">
-        <h2 className="font-semibold text-white text-lg">Settings</h2>
+        <h2 className="font-semibold text-white text-lg">{t('settings')}</h2>
       </div>
 
       <div className="p-4 space-y-5">
         {/* Account */}
-        <Section title="ACCOUNT">
+        <Section title={t('account')}>
           {isGuest ? (
             <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -103,15 +105,15 @@ export default function SettingsView({
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Guest</p>
-                  <p className="text-xs text-gray-500">Local data only — sign in to sync across devices</p>
+                  <p className="text-sm font-medium text-white">{t('guest')}</p>
+                  <p className="text-xs text-gray-500">{t('guestSubtitle')}</p>
                 </div>
               </div>
               <button
                 onClick={onSignIn}
                 className="w-full bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2.5 rounded-xl transition text-sm"
               >
-                Sign In / Create Account
+                {t('signIn')}
               </button>
               <a
                 href="https://ava-supernova.com/pricing"
@@ -119,7 +121,7 @@ export default function SettingsView({
                 rel="noopener noreferrer"
                 className="block w-full text-center text-xs text-ava-purple-light hover:underline"
               >
-                View plans &amp; pricing
+                {t('viewPlans')}
               </a>
             </div>
           ) : (
@@ -148,23 +150,23 @@ export default function SettingsView({
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium py-2.5 rounded-xl text-sm text-center hover:from-purple-700 hover:to-purple-600 transition"
               >
-                Upgrade Plan
+                {t('upgradePlan')}
               </a>
 
               <button
                 onClick={onSignOut}
                 className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
               >
-                {apiKey ? 'Disconnect API Key' : 'Sign Out'}
+                {apiKey ? t('disconnectKey') : t('signOut')}
               </button>
             </div>
           )}
         </Section>
 
         {/* Model */}
-        <Section title="MODEL">
+        <Section title={t('model')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-2">Default model</p>
+            <p className="text-xs text-gray-500 mb-2">{t('defaultModel')}</p>
             <CustomSelect
               value={selectedModel}
               onChange={onSelectModel}
@@ -181,14 +183,14 @@ export default function SettingsView({
         </Section>
 
         {/* Appearance */}
-        <Section title="APPEARANCE">
+        <Section title={t('appearance')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4">
               <Row
-                label="Theme"
+                label={t('theme')}
                 value={
                   <TogglePills
-                    options={[{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }, { value: 'system', label: 'System' }]}
+                    options={[{ value: 'dark', label: t('dark') }, { value: 'light', label: t('light') }, { value: 'system', label: t('system') }]}
                     selected={theme}
                     onChange={v => { setTheme(v as Theme); saveSetting('theme', v); }}
                   />
@@ -197,7 +199,7 @@ export default function SettingsView({
             </div>
             <div className="p-4">
               <Row
-                label="Text size"
+                label={t('textSize')}
                 value={
                   <TogglePills
                     options={[
@@ -214,16 +216,32 @@ export default function SettingsView({
           </div>
         </Section>
 
+        {/* Language */}
+        <Section title={t('appearance')}>
+          <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
+            <p className="text-xs text-gray-500 mb-2">Language</p>
+            <CustomSelect
+              value={language}
+              onChange={(v) => { setLang(v); setLanguage(v); window.location.reload(); }}
+              placeholder="Select language..."
+              options={getSupportedLanguages().map(l => ({
+                value: l.code,
+                label: l.name,
+              }))}
+            />
+          </div>
+        </Section>
+
         {/* Notifications — only shown in native app (Capacitor) */}
 
         {/* Data */}
-        <Section title="DATA">
+        <Section title={t('data')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
-            <ClearButton label="Clear chat history" type="chat" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
+            <ClearButton label={t('clearChat')} type="chat" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
             {isGuest && (
               <>
-                <ClearButton label="Clear local tasks" type="tasks" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
-                <ClearButton label="Clear local journal" type="journal" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
+                <ClearButton label={t('clearTasks')} type="tasks" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
+                <ClearButton label={t('clearJournal')} type="journal" showClearConfirm={showClearConfirm} setShowClearConfirm={setShowClearConfirm} onClear={clearLocalData} />
               </>
             )}
           </div>
@@ -232,22 +250,22 @@ export default function SettingsView({
 
 
         {/* About */}
-        <Section title="ABOUT">
+        <Section title={t('about')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4">
-              <Row label="Version" value={<span className="text-xs text-gray-500">0.1.0</span>} />
+              <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.0</span>} />
             </div>
             <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="GitHub" value={<ChevronRight />} />
             </a>
             <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
-              <Row label="Website" value={<ChevronRight />} />
+              <Row label={t('website')} value={<ChevronRight />} />
             </a>
             <a href="https://ava-supernova.com/terms" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
-              <Row label="Terms of Service" value={<ChevronRight />} />
+              <Row label={t('termsOfService')} value={<ChevronRight />} />
             </a>
             <a href="https://ava-supernova.com/privacy" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
-              <Row label="Privacy Policy" value={<ChevronRight />} />
+              <Row label={t('privacyPolicy')} value={<ChevronRight />} />
             </a>
           </div>
           <p className="text-xs text-gray-600 mt-3 text-center leading-relaxed">
@@ -336,10 +354,10 @@ function ClearButton({ label, type, showClearConfirm, setShowClearConfirm, onCle
     <div className="p-4">
       {showClearConfirm === type ? (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-red-400">Are you sure?</span>
+          <span className="text-sm text-red-400">{t('areYouSure')}</span>
           <div className="flex gap-2">
-            <button onClick={() => onClear(type)} className="text-xs text-red-400 font-medium px-3 py-1 bg-red-400/10 rounded-lg hover:bg-red-400/20 transition">Clear</button>
-            <button onClick={() => setShowClearConfirm(null)} className="text-xs text-gray-400 font-medium px-3 py-1 bg-ava-border rounded-lg hover:bg-gray-600 transition">Cancel</button>
+            <button onClick={() => onClear(type)} className="text-xs text-red-400 font-medium px-3 py-1 bg-red-400/10 rounded-lg hover:bg-red-400/20 transition">{t('clear')}</button>
+            <button onClick={() => setShowClearConfirm(null)} className="text-xs text-gray-400 font-medium px-3 py-1 bg-ava-border rounded-lg hover:bg-gray-600 transition">{t('cancel')}</button>
           </div>
         </div>
       ) : (

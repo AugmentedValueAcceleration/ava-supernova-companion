@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
+import { initI18n } from '@/lib/i18n';
 import type { Session } from '@supabase/supabase-js';
 import CompanionApp from '@/components/CompanionApp';
 
@@ -11,6 +12,7 @@ export default function Home() {
   const supabase = createClient();
 
   useEffect(() => {
+    initI18n();
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setLoading(false);

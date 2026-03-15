@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { sendChat, MODELS } from '@/lib/api';
+import { t } from '@/lib/i18n';
 import { getConversations, getActiveConversationId, setActiveConversationId, getConversation, saveConversation, deleteConversation, clearAllConversations, generateTitle, createConversation, type Conversation } from '@/lib/chat-history';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
@@ -491,9 +492,9 @@ export default function CompanionApp({
             {/* Mobile: full screen overlay */}
             <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-ava-bg">
               <div className="flex items-center justify-between px-4 py-3 border-b border-ava-border">
-                <h2 className="font-semibold text-white text-lg">Chat History</h2>
+                <h2 className="font-semibold text-white text-lg">{t('chatHistory')}</h2>
                 <div className="flex items-center gap-3">
-                  <button onClick={startNewChat} className="text-sm text-ava-purple font-medium">New chat</button>
+                  <button onClick={startNewChat} className="text-sm text-ava-purple font-medium">{t('newChat')}</button>
                   <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-white transition">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -507,8 +508,8 @@ export default function CompanionApp({
                     <svg className="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                     </svg>
-                    <p className="text-sm">No conversations yet</p>
-                    <p className="text-xs text-gray-600 mt-1">Start chatting with Ava</p>
+                    <p className="text-sm">{t('noConversations')}</p>
+                    <p className="text-xs text-gray-600 mt-1">{t('startChatting')}</p>
                   </div>
                 ) : (
                   <div className="py-1">
@@ -625,7 +626,7 @@ export default function CompanionApp({
                     value={input}
                     onChange={handleInput}
                     onKeyDown={handleKeyDown}
-                    placeholder="Message Ava..."
+                    placeholder={t('messagePlaceholder')}
                     disabled={streaming}
                     autoFocus
                     rows={1}
@@ -646,16 +647,16 @@ export default function CompanionApp({
           ) : mobileView === 'tasks' ? (
             <div className="flex-1 overflow-y-auto">
               <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                <h2 className="font-semibold text-white text-lg">Tasks</h2>
-                {isGuest && <span className="text-[10px] text-gray-500">Local only — sign in to sync</span>}
+                <h2 className="font-semibold text-white text-lg">{t('tasks')}</h2>
+                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
               </div>
               <TasksPanel token={token} />
             </div>
           ) : mobileView === 'journal' ? (
             <div className="flex-1 overflow-y-auto">
               <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                <h2 className="font-semibold text-white text-lg">Journal</h2>
-                {isGuest && <span className="text-[10px] text-gray-500">Local only — sign in to sync</span>}
+                <h2 className="font-semibold text-white text-lg">{t('journal')}</h2>
+                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
               </div>
               <JournalPanel token={token} />
             </div>
@@ -698,25 +699,25 @@ export default function CompanionApp({
       <nav className="md:hidden shrink-0 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom">
         <ThumbButton
           icon={<ChatIcon />}
-          label="Chat"
+          label={t('chat')}
           active={mobileView === 'chat'}
           onClick={() => setMobileView('chat')}
         />
         <ThumbButton
           icon={<TasksIcon />}
-          label="Tasks"
+          label={t('tasks')}
           active={mobileView === 'tasks'}
           onClick={() => handleMobileNav('tasks')}
         />
         <ThumbButton
           icon={<JournalIcon />}
-          label="Journal"
+          label={t('journal')}
           active={mobileView === 'journal'}
           onClick={() => handleMobileNav('journal')}
         />
         <ThumbButton
           icon={<SettingsIcon />}
-          label="Settings"
+          label={t('settings')}
           active={mobileView === 'settings'}
           onClick={() => setMobileView('settings')}
         />
