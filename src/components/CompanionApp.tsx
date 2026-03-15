@@ -20,6 +20,36 @@ type MobileView = 'chat' | 'tasks' | 'journal' | 'settings';
 
 const NUDGE_AFTER_MESSAGES = 6;
 
+function getFriendlyError(message?: string): string {
+  const msg = (message || '').toLowerCase();
+
+  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('err_internet'))
+    return "Looks like you're offline. Check your connection and try again.";
+
+  if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many'))
+    return "You're sending messages a bit fast — give it a moment and try again.";
+
+  if (msg.includes('401') || msg.includes('not authenticated') || msg.includes('invalid api key'))
+    return "Your session expired. Try signing in again from Settings.";
+
+  if (msg.includes('403') || msg.includes('not available on your plan'))
+    return "This model needs a plan upgrade. You can switch to a free model or check out the plans at ava-supernova.com/pricing";
+
+  if (msg.includes('token limit') || msg.includes('limit reached'))
+    return "You've used up your tokens for the month. You can add your own API key or wait for the monthly reset.";
+
+  if (msg.includes('502') || msg.includes('503') || msg.includes('provider'))
+    return "The AI provider is having a rough moment. Try switching models or wait a minute.";
+
+  if (msg.includes('timeout') || msg.includes('timed out'))
+    return "That took too long — the AI provider might be under heavy load. Try again in a moment.";
+
+  if (msg.includes('500') || msg.includes('internal'))
+    return "Something went wrong on our end. Try again — if it keeps happening, let us know.";
+
+  return "Something went wrong. Try again, or switch to a different model if this keeps happening.";
+}
+
 export default function CompanionApp({
   session,
   onSignIn,
@@ -123,9 +153,10 @@ export default function CompanionApp({
         ));
       });
     } catch (err: any) {
+      const friendlyError = getFriendlyError(err.message);
       setMessages(prev => prev.map(m =>
         m.id === avaMsg.id
-          ? { ...m, content: `Sorry, I couldn't connect. ${err.message || 'Please try again.'}` }
+          ? { ...m, content: friendlyError }
           : m
       ));
     } finally {
