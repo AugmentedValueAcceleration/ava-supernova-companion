@@ -112,7 +112,6 @@ export default function CompanionApp({
   });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [mobileView, setMobileView] = useState<MobileView>('chat');
-  const [showSidePanel, setShowSidePanel] = useState<'none' | 'tasks' | 'journal'>('none');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
@@ -429,9 +428,6 @@ export default function CompanionApp({
     setMobileView(view);
   };
 
-  const toggleDesktopPanel = (panel: 'tasks' | 'journal') => {
-    setShowSidePanel(prev => prev === panel ? 'none' : panel);
-  };
 
   const selectModel = (modelId: string) => {
     const model = MODELS.find(m => m.id === modelId);
@@ -450,6 +446,7 @@ export default function CompanionApp({
     <div className="h-dvh flex flex-col bg-ava-bg">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-ava-border shrink-0">
+        {/* Left: Logo + New Chat + History */}
         <div className="flex items-center gap-2">
           <div>
             <h1 className="text-lg font-bold text-white leading-tight">Ava</h1>
@@ -480,6 +477,32 @@ export default function CompanionApp({
           </button>
         </div>
 
+        {/* Center: Desktop navigation */}
+        <nav className="hidden md:flex items-center gap-1 bg-ava-surface rounded-xl p-1" aria-label="Main navigation">
+          {([
+            { key: 'chat' as MobileView, label: t('chat'), icon: <ChatIcon /> },
+            { key: 'tasks' as MobileView, label: t('tasks'), icon: <TasksIconSm /> },
+            { key: 'memory' as MobileView, label: t('memory'), icon: <MemoryIconSm /> },
+            { key: 'journal' as MobileView, label: t('journal'), icon: <JournalIconSm /> },
+            { key: 'settings' as MobileView, label: t('settings'), icon: <SettingsIconSm /> },
+          ]).map(item => (
+            <button
+              key={item.key}
+              onClick={() => setMobileView(item.key)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                mobileView === item.key
+                  ? 'bg-ava-purple text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-ava-surface-hover'
+              }`}
+              aria-current={mobileView === item.key ? 'page' : undefined}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Right: Model selector + Sign In */}
         <div className="flex items-center gap-2">
           {/* Model selector */}
           <div className="relative">
@@ -527,50 +550,7 @@ export default function CompanionApp({
             )}
           </div>
 
-          {/* Desktop-only: Tasks button */}
-          <button
-            onClick={() => toggleDesktopPanel('tasks')}
-            className={`hidden md:block p-2 rounded-lg transition relative ${
-              showSidePanel === 'tasks' ? 'bg-ava-purple text-white' :
-              'text-gray-400 hover:text-white hover:bg-ava-surface'
-            }`}
-            title="Tasks"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-                      </button>
-
-          {/* Desktop-only: Journal button */}
-          <button
-            onClick={() => toggleDesktopPanel('journal')}
-            className={`hidden md:block p-2 rounded-lg transition relative ${
-              showSidePanel === 'journal' ? 'bg-ava-purple text-white' :
-              'text-gray-400 hover:text-white hover:bg-ava-surface'
-            }`}
-            title="Journal"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </button>
-
-          {/* Desktop-only: Settings button */}
-          <button
-            onClick={() => setMobileView(mobileView === 'settings' ? 'chat' : 'settings')}
-            className={`hidden md:block p-2 rounded-lg transition ${
-              mobileView === 'settings' ? 'bg-ava-purple text-white' :
-              'text-gray-400 hover:text-white hover:bg-ava-surface'
-            }`}
-            title="Settings"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
-
-          {/* Sign in button for guests */}
+          {/* Sign in button for guests — desktop */}
           {isGuest && (
             <button
               onClick={() => setShowAuthModal(true)}
@@ -727,10 +707,10 @@ export default function CompanionApp({
           {mobileView === 'chat' ? (
             <>
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 md:px-8 lg:px-12">
                 {messages.map(msg => (
                   <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-4 py-3 ${
+                    <div className={`max-w-[85%] sm:max-w-[80%] md:max-w-[700px] rounded-2xl px-4 py-3 ${
                       msg.role === 'user'
                         ? 'bg-ava-purple text-white rounded-br-sm'
                         : 'bg-ava-surface border border-ava-border rounded-bl-sm'
@@ -763,7 +743,7 @@ export default function CompanionApp({
               </div>
 
               {/* Input */}
-              <div className="shrink-0 border-t border-ava-border p-3">
+              <div className="shrink-0 border-t border-ava-border p-3 md:px-8 lg:px-12">
                 <div className="flex items-end gap-2">
                   <textarea
                     ref={inputRef}
@@ -815,27 +795,33 @@ export default function CompanionApp({
             </>
           ) : mobileView === 'tasks' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                <h2 className="font-semibold text-white text-lg">{t('tasks')}</h2>
-                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+              <div className="max-w-3xl mx-auto w-full">
+                <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+                  <h2 className="font-semibold text-white text-lg">{t('tasks')}</h2>
+                  {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+                </div>
+                <TasksPanel token={token} />
               </div>
-              <TasksPanel token={token} />
             </div>
           ) : mobileView === 'journal' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                <h2 className="font-semibold text-white text-lg">{t('journal')}</h2>
-                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+              <div className="max-w-3xl mx-auto w-full">
+                <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+                  <h2 className="font-semibold text-white text-lg">{t('journal')}</h2>
+                  {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+                </div>
+                <JournalPanel token={token} />
               </div>
-              <JournalPanel token={token} />
             </div>
           ) : mobileView === 'memory' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                <h2 className="font-semibold text-white text-lg">{t('memory')}</h2>
-                {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+              <div className="max-w-3xl mx-auto w-full">
+                <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+                  <h2 className="font-semibold text-white text-lg">{t('memory')}</h2>
+                  {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
+                </div>
+                <MemoryPanel token={token} />
               </div>
-              <MemoryPanel token={token} />
             </div>
           ) : mobileView === 'settings' ? (
             <SettingsView
@@ -851,25 +837,6 @@ export default function CompanionApp({
           ) : null}
         </div>
 
-        {/* Desktop side panel */}
-        {showSidePanel !== 'none' && (
-          <div className="hidden md:flex w-80 border-l border-ava-border shrink-0 flex-col bg-ava-bg overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-ava-border">
-              <h2 className="font-semibold text-white">
-                {showSidePanel === 'tasks' ? 'Tasks' : 'Journal'}
-              </h2>
-              <button onClick={() => setShowSidePanel('none')} className="text-gray-400 hover:text-white transition">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {showSidePanel === 'tasks' && <TasksPanel token={token} />}
-              {showSidePanel === 'journal' && <JournalPanel token={token} />}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Mobile bottom nav — thumb-friendly */}
@@ -1006,4 +973,18 @@ function JournalIcon() {
 }
 function SettingsIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+}
+
+// Small icons for desktop header nav
+function TasksIconSm() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
+}
+function MemoryIconSm() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>;
+}
+function JournalIconSm() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+}
+function SettingsIconSm() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 }
