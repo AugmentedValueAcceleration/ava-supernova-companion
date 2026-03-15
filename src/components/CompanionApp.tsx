@@ -60,8 +60,16 @@ export default function CompanionApp({
   onSignIn: () => void;
   onSignOut: () => void;
 }) {
-  // Auth state — session OR API key
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  // Auth state — session OR API key (persisted to localStorage)
+  const [apiKey, setApiKeyState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-api-key');
+    return null;
+  });
+  const setApiKey = (key: string | null) => {
+    setApiKeyState(key);
+    if (key) localStorage.setItem('ava-companion-api-key', key);
+    else localStorage.removeItem('ava-companion-api-key');
+  };
   const isGuest = !session && !apiKey;
   const userName = session?.user.user_metadata?.full_name?.split(' ')[0] || 'there';
   const token = session?.access_token ?? apiKey;
@@ -380,6 +388,16 @@ export default function CompanionApp({
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
+
+          {/* Sign in button for guests */}
+          {isGuest && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="hidden md:block px-3 py-1.5 rounded-lg bg-ava-purple text-white text-sm font-medium hover:bg-ava-purple-dark transition"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </header>
 

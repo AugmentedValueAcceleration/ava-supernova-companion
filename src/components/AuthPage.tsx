@@ -70,16 +70,11 @@ export default function AuthPage({ onSignIn, onApiKeyConnect }: {
     }
     setLoading(true);
     try {
-      // Validate the API key by making a lightweight chat request
-      const res = await fetch('https://ava-supernova.com/api/companion/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey.trim()}`,
-        },
-        body: JSON.stringify({ message: 'ping', history: [], model: 'glm-4.7-flash' }),
+      // Validate the API key against the memories endpoint (lightweight GET)
+      const res = await fetch('https://ava-supernova.com/api/memories?limit=1', {
+        headers: { Authorization: `Bearer ${apiKey.trim()}` },
       });
-      if (!res.ok && res.status === 401) throw new Error('Invalid API key');
+      if (!res.ok) throw new Error('Invalid API key');
       onApiKeyConnect?.(apiKey.trim());
     } catch {
       setError('Invalid API key. Check your key in the platform dashboard.');
