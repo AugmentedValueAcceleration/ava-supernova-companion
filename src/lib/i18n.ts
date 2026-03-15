@@ -18,7 +18,7 @@ type Translations = Record<TranslationKey, string>;
 
 const translations: Record<string, Translations> = {
   en: {
-    chat: 'Chat', tasks: 'Tasks', journal: 'Journal', memory: 'Memory', settings: 'Settings',
+    chat: 'Chat', tasks: 'Tasks', journal: 'Journal', settings: 'Settings',
     newChat: 'New chat', chatHistory: 'Chat History',
     messagePlaceholder: 'Message Ava...', noConversations: 'No conversations yet', startChatting: 'Start chatting with Ava',
     account: 'ACCOUNT', guest: 'Guest', guestSubtitle: 'Local data only — sign in to sync across devices',
@@ -40,7 +40,7 @@ const translations: Record<string, Translations> = {
     language: 'Language', delete: 'Delete', deleteConfirm: 'Delete this?', tapToEdit: 'Tap to edit', nothingToday: 'Nothing for today', noActiveTasks: 'No active tasks', addTaskHint: 'Add a task above or ask Ava',
   },
   es: {
-    chat: 'Chat', tasks: 'Tareas', journal: 'Diario', memory: 'Memoria', settings: 'Ajustes',
+    chat: 'Chat', tasks: 'Tareas', journal: 'Diario', settings: 'Ajustes',
     newChat: 'Nuevo chat', chatHistory: 'Historial',
     messagePlaceholder: 'Mensaje a Ava...', noConversations: 'Sin conversaciones', startChatting: 'Empieza a chatear con Ava',
     account: 'CUENTA', guest: 'Invitado', guestSubtitle: 'Datos locales — inicia sesión para sincronizar',
@@ -62,7 +62,7 @@ const translations: Record<string, Translations> = {
     language: 'Idioma', delete: 'Eliminar', deleteConfirm: '¿Eliminar esto?', tapToEdit: 'Toca para editar', nothingToday: 'Nada para hoy', noActiveTasks: 'Sin tareas activas', addTaskHint: 'Añade una tarea o pregunta a Ava',
   },
   fr: {
-    chat: 'Chat', tasks: 'Tâches', journal: 'Journal', memory: 'Mémoire', settings: 'Paramètres',
+    chat: 'Chat', tasks: 'Tâches', journal: 'Journal', settings: 'Paramètres',
     newChat: 'Nouveau chat', chatHistory: 'Historique',
     messagePlaceholder: 'Message à Ava...', noConversations: 'Aucune conversation', startChatting: 'Commencez à discuter avec Ava',
     account: 'COMPTE', guest: 'Invité', guestSubtitle: 'Données locales — connectez-vous pour synchroniser',
@@ -84,7 +84,7 @@ const translations: Record<string, Translations> = {
     language: 'Langue', delete: 'Supprimer', deleteConfirm: 'Supprimer ceci ?', tapToEdit: 'Appuyez pour modifier', nothingToday: "Rien pour aujourd'hui", noActiveTasks: 'Aucune tâche active', addTaskHint: 'Ajoutez une tâche ou demandez à Ava',
   },
   de: {
-    chat: 'Chat', tasks: 'Aufgaben', journal: 'Tagebuch', memory: 'Erinnerung', settings: 'Einstellungen',
+    chat: 'Chat', tasks: 'Aufgaben', journal: 'Tagebuch', settings: 'Einstellungen',
     newChat: 'Neuer Chat', chatHistory: 'Chatverlauf',
     messagePlaceholder: 'Nachricht an Ava...', noConversations: 'Keine Unterhaltungen', startChatting: 'Starte einen Chat mit Ava',
     account: 'KONTO', guest: 'Gast', guestSubtitle: 'Nur lokal — melde dich an zum Synchronisieren',
@@ -106,7 +106,7 @@ const translations: Record<string, Translations> = {
     language: 'Sprache', delete: 'Löschen', deleteConfirm: 'Löschen?', tapToEdit: 'Tippen zum Bearbeiten', nothingToday: 'Nichts für heute', noActiveTasks: 'Keine aktiven Aufgaben', addTaskHint: 'Aufgabe hinzufügen oder Ava fragen',
   },
   ja: {
-    chat: 'チャット', tasks: 'タスク', journal: 'ジャーナル', memory: 'メモリー', settings: '設定',
+    chat: 'チャット', tasks: 'タスク', journal: 'ジャーナル', settings: '設定',
     newChat: '新しいチャット', chatHistory: '履歴',
     messagePlaceholder: 'Avaにメッセージ...', noConversations: '会話がありません', startChatting: 'Avaとチャットを始めましょう',
     account: 'アカウント', guest: 'ゲスト', guestSubtitle: 'ローカルのみ — ログインして同期',
@@ -128,7 +128,7 @@ const translations: Record<string, Translations> = {
     language: '言語', delete: '削除', deleteConfirm: '削除しますか？', tapToEdit: 'タップして編集', nothingToday: '今日の予定なし', noActiveTasks: 'アクティブなタスクなし', addTaskHint: 'タスクを追加するかAvaに聞いてください',
   },
   ko: {
-    chat: '채팅', tasks: '작업', journal: '일기', memory: '기억', settings: '설정',
+    chat: '채팅', tasks: '작업', journal: '일기', settings: '설정',
     newChat: '새 채팅', chatHistory: '채팅 기록',
     messagePlaceholder: 'Ava에게 메시지...', noConversations: '대화 없음', startChatting: 'Ava와 대화를 시작하세요',
     account: '계정', guest: '게스트', guestSubtitle: '로컬 전용 — 로그인하여 동기화',
@@ -150,7 +150,7 @@ const translations: Record<string, Translations> = {
     language: '언어', delete: '삭제', deleteConfirm: '삭제하시겠습니까?', tapToEdit: '탭하여 편집', nothingToday: '오늘 할 일 없음', noActiveTasks: '활성 작업 없음', addTaskHint: '작업을 추가하거나 Ava에게 물어보세요',
   },
   'zh-CN': {
-    chat: '聊天', tasks: '任务', journal: '日记', memory: '记忆', settings: '设置',
+    chat: '聊天', tasks: '任务', journal: '日记', settings: '设置',
     newChat: '新对话', chatHistory: '聊天记录',
     messagePlaceholder: '给Ava发消息...', noConversations: '没有对话', startChatting: '开始和Ava聊天',
     account: '账户', guest: '访客', guestSubtitle: '仅本地数据 — 登录以同步',
@@ -172,7 +172,7 @@ const translations: Record<string, Translations> = {
     language: '语言', delete: '删除', deleteConfirm: '确定删除？', tapToEdit: '点击编辑', nothingToday: '今天没有任务', noActiveTasks: '没有活跃任务', addTaskHint: '添加任务或问Ava',
   },
   pt: {
-    chat: 'Chat', tasks: 'Tarefas', journal: 'Diário', memory: 'Memória', settings: 'Configurações',
+    chat: 'Chat', tasks: 'Tarefas', journal: 'Diário', settings: 'Configurações',
     newChat: 'Novo chat', chatHistory: 'Histórico',
     messagePlaceholder: 'Mensagem para Ava...', noConversations: 'Sem conversas', startChatting: 'Comece a conversar com Ava',
     account: 'CONTA', guest: 'Convidado', guestSubtitle: 'Dados locais — entre para sincronizar',
@@ -194,7 +194,7 @@ const translations: Record<string, Translations> = {
     language: 'Idioma', delete: 'Excluir', deleteConfirm: 'Excluir isto?', tapToEdit: 'Toque para editar', nothingToday: 'Nada para hoje', noActiveTasks: 'Sem tarefas ativas', addTaskHint: 'Adicione uma tarefa ou pergunte à Ava',
   },
   it: {
-    chat: 'Chat', tasks: 'Compiti', journal: 'Diario', memory: 'Memoria', settings: 'Impostazioni',
+    chat: 'Chat', tasks: 'Compiti', journal: 'Diario', settings: 'Impostazioni',
     newChat: 'Nuova chat', chatHistory: 'Cronologia',
     messagePlaceholder: 'Messaggio ad Ava...', noConversations: 'Nessuna conversazione', startChatting: 'Inizia a chattare con Ava',
     account: 'ACCOUNT', guest: 'Ospite', guestSubtitle: 'Solo locale — accedi per sincronizzare',
@@ -216,7 +216,7 @@ const translations: Record<string, Translations> = {
     language: 'Lingua', delete: 'Elimina', deleteConfirm: 'Eliminare?', tapToEdit: 'Tocca per modificare', nothingToday: 'Niente per oggi', noActiveTasks: 'Nessun compito attivo', addTaskHint: 'Aggiungi un compito o chiedi ad Ava',
   },
   ar: {
-    chat: 'محادثة', tasks: 'المهام', journal: 'اليوميات', memory: 'الذاكرة', settings: 'الإعدادات',
+    chat: 'محادثة', tasks: 'المهام', journal: 'اليوميات', settings: 'الإعدادات',
     newChat: 'محادثة جديدة', chatHistory: 'السجل',
     messagePlaceholder: 'رسالة إلى آفا...', noConversations: 'لا توجد محادثات', startChatting: 'ابدأ الدردشة مع آفا',
     account: 'الحساب', guest: 'ضيف', guestSubtitle: 'بيانات محلية فقط — سجل دخول للمزامنة',
@@ -238,7 +238,7 @@ const translations: Record<string, Translations> = {
     language: 'اللغة', delete: 'حذف', deleteConfirm: 'حذف هذا؟', tapToEdit: 'اضغط للتعديل', nothingToday: 'لا شيء لليوم', noActiveTasks: 'لا توجد مهام نشطة', addTaskHint: 'أضف مهمة أو اسأل آفا',
   },
   hi: {
-    chat: 'चैट', tasks: 'कार्य', journal: 'डायरी', memory: 'स्मृति', settings: 'सेटिंग्स',
+    chat: 'चैट', tasks: 'कार्य', journal: 'डायरी', settings: 'सेटिंग्स',
     newChat: 'नई चैट', chatHistory: 'इतिहास',
     messagePlaceholder: 'Ava को संदेश...', noConversations: 'कोई वार्तालाप नहीं', startChatting: 'Ava से चैट शुरू करें',
     account: 'खाता', guest: 'अतिथि', guestSubtitle: 'केवल स्थानीय — सिंक करने के लिए लॉगिन करें',
@@ -260,7 +260,7 @@ const translations: Record<string, Translations> = {
     language: 'भाषा', delete: 'हटाएं', deleteConfirm: 'इसे हटाएं?', tapToEdit: 'संपादित करने के लिए टैप करें', nothingToday: 'आज कुछ नहीं', noActiveTasks: 'कोई सक्रिय कार्य नहीं', addTaskHint: 'कार्य जोड़ें या Ava से पूछें',
   },
   ru: {
-    chat: 'Чат', tasks: 'Задачи', journal: 'Дневник', memory: 'Память', settings: 'Настройки',
+    chat: 'Чат', tasks: 'Задачи', journal: 'Дневник', settings: 'Настройки',
     newChat: 'Новый чат', chatHistory: 'История',
     messagePlaceholder: 'Сообщение Аве...', noConversations: 'Нет бесед', startChatting: 'Начните общение с Авой',
     account: 'АККАУНТ', guest: 'Гость', guestSubtitle: 'Только локально — войдите для синхронизации',
@@ -282,7 +282,7 @@ const translations: Record<string, Translations> = {
     language: 'Язык', delete: 'Удалить', deleteConfirm: 'Удалить это?', tapToEdit: 'Нажмите для редактирования', nothingToday: 'Ничего на сегодня', noActiveTasks: 'Нет активных задач', addTaskHint: 'Добавьте задачу или спросите Аву',
   },
   tr: {
-    chat: 'Sohbet', tasks: 'Görevler', journal: 'Günlük', memory: 'Hafıza', settings: 'Ayarlar',
+    chat: 'Sohbet', tasks: 'Görevler', journal: 'Günlük', settings: 'Ayarlar',
     newChat: 'Yeni sohbet', chatHistory: 'Geçmiş',
     messagePlaceholder: "Ava'ya mesaj...", noConversations: 'Konuşma yok', startChatting: "Ava ile sohbet başlat",
     account: 'HESAP', guest: 'Misafir', guestSubtitle: 'Yalnızca yerel — senkronize etmek için giriş yapın',
