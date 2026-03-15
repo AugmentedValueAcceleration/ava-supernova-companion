@@ -115,6 +115,8 @@ export default function CompanionApp({
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -301,6 +303,57 @@ export default function CompanionApp({
     const el = e.target;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  };
+
+  const toggleVoice = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = navigator.language || 'en-US';
+
+    let finalTranscript = '';
+
+    recognition.onresult = (e: any) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const transcript = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interim = transcript;
+        }
+      }
+      setInput(prev => {
+        const base = prev.replace(/\u200B.*$/, '').trimEnd();
+        const combined = (base ? base + ' ' : '') + finalTranscript + interim;
+        return combined;
+      });
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+      inputRef.current?.focus();
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    finalTranscript = '';
+    recognition.start();
+    setIsListening(true);
   };
 
   const handleMobileNav = (view: MobileView) => {
@@ -632,6 +685,25 @@ export default function CompanionApp({
                     rows={1}
                     className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
                   />
+                  {/* Voice input */}
+                  {typeof window !== 'undefined' && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) && (
+                    <button
+                      onClick={toggleVoice}
+                      disabled={streaming}
+                      className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition ${
+                        isListening
+                          ? 'bg-red-500 text-white animate-pulse'
+                          : 'bg-ava-surface border border-ava-border text-gray-400 hover:text-white hover:border-ava-purple'
+                      } disabled:opacity-30`}
+                      title={isListening ? 'Stop listening' : 'Voice input'}
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Send */}
                   <button
                     onClick={sendMessage}
                     disabled={!input.trim() || streaming}
