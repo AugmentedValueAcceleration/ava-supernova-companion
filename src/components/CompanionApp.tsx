@@ -200,10 +200,11 @@ export default function CompanionApp({
     }
   }, []);
 
-  // Auto-focus input on chat view
+  // Auto-focus input on chat view (with slight delay for DOM readiness)
   useEffect(() => {
-    if (mobileView === 'chat' && inputRef.current) {
-      inputRef.current.focus();
+    if (mobileView === 'chat') {
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
     }
   }, [mobileView]);
 
