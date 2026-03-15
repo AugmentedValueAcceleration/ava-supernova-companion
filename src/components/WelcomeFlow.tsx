@@ -76,33 +76,40 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
           current
           features={[
             '2 free models (GLM-4.5 Flash, GLM-4.7 Flash)',
-            '500K tokens/month',
-            'Memory, tasks, journal',
-            'VS Code extension + companion app',
-            'Community support',
+            '500K free tokens/month',
+            'Memory, tasks, journal, all surfaces',
+            'BYOK — use any model with your own API key',
           ]}
         />
         <PlanCard
           name="Pro"
-          price="$9/mo"
+          price="$25/mo"
           highlight
           features={[
-            'All 11 open-source models',
-            '5M tokens/month',
-            'Priority support',
-            'Extended context windows',
-            'Advanced memory features',
+            'All open-source models via platform',
+            '10M tokens/month',
+            '1M Claude tokens (Haiku)',
+            '60 req/min, priority support',
           ]}
         />
         <PlanCard
           name="Ultra"
-          price="$29/mo"
+          price="$59/mo"
           features={[
             'Everything in Pro',
-            'Claude models (Opus, Sonnet, Haiku)',
-            '20M tokens/month',
-            'Priority queue',
-            'Team features (coming soon)',
+            '30M tokens/month',
+            '2M Claude tokens (Sonnet + Haiku)',
+            '120 req/min',
+          ]}
+        />
+        <PlanCard
+          name="Enterprise"
+          price="$129/mo"
+          features={[
+            'Everything in Ultra',
+            '50M tokens/month',
+            '3M Claude tokens (all models inc. Opus)',
+            '200 req/min, dedicated support',
           ]}
         />
       </div>
