@@ -1,34 +1,53 @@
 // API client for Ava Supernova platform
 import { createClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
 
 const SUPABASE_URL = 'https://znhqolmxbfmolatxcbph.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaHFvbG14YmZtb2xhdHhjYnBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMDg2MDYsImV4cCI6MjA1NDg4NDYwNn0.o2MNlXJaZKsBkFSBVJyPK7BsBplnhPb96w1C3ByVnEU';
 
-// SecureStore for native, localStorage for web
-function getStorage() {
-  if (Platform.OS === 'web') {
-    return {
-      getItem: (key: string) => Promise.resolve(localStorage.getItem(key)),
-      setItem: (key: string, value: string) => Promise.resolve(localStorage.setItem(key, value)),
-      removeItem: (key: string) => Promise.resolve(localStorage.removeItem(key)),
-    };
+// Detect environment: web browser, SSR, or native
+const isWeb = typeof window !== 'undefined' && typeof document !== 'undefined';
+const isSSR = typeof window === 'undefined';
+
+// Memory fallback for SSR (no localStorage, no SecureStore)
+const memoryStorage: Record<string, string> = {};
+const ssrStorage = {
+  getItem: (key: string) => Promise.resolve(memoryStorage[key] ?? null),
+  setItem: (key: string, value: string) => { memoryStorage[key] = value; return Promise.resolve(); },
+  removeItem: (key: string) => { delete memoryStorage[key]; return Promise.resolve(); },
+};
+
+const webStorage = {
+  getItem: (key: string) => Promise.resolve(localStorage.getItem(key)),
+  setItem: (key: string, value: string) => { localStorage.setItem(key, value); return Promise.resolve(); },
+  removeItem: (key: string) => { localStorage.removeItem(key); return Promise.resolve(); },
+};
+
+// Native storage — imported lazily only on native
+let nativeStorage: typeof ssrStorage | null = null;
+function getNativeStorage() {
+  if (!nativeStorage) {
+    try {
+      const SecureStore = require('expo-secure-store');
+      nativeStorage = {
+        getItem: (key: string) => SecureStore.getItemAsync(key),
+        setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+        removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+      };
+    } catch {
+      nativeStorage = ssrStorage;
+    }
   }
-  // Lazy import to avoid web crashes
-  const SecureStore = require('expo-secure-store');
-  return {
-    getItem: (key: string) => SecureStore.getItemAsync(key),
-    setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-    removeItem: (key: string) => SecureStore.deleteItemAsync(key),
-  };
+  return nativeStorage;
 }
+
+const storage = isSSR ? ssrStorage : isWeb ? webStorage : getNativeStorage();
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    storage: getStorage(),
+    storage,
     autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: Platform.OS === 'web',
+    persistSession: !isSSR,
+    detectSessionInUrl: isWeb,
   },
 });
 
