@@ -6,6 +6,7 @@ import { sendChat, MODELS } from '@/lib/api';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
 import AuthPage from './AuthPage';
+import WelcomeFlow from './WelcomeFlow';
 
 interface Message {
   id: string;
@@ -52,6 +53,7 @@ export default function CompanionApp({
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
+  const [showWelcome, setShowWelcome] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,6 +62,16 @@ export default function CompanionApp({
   }, []);
 
   useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+
+  // Show welcome flow for newly signed-in users who haven't seen it
+  useEffect(() => {
+    if (!isGuest && typeof window !== 'undefined') {
+      const welcomed = localStorage.getItem('ava-companion-welcomed');
+      if (!welcomed) {
+        setShowWelcome(true);
+      }
+    }
+  }, [isGuest]);
 
   const showNudge = isGuest && messageCount >= NUDGE_AFTER_MESSAGES && !nudgeDismissed;
 
@@ -468,6 +480,17 @@ export default function CompanionApp({
           onClick={() => setMobileView('settings')}
         />
       </nav>
+
+      {/* Welcome flow for new signups */}
+      {showWelcome && (
+        <WelcomeFlow
+          userName={userName}
+          onComplete={() => {
+            setShowWelcome(false);
+            localStorage.setItem('ava-companion-welcomed', 'true');
+          }}
+        />
+      )}
 
       {/* Auth modal */}
       {showAuthModal && (
