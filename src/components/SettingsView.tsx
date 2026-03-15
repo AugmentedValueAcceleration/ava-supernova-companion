@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { MODELS } from '@/lib/api';
+import { CustomSelect } from './CustomSelect';
 
 interface Props {
   isGuest: boolean;
@@ -140,31 +141,20 @@ export default function SettingsView({
 
         {/* Model */}
         <Section title="MODEL">
-          <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
-            <div className="p-4">
-              <p className="text-xs text-gray-500 mb-2">Default model</p>
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${currentModel?.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
-                <select
-                  value={selectedModel}
-                  onChange={e => onSelectModel(e.target.value)}
-                  className="flex-1 bg-transparent text-sm text-white focus:outline-none cursor-pointer"
-                >
-                  <optgroup label="Free">
-                    {MODELS.filter(m => m.free).map(m => (
-                      <option key={m.id} value={m.id}>{m.name} — {m.provider}</option>
-                    ))}
-                  </optgroup>
-                  {!isGuest && (
-                    <optgroup label="Premium">
-                      {MODELS.filter(m => !m.free).map(m => (
-                        <option key={m.id} value={m.id}>{m.name} — {m.provider}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-              </div>
-            </div>
+          <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
+            <p className="text-xs text-gray-500 mb-2">Default model</p>
+            <CustomSelect
+              value={selectedModel}
+              onChange={onSelectModel}
+              placeholder="Select a model..."
+              options={MODELS.filter(m => isGuest ? m.free : true).map(m => ({
+                value: m.id,
+                label: m.name,
+                sublabel: m.provider,
+                badge: m.free ? 'FREE' : undefined,
+                badgeColor: m.free ? 'text-emerald-400 bg-emerald-400/10' : undefined,
+              }))}
+            />
           </div>
         </Section>
 
