@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import type { Session } from '@supabase/supabase-js';
-import AuthPage from '@/components/AuthPage';
 import CompanionApp from '@/components/CompanionApp';
 
 export default function Home() {
@@ -32,9 +31,12 @@ export default function Home() {
     );
   }
 
-  if (!session) {
-    return <AuthPage onSignIn={() => supabase.auth.getSession().then(({ data }) => setSession(data.session))} />;
-  }
-
-  return <CompanionApp session={session} onSignOut={() => { supabase.auth.signOut(); setSession(null); }} />;
+  // No auth gate — CompanionApp handles both signed-in and guest modes
+  return (
+    <CompanionApp
+      session={session}
+      onSignIn={() => supabase.auth.getSession().then(({ data }) => setSession(data.session))}
+      onSignOut={() => { supabase.auth.signOut(); setSession(null); }}
+    />
+  );
 }

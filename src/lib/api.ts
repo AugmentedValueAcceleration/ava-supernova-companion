@@ -33,20 +33,46 @@ export const journalApi = {
     apiFetch('/journal', { method: 'POST', body: JSON.stringify(entry) }, token).then(r => r.json()),
 };
 
-// Chat — streaming
+// Models
+export interface ModelOption {
+  id: string;
+  name: string;
+  provider: string;
+  free: boolean;
+}
+
+export const MODELS: ModelOption[] = [
+  // Free
+  { id: 'glm-4-flash', name: 'GLM-4.5 Flash', provider: 'Zhipu AI', free: true },
+  { id: 'glm-4.7-flash', name: 'GLM-4.7 Flash', provider: 'Zhipu AI', free: true },
+  // Paid
+  { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false },
+  { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false },
+  { id: 'deepseek-chat', name: 'DeepSeek V3.2', provider: 'DeepSeek', free: false },
+  { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek', free: false },
+  { id: 'qwen-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: false },
+  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false },
+  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false },
+  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false },
+  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false },
+  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', free: false },
+  { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', provider: 'Anthropic', free: false },
+];
+
+// Chat — streaming (token optional for guest mode with free models)
 export async function sendChat(
-  token: string,
+  token: string | null,
   message: string,
   history: Array<{ role: string; content: string }>,
   model: string,
   onChunk: (text: string) => void,
 ) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}/companion/chat`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ message, history, model }),
   });
 
