@@ -97,6 +97,14 @@ export default function SettingsView({
               >
                 Sign In / Create Account
               </button>
+              <a
+                href="https://ava-supernova.com/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center text-xs text-ava-purple-light hover:underline"
+              >
+                View plans &amp; pricing
+              </a>
             </div>
           ) : (
             <div className="space-y-3">
@@ -117,6 +125,15 @@ export default function SettingsView({
                 <Row label="Tasks" value={<SyncBadge />} />
                 <Row label="Journal" value={<SyncBadge />} />
               </div>
+
+              <a
+                href="https://ava-supernova.com/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium py-2.5 rounded-xl text-sm text-center hover:from-purple-700 hover:to-purple-600 transition"
+              >
+                Upgrade Plan
+              </a>
             </div>
           )}
         </Section>
