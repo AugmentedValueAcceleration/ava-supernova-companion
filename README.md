@@ -1,30 +1,31 @@
 # Ava Companion
 
-Mobile companion app for Ava | Supernova — your AI partner, everywhere you go.
+Your AI partner, everywhere you go.
 
-Same memory. Same tasks. Same journal. On your phone.
+Chat-first companion app for Ava | Supernova. Same memory, same tasks, same journal — on any device.
 
 ## Features
 
-- **Chat** — Talk to Ava with streaming responses
-- **Tasks** — Today/All view, quick add, complete, priority badges
+- **Chat** — Streaming conversation with Ava, full context awareness
+- **Tasks** — Today/All view, quick add, complete from the sidebar
 - **Journal** — Dual journal (yours + Ava's), mood tracking, date navigation
-- **Memory** — Browse Ava's memories about your work
-- **Settings** — Account, sync status, links
+- **Auth** — Supabase auth, same account as the platform
 
 ## Tech Stack
 
-- React Native + Expo
-- Expo Router (file-based routing)
-- Supabase (auth + sync)
-- Expo Secure Store (credential storage)
+- Next.js 15 + React 19
+- Tailwind CSS
+- Supabase (auth + data)
+- Capacitor-ready for native mobile wrapping
 
-## Getting Started
+## Development
 
 ```bash
 npm install
-npx expo start
+npm run dev
 ```
+
+Opens on http://localhost:3001
 
 ## License
 

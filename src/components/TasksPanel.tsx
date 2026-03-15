@@ -1,0 +1,150 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { tasksApi } from '@/lib/api';
+
+interface Task {
+  id: string;
+  title: string;
+  priority: string;
+  status: string;
+  category: string;
+  due_date?: string;
+  source: string;
+}
+
+const priorityColors: Record<string, string> = {
+  low: 'bg-emerald-500',
+  medium: 'bg-blue-500',
+  high: 'bg-amber-500',
+  urgent: 'bg-red-500',
+};
+
+export default function TasksPanel({ token }: { token: string }) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<'today' | 'all'>('today');
+  const [newTask, setNewTask] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const loadTasks = useCallback(async () => {
+    try {
+      const data = await tasksApi.list(token);
+      setTasks(data.tasks || data || []);
+    } catch {
+      setTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => { loadTasks(); }, [loadTasks]);
+
+  const addTask = async () => {
+    if (!newTask.trim()) return;
+    try {
+      await tasksApi.create(token, { title: newTask.trim(), due_date: today, priority: 'medium', category: 'personal' });
+      setNewTask('');
+      loadTasks();
+    } catch {}
+  };
+
+  const toggleTask = async (task: Task) => {
+    try {
+      await tasksApi.update(token, task.id, {
+        status: task.status === 'done' ? 'todo' : 'done',
+        completed_at: task.status === 'done' ? null : new Date().toISOString(),
+      });
+      loadTasks();
+    } catch {}
+  };
+
+  const filtered = filter === 'today'
+    ? tasks.filter(t => t.due_date === today || t.status === 'in-progress')
+    : tasks;
+
+  return (
+    <div className="p-4 space-y-3">
+      {/* Filter */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setFilter('today')}
+          className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'today' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+        >
+          Today
+        </button>
+        <button
+          onClick={() => setFilter('all')}
+          className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'all' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+        >
+          All
+        </button>
+      </div>
+
+      {/* Add task */}
+      <div className="flex gap-2">
+        <input
+          value={newTask}
+          onChange={e => setNewTask(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addTask()}
+          placeholder="Add a task..."
+          className="flex-1 bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
+        />
+        <button
+          onClick={addTask}
+          disabled={!newTask.trim()}
+          className="bg-ava-purple text-white px-3 rounded-lg text-sm font-medium disabled:opacity-30 hover:bg-ava-purple-dark transition"
+        >
+          +
+        </button>
+      </div>
+
+      {/* Task list */}
+      {loading ? (
+        <div className="text-center text-gray-500 py-8">Loading...</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          <p>{filter === 'today' ? 'Nothing for today' : 'No active tasks'}</p>
+          <p className="text-xs mt-1">Add a task above or ask Ava</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(task => {
+            const isOverdue = task.due_date && task.due_date < today && task.status !== 'done';
+            return (
+              <div key={task.id} className="flex items-start gap-2 bg-ava-surface border border-ava-border rounded-lg p-3">
+                <button onClick={() => toggleTask(task)} className="mt-0.5 shrink-0">
+                  {task.status === 'done' ? (
+                    <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <div className="w-5 h-5 border-2 border-gray-500 rounded" />
+                  )}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm ${task.status === 'done' ? 'line-through text-gray-500' : 'text-white'}`}>
+                    {task.title}
+                    {task.source === 'ava' && (
+                      <span className="ml-2 text-[10px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded">Ava</span>
+                    )}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className={`w-1.5 h-1.5 rounded-full ${priorityColors[task.priority] || 'bg-gray-500'}`} />
+                    <span className="text-xs text-gray-500">{task.priority}</span>
+                    {task.due_date && (
+                      <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
+                        {task.due_date === today ? 'Today' : task.due_date}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
