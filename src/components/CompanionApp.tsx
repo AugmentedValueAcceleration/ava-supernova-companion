@@ -164,6 +164,13 @@ export default function CompanionApp({
 
   useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
+  // Auto-focus input on chat view
+  useEffect(() => {
+    if (mobileView === 'chat' && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [mobileView]);
+
   // Save messages to conversation on change (skip greeting-only)
   useEffect(() => {
     const real = messages.filter(m => m.id !== '1');
@@ -620,6 +627,7 @@ export default function CompanionApp({
                     onKeyDown={handleKeyDown}
                     placeholder="Message Ava..."
                     disabled={streaming}
+                    autoFocus
                     rows={1}
                     className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
                   />
