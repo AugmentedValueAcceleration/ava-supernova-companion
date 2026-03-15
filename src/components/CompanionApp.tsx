@@ -842,12 +842,6 @@ export default function CompanionApp({
       {/* Mobile bottom nav — thumb-friendly */}
       <nav className="md:hidden shrink-0 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom">
         <ThumbButton
-          icon={<ChatIcon />}
-          label={t('chat')}
-          active={mobileView === 'chat'}
-          onClick={() => setMobileView('chat')}
-        />
-        <ThumbButton
           icon={<TasksIcon />}
           label={t('tasks')}
           active={mobileView === 'tasks'}
@@ -858,6 +852,13 @@ export default function CompanionApp({
           label={t('memory')}
           active={mobileView === 'memory'}
           onClick={() => setMobileView('memory')}
+        />
+        <ThumbButton
+          icon={<ChatIcon />}
+          label={t('chat')}
+          active={mobileView === 'chat'}
+          onClick={() => setMobileView('chat')}
+          primary
         />
         <ThumbButton
           icon={<JournalIcon />}
@@ -947,11 +948,11 @@ export default function CompanionApp({
 }
 
 // Thumb menu button
-function ThumbButton({ icon, label, active, onClick }: {
-  icon: React.ReactNode; label: string; active?: boolean; onClick: () => void;
+function ThumbButton({ icon, label, active, onClick, primary }: {
+  icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; primary?: boolean;
 }) {
   return (
-    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-4 py-1 transition ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
+    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-4 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''} ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
       {icon}
       <span className="text-[10px] font-medium">{label}</span>
     </button>
