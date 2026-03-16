@@ -1,59 +1,23 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { sendChat, MODELS } from '@/lib/api';
-import { getActiveProviderKey } from './SettingsView';
+import { MODELS } from '@/lib/api';
 import { t } from '@/lib/i18n';
-import { getConversations, getActiveConversationId, setActiveConversationId, getConversation, saveConversation, deleteConversation, clearAllConversations, generateTitle, createConversation, type Conversation } from '@/lib/chat-history';
+import { getConversations, clearAllConversations } from '@/lib/chat-history';
+import { useChat } from '@/lib/useChat';
+import { requestNotificationPermission, startTaskNotifications } from '@/lib/notifications';
 import { Markdown } from './Markdown';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
+import LearningPanel from './LearningPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';
+import ConfirmDialog from './ConfirmDialog';
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings';
-
-const NUDGE_AFTER_MESSAGES = 6;
-
-function getFriendlyError(message?: string): string {
-  const msg = (message || '').toLowerCase();
-
-  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('err_internet'))
-    return "Looks like you're offline. Check your connection and try again.";
-
-  if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many'))
-    return "You're sending messages a bit fast — give it a moment and try again.";
-
-  if (msg.includes('401') || msg.includes('not authenticated') || msg.includes('invalid api key'))
-    return "Your session expired. Try signing in again from Settings.";
-
-  if (msg.includes('403') || msg.includes('not available on your plan'))
-    return "This model needs a plan upgrade. You can switch to a free model or check out the plans at ava-supernova.com/pricing";
-
-  if (msg.includes('token limit') || msg.includes('limit reached'))
-    return "You've used up your tokens for the month. You can add your own API key or wait for the monthly reset.";
-
-  if (msg.includes('502') || msg.includes('503') || msg.includes('provider'))
-    return "The AI provider is having a rough moment. Try switching models or wait a minute.";
-
-  if (msg.includes('timeout') || msg.includes('timed out'))
-    return "That took too long — the AI provider might be under heavy load. Try again in a moment.";
-
-  if (msg.includes('500') || msg.includes('internal'))
-    return "Something went wrong on our end. Try again — if it keeps happening, let us know.";
-
-  return "Something went wrong. Try again, or switch to a different model if this keeps happening.";
-}
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'learning' | 'settings';
 
 export default function CompanionApp({
   session,
@@ -78,50 +42,24 @@ export default function CompanionApp({
   const userName = session?.user.user_metadata?.full_name?.split(' ')[0] || 'there';
   const token = session?.access_token ?? apiKey;
 
-  const greeting: Message = {
-    id: '1', role: 'assistant', timestamp: new Date(),
-    content: isGuest
-      ? "Hey! I'm Ava — your AI companion. I'm ready to chat using our free models, no sign up needed.\n\nWhat's on your mind?"
-      : `Hey ${userName}! I'm Ava — your companion on the go. I can manage your tasks, write journal entries, and chat about anything.\n\nWhat's on your mind?`,
-  };
+  // Chat hook
+  const chat = useChat({ session, token, isGuest, userName });
 
-  // Load active conversation or start fresh
-  const [conversationId, setConversationId] = useState<string | null>(() => getActiveConversationId());
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const id = getActiveConversationId();
-    if (id) {
-      const conv = getConversation(id);
-      if (conv && conv.messages.length > 0) {
-        return [greeting, ...conv.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }))];
-      }
-    }
-    return [greeting];
-  });
-  const [input, setInput] = useState('');
-  const [streaming, setStreaming] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'glm-4.7-flash';
-    return 'glm-4.7-flash';
-  });
-  const [showModelPicker, setShowModelPicker] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [mobileView, setMobileView] = useState<MobileView>('chat');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const [textSize, setTextSize] = useState<'small' | 'default' | 'large'>(() => {
     if (typeof window !== 'undefined') {
       try { const s = JSON.parse(localStorage.getItem('ava-companion-settings') || '{}'); return s.textSize || 'default'; } catch { return 'default'; }
     }
     return 'default';
   });
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [mobileView, setMobileView] = useState<MobileView>('chat');
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  const [messageCount, setMessageCount] = useState(0);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Confirm dialog for delete conversation
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; id: string }>({ open: false, id: '' });
 
   // Apply theme on mount
   useEffect(() => {
@@ -137,7 +75,7 @@ export default function CompanionApp({
         } else {
           document.documentElement.classList.remove('light');
         }
-      } catch {}
+      } catch { /* ignore */ }
     }
   }, []);
 
@@ -155,7 +93,7 @@ export default function CompanionApp({
         } else {
           document.documentElement.classList.remove('light');
         }
-      } catch {}
+      } catch { /* ignore */ }
     };
     window.addEventListener('storage', handler);
     window.addEventListener('ava-settings-changed', handler);
@@ -163,12 +101,6 @@ export default function CompanionApp({
   }, []);
 
   const textSizeClass = textSize === 'small' ? 'text-[13px]' : textSize === 'large' ? 'text-[17px]' : 'text-[15px]';
-
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
   // Version check — poll every 5 minutes
   useEffect(() => {
@@ -183,7 +115,7 @@ export default function CompanionApp({
             setUpdateAvailable(true);
           }
         }
-      } catch {}
+      } catch { /* ignore */ }
     };
 
     checkVersion();
@@ -195,65 +127,27 @@ export default function CompanionApp({
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // New service worker took control — reload to get new code
         window.location.reload();
       });
     }
   }, []);
 
-  // Auto-focus input on chat view (with slight delay for DOM readiness)
+  // Auto-focus input on chat view
   useEffect(() => {
     if (mobileView === 'chat') {
-      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      const timer = setTimeout(() => chat.inputRef.current?.focus(), 50);
       return () => clearTimeout(timer);
     }
   }, [mobileView]);
 
-  // Save messages to conversation on change (skip greeting-only)
+  // Notification setup — request permission and start checking on mount
   useEffect(() => {
-    const real = messages.filter(m => m.id !== '1');
-    if (real.length === 0) return;
+    startTaskNotifications();
+  }, []);
 
-    const id = conversationId || createConversation(selectedModel).id;
-    if (!conversationId) setConversationId(id);
-
-    const conv: Conversation = {
-      id,
-      title: generateTitle(real),
-      messages: real.map(m => ({ ...m, timestamp: m.timestamp.toISOString() })),
-      model: selectedModel,
-      createdAt: getConversation(id)?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveConversation(conv);
-  }, [messages, conversationId, selectedModel]);
-
-  const startNewChat = () => {
-    setConversationId(null);
-    setActiveConversationId(null);
-    setMessages([greeting]);
-    setShowHistory(false);
+  const handleNewChat = () => {
+    chat.startNewChat();
     setMobileView('chat');
-    inputRef.current?.focus();
-  };
-
-  const loadConversation = (id: string) => {
-    const conv = getConversation(id);
-    if (conv) {
-      setConversationId(id);
-      setActiveConversationId(id);
-      setMessages([greeting, ...conv.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }))]);
-      setSelectedModel(conv.model);
-      localStorage.setItem('ava-companion-model', conv.model);
-    }
-    setShowHistory(false);
-    setMobileView('chat');
-  };
-
-  const handleDeleteConversation = (id: string) => {
-    deleteConversation(id);
-    setConversations(getConversations());
-    if (conversationId === id) startNewChat();
   };
 
   // Show welcome flow for newly signed-in users who haven't seen it
@@ -266,13 +160,10 @@ export default function CompanionApp({
     }
   }, [isGuest]);
 
-  const showNudge = isGuest && messageCount >= NUDGE_AFTER_MESSAGES && !nudgeDismissed;
-
   const handleApiKeyConnect = (key: string) => {
     setApiKey(key);
     setShowAuthModal(false);
-    // Update greeting
-    setMessages([{
+    chat.setMessages([{
       id: '1',
       role: 'assistant',
       content: "Connected! I now have access to your tasks, journal, and memories. What would you like to do?",
@@ -280,63 +171,15 @@ export default function CompanionApp({
     }]);
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || streaming) return;
-
-    const userMsg: Message = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date(),
-    };
-
-    const avaMsg: Message = {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMsg, avaMsg]);
-    setInput('');
-    setStreaming(true);
-    setMessageCount(prev => prev + 1);
-
-    if (inputRef.current) inputRef.current.style.height = 'auto';
-
-    const history = messages
-      .filter(m => m.id !== '1')
-      .map(m => ({ role: m.role, content: m.content }));
-
-    try {
-      const byokKey = getActiveProviderKey(selectedModel);
-      await sendChat(token, userMsg.content, history, selectedModel, (text) => {
-        setMessages(prev => prev.map(m =>
-          m.id === avaMsg.id ? { ...m, content: m.content + text } : m
-        ));
-      }, byokKey);
-    } catch (err: any) {
-      const friendlyError = getFriendlyError(err.message);
-      setMessages(prev => prev.map(m =>
-        m.id === avaMsg.id
-          ? { ...m, content: friendlyError }
-          : m
-      ));
-    } finally {
-      setStreaming(false);
-      inputRef.current?.focus();
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      chat.sendMessage();
     }
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
+    chat.setInput(e.target.value);
     const el = e.target;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -353,7 +196,6 @@ export default function CompanionApp({
         result.onchange = () => setMicPermission(result.state as 'prompt' | 'granted' | 'denied');
       }).catch(() => {});
     }
-    // Check if user previously consented
     const consent = localStorage.getItem('ava-companion-mic-consent');
     if (consent === 'granted') setMicPermission('granted');
   }, []);
@@ -379,7 +221,7 @@ export default function CompanionApp({
           interim = transcript;
         }
       }
-      setInput(prev => {
+      chat.setInput(prev => {
         const base = prev.replace(/\u200B.*$/, '').trimEnd();
         const combined = (base ? base + ' ' : '') + finalTranscript + interim;
         return combined;
@@ -389,7 +231,7 @@ export default function CompanionApp({
     recognition.onend = () => {
       setIsListening(false);
       recognitionRef.current = null;
-      inputRef.current?.focus();
+      chat.inputRef.current?.focus();
     };
 
     recognition.onerror = (e: any) => {
@@ -416,7 +258,6 @@ export default function CompanionApp({
       return;
     }
 
-    // First time — show explanation
     if (micPermission === 'prompt' && !localStorage.getItem('ava-companion-mic-consent')) {
       setShowMicPrompt(true);
       return;
@@ -427,23 +268,27 @@ export default function CompanionApp({
     startListening();
   };
 
-  const handleMobileNav = (view: MobileView) => {
-    setMobileView(view);
-  };
-
-
   const selectModel = (modelId: string) => {
     const model = MODELS.find(m => m.id === modelId);
     if (model && !model.free && isGuest) {
       setShowAuthModal(true);
       return;
     }
-    setSelectedModel(modelId);
+    chat.setSelectedModel(modelId);
     localStorage.setItem('ava-companion-model', modelId);
-    setShowModelPicker(false);
+    chat.setShowModelPicker(false);
   };
 
-  const currentModel = MODELS.find(m => m.id === selectedModel);
+  const currentModel = MODELS.find(m => m.id === chat.selectedModel);
+
+  // Request notification permission on first task creation
+  const handleTaskNav = () => {
+    setMobileView('tasks');
+    // Request notification permission when user first visits tasks
+    if ('Notification' in window && Notification.permission === 'default') {
+      requestNotificationPermission();
+    }
+  };
 
   return (
     <div className="h-dvh flex flex-col bg-ava-bg">
@@ -459,7 +304,7 @@ export default function CompanionApp({
 
           {/* New chat */}
           <button
-            onClick={startNewChat}
+            onClick={handleNewChat}
             className="ml-2 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-ava-surface transition"
             title="New chat"
           >
@@ -470,8 +315,8 @@ export default function CompanionApp({
 
           {/* History */}
           <button
-            onClick={() => { setConversations(getConversations()); setShowHistory(!showHistory); }}
-            className={`p-1.5 rounded-lg transition ${showHistory ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-white hover:bg-ava-surface'}`}
+            onClick={() => { chat.setConversations(getConversations()); chat.setShowHistory(!chat.showHistory); }}
+            className={`p-1.5 rounded-lg transition ${chat.showHistory ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-white hover:bg-ava-surface'}`}
             title="Chat history"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -487,11 +332,12 @@ export default function CompanionApp({
             { key: 'tasks' as MobileView, label: t('tasks'), icon: <TasksIconSm /> },
             { key: 'memory' as MobileView, label: t('memory'), icon: <MemoryIconSm /> },
             { key: 'journal' as MobileView, label: t('journal'), icon: <JournalIconSm /> },
+            { key: 'learning' as MobileView, label: t('learning'), icon: <LearningIconSm /> },
             { key: 'settings' as MobileView, label: t('settings'), icon: <SettingsIconSm /> },
           ]).map(item => (
             <button
               key={item.key}
-              onClick={() => setMobileView(item.key)}
+              onClick={() => item.key === 'tasks' ? handleTaskNav() : setMobileView(item.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition ${
                 mobileView === item.key
                   ? 'bg-ava-purple text-white'
@@ -510,26 +356,26 @@ export default function CompanionApp({
           {/* Model selector */}
           <div className="relative">
             <button
-              onClick={() => setShowModelPicker(!showModelPicker)}
+              onClick={() => chat.setShowModelPicker(!chat.showModelPicker)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ava-surface border border-ava-border text-sm text-gray-300 hover:border-ava-purple transition"
             >
               <div className={`w-1.5 h-1.5 rounded-full ${currentModel?.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
-              <span className="max-w-[120px] truncate">{currentModel?.name || selectedModel}</span>
+              <span className="max-w-[120px] truncate">{currentModel?.name || chat.selectedModel}</span>
               <svg className="w-3 h-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
-            {showModelPicker && (
+            {chat.showModelPicker && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowModelPicker(false)} />
+                <div className="fixed inset-0 z-10" onClick={() => chat.setShowModelPicker(false)} />
                 <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] py-1 max-h-[400px] overflow-y-auto">
                   {MODELS.map(model => (
                     <button
                       key={model.id}
                       onClick={() => selectModel(model.id)}
                       className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-ava-surface-hover transition ${
-                        selectedModel === model.id ? 'bg-ava-purple/10' : ''
+                        chat.selectedModel === model.id ? 'bg-ava-purple/10' : ''
                       }`}
                     >
                       <div>
@@ -544,7 +390,7 @@ export default function CompanionApp({
                       ) : isGuest ? (
                         <span className="text-[10px] text-gray-500">Sign in</span>
                       ) : (
-                        selectedModel === model.id && <span className="text-ava-purple">✓</span>
+                        chat.selectedModel === model.id && <span className="text-ava-purple">&#10003;</span>
                       )}
                     </button>
                   ))}
@@ -581,8 +427,22 @@ export default function CompanionApp({
         </div>
       )}
 
+      {/* Offline banner */}
+      {chat.offlineBanner && (
+        <div className="shrink-0 bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-center justify-between">
+          <p className="text-sm text-amber-300">
+            {t('offlineQueued')}
+          </p>
+          <button onClick={() => chat.setOfflineBanner(false)} className="text-gray-500 hover:text-gray-300 transition">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Nudge banner */}
-      {showNudge && (
+      {chat.showNudge && (
         <div className="shrink-0 bg-ava-purple/10 border-b border-ava-purple/20 px-4 py-2.5 flex items-center justify-between">
           <p className="text-sm text-gray-300">
             <span className="text-ava-purple-light font-medium">Enjoying Ava?</span>{' '}
@@ -596,7 +456,7 @@ export default function CompanionApp({
             >
               Sign Up
             </button>
-            <button onClick={() => setNudgeDismissed(true)} className="text-gray-500 hover:text-gray-300 transition">
+            <button onClick={() => chat.setNudgeDismissed(true)} className="text-gray-500 hover:text-gray-300 transition">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -608,15 +468,15 @@ export default function CompanionApp({
       {/* Main content */}
       <div className="flex flex-1 min-h-0">
         {/* History — full overlay on mobile, side drawer on desktop */}
-        {showHistory && (
+        {chat.showHistory && (
           <>
             {/* Mobile: full screen overlay */}
             <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-ava-bg">
               <div className="flex items-center justify-between px-4 py-3 border-b border-ava-border">
                 <h2 className="font-semibold text-white text-lg">{t('chatHistory')}</h2>
                 <div className="flex items-center gap-3">
-                  <button onClick={startNewChat} className="text-sm text-ava-purple font-medium">{t('newChat')}</button>
-                  <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-white transition">
+                  <button onClick={handleNewChat} className="text-sm text-ava-purple font-medium">{t('newChat')}</button>
+                  <button onClick={() => chat.setShowHistory(false)} className="text-gray-400 hover:text-white transition">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -624,7 +484,7 @@ export default function CompanionApp({
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto">
-                {conversations.length === 0 ? (
+                {chat.conversations.length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
                     <svg className="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
@@ -634,13 +494,13 @@ export default function CompanionApp({
                   </div>
                 ) : (
                   <div className="py-1">
-                    {conversations.map(conv => (
+                    {chat.conversations.map(conv => (
                       <div
                         key={conv.id}
                         className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer transition border-b border-ava-border/50 ${
-                          conv.id === conversationId ? 'bg-ava-surface' : 'active:bg-ava-surface/50'
+                          conv.id === chat.conversationId ? 'bg-ava-surface' : 'active:bg-ava-surface/50'
                         }`}
-                        onClick={() => loadConversation(conv.id)}
+                        onClick={() => { chat.loadConversation(conv.id); setMobileView('chat'); }}
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-white truncate">{conv.title}</p>
@@ -649,7 +509,7 @@ export default function CompanionApp({
                           </p>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleDeleteConversation(conv.id); }}
+                          onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: conv.id }); }}
                           className="p-2 text-gray-500 hover:text-red-400 transition"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -667,20 +527,20 @@ export default function CompanionApp({
             <div className="hidden md:flex w-72 border-r border-ava-border shrink-0 flex-col bg-ava-bg overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-ava-border">
                 <h2 className="font-semibold text-white text-sm">History</h2>
-                <button onClick={startNewChat} className="text-xs text-ava-purple hover:underline">New chat</button>
+                <button onClick={handleNewChat} className="text-xs text-ava-purple hover:underline">New chat</button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                {conversations.length === 0 ? (
+                {chat.conversations.length === 0 ? (
                   <div className="p-4 text-center text-gray-500 text-sm">No conversations yet</div>
                 ) : (
                   <div className="py-1">
-                    {conversations.map(conv => (
+                    {chat.conversations.map(conv => (
                       <div
                         key={conv.id}
                         className={`group flex items-center gap-2 px-4 py-2.5 cursor-pointer transition ${
-                          conv.id === conversationId ? 'bg-ava-surface' : 'hover:bg-ava-surface/50'
+                          conv.id === chat.conversationId ? 'bg-ava-surface' : 'hover:bg-ava-surface/50'
                         }`}
-                        onClick={() => loadConversation(conv.id)}
+                        onClick={() => { chat.loadConversation(conv.id); setMobileView('chat'); }}
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-white truncate">{conv.title}</p>
@@ -689,7 +549,7 @@ export default function CompanionApp({
                           </p>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleDeleteConversation(conv.id); }}
+                          onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: conv.id }); }}
                           className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-red-400 transition"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -705,13 +565,13 @@ export default function CompanionApp({
           </>
         )}
 
-        {/* Main view — switches between chat/tasks/journal/settings on mobile */}
+        {/* Main view — switches between chat/tasks/journal/learning/settings on mobile */}
         <div className="flex-1 flex flex-col min-w-0">
           {mobileView === 'chat' ? (
             <>
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 md:px-8 lg:px-12">
-                {messages.map(msg => (
+                {chat.messages.map(msg => (
                   <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[85%] sm:max-w-[80%] md:max-w-[700px] rounded-2xl px-4 py-3 ${
                       msg.role === 'user'
@@ -727,8 +587,8 @@ export default function CompanionApp({
                       {msg.role === 'assistant' ? (
                         <div className={`${textSizeClass} leading-relaxed`}>
                           <Markdown content={msg.content} />
-                          {streaming && msg.id === messages[messages.length - 1]?.id && msg.content && (
-                            <span className="text-ava-purple animate-pulse">▊</span>
+                          {chat.streaming && msg.id === chat.messages[chat.messages.length - 1]?.id && msg.content && (
+                            <span className="text-ava-purple animate-pulse">&#9610;</span>
                           )}
                         </div>
                       ) : (
@@ -742,19 +602,19 @@ export default function CompanionApp({
                     </div>
                   </div>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={chat.messagesEndRef} />
               </div>
 
               {/* Input */}
               <div className="shrink-0 border-t border-ava-border p-3 md:px-8 lg:px-12">
                 <div className="flex items-end gap-2">
                   <textarea
-                    ref={inputRef}
-                    value={input}
+                    ref={chat.inputRef}
+                    value={chat.input}
                     onChange={handleInput}
                     onKeyDown={handleKeyDown}
                     placeholder={t('messagePlaceholder')}
-                    disabled={streaming}
+                    disabled={chat.streaming}
                     autoFocus
                     rows={1}
                     className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
@@ -762,7 +622,7 @@ export default function CompanionApp({
                   {/* Voice input */}
                   <button
                     onClick={toggleVoice}
-                    disabled={streaming || micPermission === 'denied'}
+                    disabled={chat.streaming || micPermission === 'denied'}
                     className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition ${
                       isListening
                         ? 'bg-red-500 text-white animate-pulse'
@@ -785,8 +645,8 @@ export default function CompanionApp({
 
                   {/* Send */}
                   <button
-                    onClick={sendMessage}
-                    disabled={!input.trim() || streaming}
+                    onClick={chat.sendMessage}
+                    disabled={!chat.input.trim() || chat.streaming}
                     className="shrink-0 w-10 h-10 bg-ava-purple rounded-full flex items-center justify-center text-white disabled:opacity-30 hover:bg-ava-purple-dark transition"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -826,16 +686,25 @@ export default function CompanionApp({
                 <MemoryPanel token={token} />
               </div>
             </div>
+          ) : mobileView === 'learning' ? (
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-3xl mx-auto w-full">
+                <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+                  <h2 className="font-semibold text-white text-lg">{t('learning')}</h2>
+                </div>
+                <LearningPanel />
+              </div>
+            </div>
           ) : mobileView === 'settings' ? (
             <SettingsView
               isGuest={isGuest}
               session={session}
               apiKey={apiKey}
-              selectedModel={selectedModel}
-              onSelectModel={(id) => { setSelectedModel(id); localStorage.setItem('ava-companion-model', id); }}
+              selectedModel={chat.selectedModel}
+              onSelectModel={(id) => { chat.setSelectedModel(id); localStorage.setItem('ava-companion-model', id); }}
               onSignIn={() => setShowAuthModal(true)}
-              onSignOut={() => { apiKey ? setApiKey(null) : onSignOut(); setMobileView('chat'); }}
-              onClearChat={() => { clearAllConversations(); startNewChat(); }}
+              onSignOut={() => { if (apiKey) { setApiKey(null); } else { onSignOut(); } setMobileView('chat'); }}
+              onClearChat={() => { clearAllConversations(); handleNewChat(); }}
             />
           ) : null}
         </div>
@@ -848,7 +717,7 @@ export default function CompanionApp({
           icon={<TasksIcon />}
           label={t('tasks')}
           active={mobileView === 'tasks'}
-          onClick={() => handleMobileNav('tasks')}
+          onClick={handleTaskNav}
         />
         <ThumbButton
           icon={<MemoryIcon />}
@@ -864,10 +733,16 @@ export default function CompanionApp({
           primary
         />
         <ThumbButton
+          icon={<LearningIcon />}
+          label={t('learning')}
+          active={mobileView === 'learning'}
+          onClick={() => setMobileView('learning')}
+        />
+        <ThumbButton
           icon={<JournalIcon />}
           label={t('journal')}
           active={mobileView === 'journal'}
-          onClick={() => handleMobileNav('journal')}
+          onClick={() => setMobileView('journal')}
         />
         <ThumbButton
           icon={<SettingsIcon />}
@@ -946,6 +821,21 @@ export default function CompanionApp({
           </div>
         </div>
       )}
+
+      {/* Delete conversation confirm dialog */}
+      <ConfirmDialog
+        open={confirmDelete.open}
+        title={t('confirmDelete')}
+        message={t('confirmDeleteMsg')}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+        destructive
+        onConfirm={() => {
+          chat.handleDeleteConversation(confirmDelete.id);
+          setConfirmDelete({ open: false, id: '' });
+        }}
+        onCancel={() => setConfirmDelete({ open: false, id: '' })}
+      />
     </div>
   );
 }
@@ -955,7 +845,7 @@ function ThumbButton({ icon, label, active, onClick, primary }: {
   icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; primary?: boolean;
 }) {
   return (
-    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-4 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''} ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
+    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-3 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''} ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
       {icon}
       <span className="text-[10px] font-medium">{label}</span>
     </button>
@@ -975,6 +865,9 @@ function MemoryIcon() {
 function JournalIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
 }
+function LearningIcon() {
+  return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>;
+}
 function SettingsIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 }
@@ -988,6 +881,9 @@ function MemoryIconSm() {
 }
 function JournalIconSm() {
   return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+}
+function LearningIconSm() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>;
 }
 function SettingsIconSm() {
   return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;

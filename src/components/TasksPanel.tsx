@@ -68,7 +68,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
       await tasksApi.create(token, { title: newTask.trim(), due_date: today, priority: 'medium', category: 'personal' });
       setNewTask('');
       loadTasks();
-    } catch {}
+    } catch { /* api error */ }
   };
 
   const deleteTask = async (task: Task) => {
@@ -81,7 +81,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
     try {
       await tasksApi.delete(token, task.id);
       loadTasks();
-    } catch {}
+    } catch { /* api error */ }
   };
 
   const toggleTask = async (task: Task) => {
@@ -97,7 +97,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
         completed_at: task.status === 'done' ? null : new Date().toISOString(),
       });
       loadTasks();
-    } catch {}
+    } catch { /* api error */ }
   };
 
   const filtered = filter === 'today'

@@ -71,7 +71,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
         user_mood: mood ?? undefined,
       });
       setEditing(false);
-    } catch {}
+    } catch { /* api error */ }
   };
 
   const deleteEntry = async () => {
@@ -83,7 +83,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
     try {
       await journalApi.delete(token, selectedDate);
       setUserContent(''); setAvaContent(''); setMood(null);
-    } catch {}
+    } catch { /* api error */ }
   };
 
   const changeDate = (offset: number) => {

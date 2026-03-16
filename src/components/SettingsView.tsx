@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { MODELS } from '@/lib/api';
+import { MODELS, apiFetch } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
-import { t, getLanguage, setLanguage, getSupportedLanguages } from '@/lib/i18n';
+import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
+import ConfirmDialog from './ConfirmDialog';
+import ReleaseNotes from './ReleaseNotes';
 
 interface ProviderKeys {
   deepseek?: string;
@@ -66,8 +68,9 @@ export default function SettingsView({
 }: Props) {
   const [textSize, setTextSize] = useState<TextSize>('default');
   const [theme, setTheme] = useState<Theme>('dark');
-  const [taskReminders, setTaskReminders] = useState(true);
-  const [journalPrompt, setJournalPrompt] = useState(true);
+  // Future: notification preferences (Capacitor)
+  // const [taskReminders, setTaskReminders] = useState(true);
+  // const [journalPrompt, setJournalPrompt] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState<string | null>(null);
   const [language, setLang] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -77,6 +80,64 @@ export default function SettingsView({
   });
 
   const [providerKeys, setProviderKeys] = useState<ProviderKeys>(() => loadProviderKeys());
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean; title: string; message: string;
+    confirmLabel?: string; cancelLabel?: string;
+    destructive?: boolean; onConfirm: () => void;
+  }>({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  // Usage state
+  const [usage, setUsage] = useState<{
+    tokensUsed: number; tokensLimit: number;
+    requestsUsed: number; requestsLimit: number;
+    plan: string;
+  } | null>(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+
+  // Sync state
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+
+  // Release notes view
+  const [showReleaseNotes, setShowReleaseNotes] = useState(false);
+
+  // Fetch usage for connected users
+  useEffect(() => {
+    if (!session?.access_token) return;
+    setUsageLoading(true);
+    apiFetch('/usage', {}, session.access_token)
+      .then(r => r.json())
+      .then(data => {
+        setUsage({
+          tokensUsed: data.tokens_used ?? data.tokensUsed ?? 0,
+          tokensLimit: data.tokens_limit ?? data.tokensLimit ?? 0,
+          requestsUsed: data.requests_used ?? data.requestsUsed ?? 0,
+          requestsLimit: data.requests_limit ?? data.requestsLimit ?? 0,
+          plan: data.plan || data.plan_name || 'Free',
+        });
+      })
+      .catch(() => setUsage(null))
+      .finally(() => setUsageLoading(false));
+  }, [session?.access_token]);
+
+  const handleSyncConversations = async () => {
+    if (!session?.access_token) return;
+    setSyncStatus('syncing');
+    try {
+      const stored = localStorage.getItem('ava-companion-conversations');
+      const conversations = stored ? JSON.parse(stored) : [];
+      await apiFetch('/history/sync', {
+        method: 'POST',
+        body: JSON.stringify({ conversations }),
+      }, session.access_token);
+      setSyncStatus('success');
+      setTimeout(() => setSyncStatus('idle'), 3000);
+    } catch {
+      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('idle'), 3000);
+    }
+  };
 
   const saveProviderKey = (key: keyof ProviderKeys, value: string) => {
     const updated = { ...providerKeys, [key]: value.trim() || undefined };
@@ -94,9 +155,8 @@ export default function SettingsView({
         const s = JSON.parse(stored);
         if (s.textSize) setTextSize(s.textSize);
         if (s.theme) setTheme(s.theme);
-        if (s.taskReminders !== undefined) setTaskReminders(s.taskReminders);
-        if (s.journalPrompt !== undefined) setJournalPrompt(s.journalPrompt);
-      } catch {}
+        // taskReminders and journalPrompt loaded when Capacitor notifications ship
+      } catch { /* parse error */ }
     }
   }, []);
 
@@ -140,7 +200,12 @@ export default function SettingsView({
     setShowClearConfirm(null);
   };
 
-  const currentModel = MODELS.find(m => m.id === selectedModel);
+  // const currentModel = MODELS.find(m => m.id === selectedModel);
+
+  // Show release notes sub-view
+  if (showReleaseNotes) {
+    return <ReleaseNotes onBack={() => setShowReleaseNotes(false)} />;
+  }
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -209,7 +274,14 @@ export default function SettingsView({
               </a>
 
               <button
-                onClick={onSignOut}
+                onClick={() => setConfirmDialog({
+                  open: true,
+                  title: t('confirmSignOut'),
+                  message: t('confirmSignOutMsg'),
+                  confirmLabel: t('signOut'),
+                  destructive: true,
+                  onConfirm: () => { setConfirmDialog(prev => ({ ...prev, open: false })); onSignOut(); },
+                })}
                 className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
               >
                 {apiKey ? t('disconnectKey') : t('signOut')}
@@ -217,6 +289,63 @@ export default function SettingsView({
             </div>
           )}
         </Section>
+
+        {/* Usage — connected users only */}
+        {session && (
+          <Section title={t('usage')}>
+            <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
+              {usageLoading ? (
+                <div className="text-center text-gray-500 py-2 text-sm">Loading...</div>
+              ) : usage ? (
+                <>
+                  <Row label="Plan" value={<span className="text-xs text-ava-purple-light font-medium">{usage.plan}</span>} />
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-400">{t('tokensUsed')}</span>
+                      <span className="text-xs text-gray-500">{usage.tokensUsed.toLocaleString()} / {usage.tokensLimit.toLocaleString()}</span>
+                    </div>
+                    <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-ava-purple rounded-full transition-all"
+                        style={{ width: `${usage.tokensLimit > 0 ? Math.min(100, (usage.tokensUsed / usage.tokensLimit) * 100) : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-400">{t('requestsUsed')}</span>
+                      <span className="text-xs text-gray-500">{usage.requestsUsed.toLocaleString()} / {usage.requestsLimit.toLocaleString()}</span>
+                    </div>
+                    <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-ava-purple rounded-full transition-all"
+                        style={{ width: `${usage.requestsLimit > 0 ? Math.min(100, (usage.requestsUsed / usage.requestsLimit) * 100) : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="text-xs text-gray-500 text-center">Usage data unavailable</p>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* Sync — connected users only */}
+        {session && (
+          <Section title="SYNC">
+            <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
+              <button
+                onClick={handleSyncConversations}
+                disabled={syncStatus === 'syncing'}
+                className="w-full bg-ava-purple hover:bg-ava-purple-dark disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition text-sm"
+              >
+                {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? 'Synced!' : syncStatus === 'error' ? 'Sync failed — try again' : t('syncConversations')}
+              </button>
+              <p className="text-[11px] text-gray-500 mt-2 text-center">Upload your local chat history to the cloud</p>
+            </div>
+          </Section>
+        )}
 
         {/* Model */}
         <Section title={t('model')}>
@@ -333,6 +462,9 @@ export default function SettingsView({
             <div className="p-4">
               <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.1</span>} />
             </div>
+            <button onClick={() => setShowReleaseNotes(true)} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
+              <Row label={t('releaseNotes')} value={<ChevronRight />} />
+            </button>
             <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="GitHub" value={<ChevronRight />} />
             </a>
@@ -355,6 +487,17 @@ export default function SettingsView({
         {/* Bottom spacer */}
         <div className="h-4" />
       </div>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        cancelLabel={confirmDialog.cancelLabel}
+        destructive={confirmDialog.destructive}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }
@@ -381,6 +524,7 @@ function Row({ label, subtitle, value }: { label: string; subtitle?: string; val
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
@@ -412,6 +556,7 @@ function TogglePills({ options, selected, onChange }: {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SyncBadge() {
   return (
     <span className="flex items-center gap-1 text-xs text-emerald-400">

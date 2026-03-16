@@ -12,7 +12,12 @@ type TranslationKey =
   | 'yourJournal' | 'avasJournal' | 'writeEntry' | 'noEntry' | 'avaNoEntry' | 'avaWrites'
   | 'saveEntry' | 'mood' | 'howAreYou'
   | 'welcome' | 'welcomeSubtitle' | 'getStarted' | 'skip'
-  | 'language' | 'delete' | 'deleteConfirm' | 'tapToEdit' | 'nothingToday' | 'noActiveTasks' | 'addTaskHint';
+  | 'language' | 'delete' | 'deleteConfirm' | 'tapToEdit' | 'nothingToday' | 'noActiveTasks' | 'addTaskHint'
+  | 'learning' | 'noLearningPaths' | 'askAvaToTeach'
+  | 'usage' | 'tokensUsed' | 'requestsUsed'
+  | 'syncConversations' | 'releaseNotes'
+  | 'confirmSignOut' | 'confirmSignOutMsg' | 'confirmDelete' | 'confirmDeleteMsg'
+  | 'offlineQueued' | 'notificationsEnabled';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -38,6 +43,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Save Entry', mood: 'Mood', howAreYou: 'How are you feeling? What happened today? Write freely...',
     welcome: 'Welcome to Ava', welcomeSubtitle: 'Your AI companion, everywhere', getStarted: 'Get Started', skip: 'Skip',
     language: 'Language', delete: 'Delete', deleteConfirm: 'Delete this?', tapToEdit: 'Tap to edit', nothingToday: 'Nothing for today', noActiveTasks: 'No active tasks', addTaskHint: 'Add a task above or ask Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
   },
   es: {
     chat: 'Chat', tasks: 'Tareas', journal: 'Diario', settings: 'Ajustes',
@@ -60,6 +71,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Guardar', mood: 'Ánimo', howAreYou: '¿Cómo te sientes? ¿Qué pasó hoy? Escribe libremente...',
     welcome: 'Bienvenido a Ava', welcomeSubtitle: 'Tu compañera IA, en todas partes', getStarted: 'Empezar', skip: 'Omitir',
     language: 'Idioma', delete: 'Eliminar', deleteConfirm: '¿Eliminar esto?', tapToEdit: 'Toca para editar', nothingToday: 'Nada para hoy', noActiveTasks: 'Sin tareas activas', addTaskHint: 'Añade una tarea o pregunta a Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   fr: {
     chat: 'Chat', tasks: 'Tâches', journal: 'Journal', settings: 'Paramètres',
@@ -82,6 +99,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Enregistrer', mood: 'Humeur', howAreYou: 'Comment vous sentez-vous ? Que s\'est-il passé aujourd\'hui ?',
     welcome: 'Bienvenue sur Ava', welcomeSubtitle: 'Votre compagnon IA, partout', getStarted: 'Commencer', skip: 'Passer',
     language: 'Langue', delete: 'Supprimer', deleteConfirm: 'Supprimer ceci ?', tapToEdit: 'Appuyez pour modifier', nothingToday: "Rien pour aujourd'hui", noActiveTasks: 'Aucune tâche active', addTaskHint: 'Ajoutez une tâche ou demandez à Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   de: {
     chat: 'Chat', tasks: 'Aufgaben', journal: 'Tagebuch', settings: 'Einstellungen',
@@ -104,6 +127,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Speichern', mood: 'Stimmung', howAreYou: 'Wie fühlst du dich? Was ist heute passiert?',
     welcome: 'Willkommen bei Ava', welcomeSubtitle: 'Dein KI-Begleiter, überall', getStarted: 'Loslegen', skip: 'Überspringen',
     language: 'Sprache', delete: 'Löschen', deleteConfirm: 'Löschen?', tapToEdit: 'Tippen zum Bearbeiten', nothingToday: 'Nichts für heute', noActiveTasks: 'Keine aktiven Aufgaben', addTaskHint: 'Aufgabe hinzufügen oder Ava fragen',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   ja: {
     chat: 'チャット', tasks: 'タスク', journal: 'ジャーナル', settings: '設定',
@@ -126,6 +155,12 @@ const translations: Record<string, Translations> = {
     saveEntry: '保存', mood: '気分', howAreYou: '今日はどうでしたか？自由に書いてください...',
     welcome: 'Avaへようこそ', welcomeSubtitle: 'あなたのAIコンパニオン', getStarted: '始める', skip: 'スキップ',
     language: '言語', delete: '削除', deleteConfirm: '削除しますか？', tapToEdit: 'タップして編集', nothingToday: '今日の予定なし', noActiveTasks: 'アクティブなタスクなし', addTaskHint: 'タスクを追加するかAvaに聞いてください',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   ko: {
     chat: '채팅', tasks: '작업', journal: '일기', settings: '설정',
@@ -148,6 +183,12 @@ const translations: Record<string, Translations> = {
     saveEntry: '저장', mood: '기분', howAreYou: '오늘 기분이 어떠세요? 자유롭게 작성하세요...',
     welcome: 'Ava에 오신 것을 환영합니다', welcomeSubtitle: '어디서나 함께하는 AI 동반자', getStarted: '시작하기', skip: '건너뛰기',
     language: '언어', delete: '삭제', deleteConfirm: '삭제하시겠습니까?', tapToEdit: '탭하여 편집', nothingToday: '오늘 할 일 없음', noActiveTasks: '활성 작업 없음', addTaskHint: '작업을 추가하거나 Ava에게 물어보세요',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   'zh-CN': {
     chat: '聊天', tasks: '任务', journal: '日记', settings: '设置',
@@ -170,6 +211,12 @@ const translations: Record<string, Translations> = {
     saveEntry: '保存', mood: '心情', howAreYou: '今天感觉怎么样？自由书写...',
     welcome: '欢迎来到Ava', welcomeSubtitle: '你的AI伙伴，随时随地', getStarted: '开始使用', skip: '跳过',
     language: '语言', delete: '删除', deleteConfirm: '确定删除？', tapToEdit: '点击编辑', nothingToday: '今天没有任务', noActiveTasks: '没有活跃任务', addTaskHint: '添加任务或问Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   pt: {
     chat: 'Chat', tasks: 'Tarefas', journal: 'Diário', settings: 'Configurações',
@@ -192,6 +239,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Salvar', mood: 'Humor', howAreYou: 'Como você está? O que aconteceu hoje?',
     welcome: 'Bem-vindo ao Ava', welcomeSubtitle: 'Seu companheiro IA, em qualquer lugar', getStarted: 'Começar', skip: 'Pular',
     language: 'Idioma', delete: 'Excluir', deleteConfirm: 'Excluir isto?', tapToEdit: 'Toque para editar', nothingToday: 'Nada para hoje', noActiveTasks: 'Sem tarefas ativas', addTaskHint: 'Adicione uma tarefa ou pergunte à Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   it: {
     chat: 'Chat', tasks: 'Compiti', journal: 'Diario', settings: 'Impostazioni',
@@ -214,6 +267,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Salva', mood: 'Umore', howAreYou: 'Come ti senti? Cosa è successo oggi?',
     welcome: 'Benvenuto su Ava', welcomeSubtitle: 'Il tuo compagno IA, ovunque', getStarted: 'Inizia', skip: 'Salta',
     language: 'Lingua', delete: 'Elimina', deleteConfirm: 'Eliminare?', tapToEdit: 'Tocca per modificare', nothingToday: 'Niente per oggi', noActiveTasks: 'Nessun compito attivo', addTaskHint: 'Aggiungi un compito o chiedi ad Ava',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   ar: {
     chat: 'محادثة', tasks: 'المهام', journal: 'اليوميات', settings: 'الإعدادات',
@@ -236,6 +295,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'حفظ', mood: 'المزاج', howAreYou: 'كيف تشعر؟ ماذا حدث اليوم؟',
     welcome: 'مرحباً بك في آفا', welcomeSubtitle: 'رفيقك الذكي، في كل مكان', getStarted: 'ابدأ', skip: 'تخطي',
     language: 'اللغة', delete: 'حذف', deleteConfirm: 'حذف هذا؟', tapToEdit: 'اضغط للتعديل', nothingToday: 'لا شيء لليوم', noActiveTasks: 'لا توجد مهام نشطة', addTaskHint: 'أضف مهمة أو اسأل آفا',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   hi: {
     chat: 'चैट', tasks: 'कार्य', journal: 'डायरी', settings: 'सेटिंग्स',
@@ -258,6 +323,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'सहेजें', mood: 'मूड', howAreYou: 'आज कैसा महसूस कर रहे हैं? स्वतंत्र रूप से लिखें...',
     welcome: 'Ava में आपका स्वागत है', welcomeSubtitle: 'आपका AI साथी, हर जगह', getStarted: 'शुरू करें', skip: 'छोड़ें',
     language: 'भाषा', delete: 'हटाएं', deleteConfirm: 'इसे हटाएं?', tapToEdit: 'संपादित करने के लिए टैप करें', nothingToday: 'आज कुछ नहीं', noActiveTasks: 'कोई सक्रिय कार्य नहीं', addTaskHint: 'कार्य जोड़ें या Ava से पूछें',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   ru: {
     chat: 'Чат', tasks: 'Задачи', journal: 'Дневник', settings: 'Настройки',
@@ -280,6 +351,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Сохранить', mood: 'Настроение', howAreYou: 'Как вы себя чувствуете? Что произошло сегодня?',
     welcome: 'Добро пожаловать в Аву', welcomeSubtitle: 'Ваш ИИ-компаньон, везде', getStarted: 'Начать', skip: 'Пропустить',
     language: 'Язык', delete: 'Удалить', deleteConfirm: 'Удалить это?', tapToEdit: 'Нажмите для редактирования', nothingToday: 'Ничего на сегодня', noActiveTasks: 'Нет активных задач', addTaskHint: 'Добавьте задачу или спросите Аву',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
   tr: {
     chat: 'Sohbet', tasks: 'Görevler', journal: 'Günlük', settings: 'Ayarlar',
@@ -302,6 +379,12 @@ const translations: Record<string, Translations> = {
     saveEntry: 'Kaydet', mood: 'Ruh hali', howAreYou: 'Nasıl hissediyorsunuz? Bugün ne oldu?',
     welcome: "Ava'ya hoş geldiniz", welcomeSubtitle: 'Yapay zeka arkadaşınız, her yerde', getStarted: 'Başla', skip: 'Atla',
     language: 'Dil', delete: 'Sil', deleteConfirm: 'Bunu sil?', tapToEdit: 'Düzenlemek için dokunun', nothingToday: 'Bugün için bir şey yok', noActiveTasks: 'Aktif görev yok', addTaskHint: 'Görev ekleyin veya Ava\'ya sorun',
+    learning: 'Learning', noLearningPaths: 'No learning paths yet', askAvaToTeach: 'Ask Ava to teach you something!',
+    usage: 'USAGE', tokensUsed: 'Tokens used', requestsUsed: 'Requests used',
+    syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
+    confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
+    confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
   },
 };
 
