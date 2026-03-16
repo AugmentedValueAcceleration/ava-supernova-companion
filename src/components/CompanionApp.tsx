@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { sendChat, MODELS } from '@/lib/api';
+import { getActiveProviderKey } from './SettingsView';
 import { t } from '@/lib/i18n';
 import { getConversations, getActiveConversationId, setActiveConversationId, getConversation, saveConversation, deleteConversation, clearAllConversations, generateTitle, createConversation, type Conversation } from '@/lib/chat-history';
 import { Markdown } from './Markdown';
@@ -308,11 +309,12 @@ export default function CompanionApp({
       .map(m => ({ role: m.role, content: m.content }));
 
     try {
+      const byokKey = getActiveProviderKey(selectedModel);
       await sendChat(token, userMsg.content, history, selectedModel, (text) => {
         setMessages(prev => prev.map(m =>
           m.id === avaMsg.id ? { ...m, content: m.content + text } : m
         ));
-      });
+      }, byokKey);
     } catch (err: any) {
       const friendlyError = getFriendlyError(err.message);
       setMessages(prev => prev.map(m =>

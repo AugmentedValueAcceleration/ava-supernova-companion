@@ -6,6 +6,46 @@ import { MODELS } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
 import { t, getLanguage, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 
+interface ProviderKeys {
+  deepseek?: string;
+  kimi?: string;
+  glm?: string;
+  qwen?: string;
+  mistral?: string;
+  anthropic?: string;
+}
+
+const PROVIDER_KEY_FIELDS: Array<{ key: keyof ProviderKeys; label: string; placeholder: string }> = [
+  { key: 'deepseek', label: 'DeepSeek', placeholder: 'sk-...' },
+  { key: 'kimi', label: 'Moonshot / Kimi', placeholder: 'sk-...' },
+  { key: 'glm', label: 'Zhipu AI (GLM)', placeholder: '...' },
+  { key: 'qwen', label: 'Alibaba Cloud (Qwen)', placeholder: 'sk-...' },
+  { key: 'mistral', label: 'Mistral AI', placeholder: '...' },
+  { key: 'anthropic', label: 'Anthropic (Claude)', placeholder: 'sk-ant-...' },
+];
+
+export function loadProviderKeys(): ProviderKeys {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = localStorage.getItem('ava-companion-provider-keys');
+    return stored ? JSON.parse(stored) : {};
+  } catch { return {}; }
+}
+
+export function getActiveProviderKey(model: string): string | null {
+  const keys = loadProviderKeys();
+  const m = MODELS.find(mod => mod.id === model);
+  if (!m) return null;
+  const provider = m.provider.toLowerCase();
+  if (provider.includes('deepseek')) return keys.deepseek || null;
+  if (provider.includes('moonshot')) return keys.kimi || null;
+  if (provider.includes('zhipu')) return keys.glm || null;
+  if (provider.includes('alibaba')) return keys.qwen || null;
+  if (provider.includes('mistral')) return keys.mistral || null;
+  if (provider.includes('anthropic')) return keys.anthropic || null;
+  return null;
+}
+
 interface Props {
   isGuest: boolean;
   session: Session | null;
@@ -35,6 +75,16 @@ export default function SettingsView({
     }
     return 'auto';
   });
+
+  const [providerKeys, setProviderKeys] = useState<ProviderKeys>(() => loadProviderKeys());
+
+  const saveProviderKey = (key: keyof ProviderKeys, value: string) => {
+    const updated = { ...providerKeys, [key]: value.trim() || undefined };
+    // Remove empty keys
+    Object.keys(updated).forEach(k => { if (!updated[k as keyof ProviderKeys]) delete updated[k as keyof ProviderKeys]; });
+    setProviderKeys(updated);
+    localStorage.setItem('ava-companion-provider-keys', JSON.stringify(updated));
+  };
 
   // Load settings from localStorage
   useEffect(() => {
@@ -176,7 +226,7 @@ export default function SettingsView({
               value={selectedModel}
               onChange={onSelectModel}
               placeholder="Select a model..."
-              options={MODELS.filter(m => isGuest ? m.free : true).map(m => ({
+              options={MODELS.filter(m => isGuest ? (m.free || !!getActiveProviderKey(m.id)) : true).map(m => ({
                 value: m.id,
                 label: m.name,
                 sublabel: m.provider,
@@ -184,6 +234,29 @@ export default function SettingsView({
                 badgeColor: m.free ? 'text-emerald-400 bg-emerald-400/10' : undefined,
               }))}
             />
+          </div>
+        </Section>
+
+        {/* Provider API Keys (BYOK) */}
+        <Section title="API KEYS (BYOK)">
+          <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
+            <div className="p-4">
+              <p className="text-xs text-gray-500 mb-3">
+                Add your own API keys to use any model without a platform account. Keys are stored locally on your device.
+              </p>
+            </div>
+            {PROVIDER_KEY_FIELDS.map(f => (
+              <div key={f.key} className="p-4">
+                <label className="text-xs text-gray-400 mb-1 block">{f.label}</label>
+                <input
+                  type="password"
+                  value={providerKeys[f.key] || ''}
+                  onChange={e => saveProviderKey(f.key, e.target.value)}
+                  placeholder={f.placeholder}
+                  className="w-full bg-ava-bg border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition"
+                />
+              </div>
+            ))}
           </div>
         </Section>
 

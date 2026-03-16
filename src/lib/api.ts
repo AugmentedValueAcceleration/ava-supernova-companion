@@ -79,14 +79,18 @@ export async function sendChat(
   history: Array<{ role: string; content: string }>,
   model: string,
   onChunk: (text: string) => void,
+  providerApiKey?: string | null,
 ) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  const bodyPayload: Record<string, unknown> = { message, history, model };
+  if (providerApiKey) bodyPayload.providerApiKey = providerApiKey;
+
   const res = await fetch(`${API_BASE}/companion/chat`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ message, history, model }),
+    body: JSON.stringify(bodyPayload),
   });
 
   if (!res.ok) {
