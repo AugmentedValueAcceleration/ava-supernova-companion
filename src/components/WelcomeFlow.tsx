@@ -126,7 +126,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
         <ConnectCard
           icon={<VSCodeIcon />}
           title="VS Code Extension"
-          desc="45 tools, full agentic coding, memory, tasks, journal — right in your editor."
+          desc="52 tools, full agentic coding, memory, tasks, journal — right in your editor."
           action="Search 'Ava Supernova' in VS Code"
           color="text-blue-400"
         />
