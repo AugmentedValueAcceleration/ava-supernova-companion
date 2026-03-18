@@ -5,6 +5,7 @@ import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
+import { loadPersonality } from '@/lib/personality';
 import ConfirmDialog from './ConfirmDialog';
 import ReleaseNotes from './ReleaseNotes';
 
@@ -57,6 +58,7 @@ interface Props {
   onSignIn: () => void;
   onSignOut: () => void;
   onClearChat: () => void;
+  onNavigatePersonality?: () => void;
 }
 
 type TextSize = 'small' | 'default' | 'large';
@@ -64,7 +66,7 @@ type Theme = 'dark' | 'light' | 'system';
 
 export default function SettingsView({
   isGuest, session, apiKey, selectedModel,
-  onSelectModel, onSignIn, onSignOut, onClearChat,
+  onSelectModel, onSignIn, onSignOut, onClearChat, onNavigatePersonality,
 }: Props) {
   const [textSize, setTextSize] = useState<TextSize>('default');
   const [theme, setTheme] = useState<Theme>('dark');
@@ -98,6 +100,7 @@ export default function SettingsView({
 
   // Sync state
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [personalitySyncStatus, setPersonalitySyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
 
   // Release notes view
   const [showReleaseNotes, setShowReleaseNotes] = useState(false);
@@ -136,6 +139,23 @@ export default function SettingsView({
     } catch {
       setSyncStatus('error');
       setTimeout(() => setSyncStatus('idle'), 3000);
+    }
+  };
+
+  const handleSyncPersonality = async () => {
+    if (!session?.access_token) return;
+    setPersonalitySyncStatus('syncing');
+    try {
+      const personality = loadPersonality();
+      await apiFetch('/settings/sync', {
+        method: 'POST',
+        body: JSON.stringify({ personality }),
+      }, session.access_token);
+      setPersonalitySyncStatus('success');
+      setTimeout(() => setPersonalitySyncStatus('idle'), 3000);
+    } catch {
+      setPersonalitySyncStatus('error');
+      setTimeout(() => setPersonalitySyncStatus('idle'), 3000);
     }
   };
 
@@ -343,6 +363,17 @@ export default function SettingsView({
                 {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? 'Synced!' : syncStatus === 'error' ? 'Sync failed — try again' : t('syncConversations')}
               </button>
               <p className="text-[11px] text-gray-500 mt-2 text-center">Upload your local chat history to the cloud</p>
+
+              <div className="mt-3 pt-3 border-t border-ava-border">
+                <button
+                  onClick={handleSyncPersonality}
+                  disabled={personalitySyncStatus === 'syncing'}
+                  className="w-full bg-ava-surface border border-ava-border hover:border-ava-purple disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition text-sm"
+                >
+                  {personalitySyncStatus === 'syncing' ? 'Syncing...' : personalitySyncStatus === 'success' ? 'Personality Synced!' : personalitySyncStatus === 'error' ? 'Sync failed — try again' : 'Sync Personality'}
+                </button>
+                <p className="text-[11px] text-gray-500 mt-2 text-center">Push your personality settings to the cloud</p>
+              </div>
             </div>
           </Section>
         )}
@@ -436,6 +467,15 @@ export default function SettingsView({
                 label: l.name,
               }))}
             />
+          </div>
+        </Section>
+
+        {/* Personality */}
+        <Section title={t('personality')}>
+          <div className="bg-ava-surface border border-ava-border rounded-xl">
+            <button onClick={onNavigatePersonality} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
+              <Row label={t('designYourAI')} subtitle={t('designSubtitle')} value={<ChevronRight />} />
+            </button>
           </div>
         </Section>
 

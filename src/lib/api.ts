@@ -80,12 +80,14 @@ export async function sendChat(
   model: string,
   onChunk: (text: string) => void,
   providerApiKey?: string | null,
+  personalityPrefix?: string | null,
 ) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const bodyPayload: Record<string, unknown> = { message, history, model };
   if (providerApiKey) bodyPayload.providerApiKey = providerApiKey;
+  if (personalityPrefix) bodyPayload.personalityPrefix = personalityPrefix;
 
   const res = await fetch(`${API_BASE}/companion/chat`, {
     method: 'POST',

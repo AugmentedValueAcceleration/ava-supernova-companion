@@ -17,7 +17,8 @@ type TranslationKey =
   | 'usage' | 'tokensUsed' | 'requestsUsed'
   | 'syncConversations' | 'releaseNotes'
   | 'confirmSignOut' | 'confirmSignOutMsg' | 'confirmDelete' | 'confirmDeleteMsg'
-  | 'offlineQueued' | 'notificationsEnabled';
+  | 'offlineQueued' | 'notificationsEnabled'
+  | 'personality' | 'designYourAI' | 'designSubtitle' | 'resetToDefault' | 'saved';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -49,6 +50,7 @@ const translations: Record<string, Translations> = {
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
     offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   es: {
     chat: 'Chat', tasks: 'Tareas', journal: 'Diario', settings: 'Ajustes',
@@ -76,7 +78,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personalidad', designYourAI: 'Diseña tu IA', designSubtitle: 'Hazla tuya', resetToDefault: 'Restablecer', saved: 'Guardado!',
   },
   fr: {
     chat: 'Chat', tasks: 'Tâches', journal: 'Journal', settings: 'Paramètres',
@@ -104,7 +107,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   de: {
     chat: 'Chat', tasks: 'Aufgaben', journal: 'Tagebuch', settings: 'Einstellungen',
@@ -132,7 +136,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   ja: {
     chat: 'チャット', tasks: 'タスク', journal: 'ジャーナル', settings: '設定',
@@ -160,7 +165,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   ko: {
     chat: '채팅', tasks: '작업', journal: '일기', settings: '설정',
@@ -188,7 +194,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   'zh-CN': {
     chat: '聊天', tasks: '任务', journal: '日记', settings: '设置',
@@ -216,7 +223,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   pt: {
     chat: 'Chat', tasks: 'Tarefas', journal: 'Diário', settings: 'Configurações',
@@ -244,7 +252,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   it: {
     chat: 'Chat', tasks: 'Compiti', journal: 'Diario', settings: 'Impostazioni',
@@ -272,7 +281,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   ar: {
     chat: 'محادثة', tasks: 'المهام', journal: 'اليوميات', settings: 'الإعدادات',
@@ -300,7 +310,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   hi: {
     chat: 'चैट', tasks: 'कार्य', journal: 'डायरी', settings: 'सेटिंग्स',
@@ -328,7 +339,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   ru: {
     chat: 'Чат', tasks: 'Задачи', journal: 'Дневник', settings: 'Настройки',
@@ -356,7 +368,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
   tr: {
     chat: 'Sohbet', tasks: 'Görevler', journal: 'Günlük', settings: 'Ayarlar',
@@ -384,7 +397,8 @@ const translations: Record<string, Translations> = {
     syncConversations: 'Sync Conversations', releaseNotes: 'Release Notes',
     confirmSignOut: 'Sign Out', confirmSignOutMsg: 'Are you sure you want to sign out? Local data will remain on this device.',
     confirmDelete: 'Delete Conversation', confirmDeleteMsg: 'This conversation will be permanently deleted.',
-    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled'
+    offlineQueued: "You're offline. Message queued.", notificationsEnabled: 'Task notifications enabled',
+    personality: 'Personality', designYourAI: 'Design Your AI', designSubtitle: 'Make it yours', resetToDefault: 'Reset to Default', saved: 'Saved!',
   },
 };
 

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { sendChat } from '@/lib/api';
 import { getActiveProviderKey } from '@/components/SettingsView';
+import { loadPersonality, buildPersonalityPrefix } from '@/lib/personality';
 import {
   getConversations, getActiveConversationId, setActiveConversationId,
   getConversation, saveConversation, deleteConversation as deleteConv,
@@ -276,11 +277,13 @@ export function useChat({
 
     try {
       const byokKey = getActiveProviderKey(selectedModel);
+      const personality = loadPersonality();
+      const personalityPrefix = buildPersonalityPrefix(personality);
       await sendChat(token, userMsg.content, history, selectedModel, (text) => {
         setMessages(prev => prev.map(m =>
           m.id === avaMsg.id ? { ...m, content: m.content + text } : m
         ));
-      }, byokKey);
+      }, byokKey, personalityPrefix);
     } catch (err: any) {
       const friendlyError = getFriendlyError(err.message);
       setMessages(prev => prev.map(m =>
