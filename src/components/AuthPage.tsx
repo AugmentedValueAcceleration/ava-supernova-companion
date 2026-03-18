@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
+import { API_BASE } from '@/lib/api';
 
 type AuthTab = 'email' | 'api-key';
 
@@ -71,7 +72,7 @@ export default function AuthPage({ onSignIn, onApiKeyConnect }: {
     setLoading(true);
     try {
       // Validate the API key against the memories endpoint (lightweight GET)
-      const res = await fetch('https://ava-supernova.com/api/memories?limit=1', {
+      const res = await fetch(`${API_BASE}/memories?limit=1`, {
         headers: { Authorization: `Bearer ${apiKey.trim()}` },
       });
       if (!res.ok) throw new Error('Invalid API key');

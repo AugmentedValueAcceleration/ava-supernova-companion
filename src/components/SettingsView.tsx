@@ -285,7 +285,7 @@ export default function SettingsView({
               </div>
 
               <a
-                href={`https://ava-supernova.com/pricing${session?.access_token ? `?token=${session.access_token}` : ''}`}
+                href="https://ava-supernova.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium py-2.5 rounded-xl text-sm text-center hover:from-purple-700 hover:to-purple-600 transition"
@@ -300,7 +300,12 @@ export default function SettingsView({
                   message: t('confirmSignOutMsg'),
                   confirmLabel: t('signOut'),
                   destructive: true,
-                  onConfirm: () => { setConfirmDialog(prev => ({ ...prev, open: false })); onSignOut(); },
+                  onConfirm: () => {
+                    setConfirmDialog(prev => ({ ...prev, open: false }));
+                    localStorage.removeItem('ava-companion-api-key');
+                    localStorage.removeItem('ava-companion-provider-keys');
+                    onSignOut();
+                  },
                 })}
                 className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
               >

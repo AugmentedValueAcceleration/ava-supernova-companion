@@ -1,4 +1,4 @@
-const API_BASE = 'https://ava-supernova.com/api';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
 export async function apiFetch(path: string, options: RequestInit = {}, token?: string) {
   const headers: Record<string, string> = {
