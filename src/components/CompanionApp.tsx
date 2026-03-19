@@ -11,7 +11,7 @@ import { Markdown } from './Markdown';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
-import LearningPanel from './LearningPanel';
+// LearningPanel removed — teaching needs the full extension toolkit
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';
@@ -19,7 +19,7 @@ import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
 import { loadPersonality } from '@/lib/personality';
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'learning' | 'settings' | 'personality';
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality';
 
 export default function CompanionApp({
   session,
@@ -347,7 +347,6 @@ export default function CompanionApp({
             { key: 'tasks' as MobileView, label: t('tasks'), icon: <TasksIconSm /> },
             { key: 'memory' as MobileView, label: t('memory'), icon: <MemoryIconSm /> },
             { key: 'journal' as MobileView, label: t('journal'), icon: <JournalIconSm /> },
-            { key: 'learning' as MobileView, label: t('learning'), icon: <LearningIconSm /> },
             { key: 'personality' as MobileView, label: t('personality'), icon: <PersonalityIconSm /> },
             { key: 'settings' as MobileView, label: t('settings'), icon: <SettingsIconSm /> },
           ]).map(item => (
@@ -713,15 +712,6 @@ export default function CompanionApp({
                 <MemoryPanel token={token} />
               </div>
             </div>
-          ) : mobileView === 'learning' ? (
-            <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto w-full">
-                <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-                  <h2 className="font-semibold text-white text-lg">{t('learning')}</h2>
-                </div>
-                <LearningPanel />
-              </div>
-            </div>
           ) : mobileView === 'personality' ? (
             <div className="flex-1 overflow-y-auto">
               <div className="max-w-3xl mx-auto w-full">
@@ -765,12 +755,6 @@ export default function CompanionApp({
           active={mobileView === 'chat'}
           onClick={() => setMobileView('chat')}
           primary
-        />
-        <ThumbButton
-          icon={<LearningIcon />}
-          label={t('learning')}
-          active={mobileView === 'learning'}
-          onClick={() => setMobileView('learning')}
         />
         <ThumbButton
           icon={<JournalIcon />}
