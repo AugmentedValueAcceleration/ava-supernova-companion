@@ -55,15 +55,14 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
-  // Free
-  { id: 'glm-4.7-flash', name: 'GLM-4.7 Flash', provider: 'Zhipu AI', free: true },
-  { id: 'glm-4-flash', name: 'GLM-4.5 Flash', provider: 'Zhipu AI', free: true },
-  // Paid
+  // Free (with account — 3M tokens)
+  { id: 'qwen-flash', name: 'Qwen Flash', provider: 'Alibaba Cloud', free: true },
+  { id: 'qwen3.5-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: true },
+  // BYOK
   { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false },
   { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false },
   { id: 'deepseek-chat', name: 'DeepSeek V3.2', provider: 'DeepSeek', free: false },
   { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek', free: false },
-  { id: 'qwen-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: false },
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false },
   { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false },
   { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false },

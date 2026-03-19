@@ -75,9 +75,9 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
           price="$0"
           current
           features={[
-            '2 free models (GLM-4.5 Flash, GLM-4.7 Flash)',
-            '500K free tokens/month',
-            'Memory, tasks, journal, all surfaces',
+            '3M free Qwen tokens with account',
+            'Qwen Flash + Qwen 3.5 Plus',
+            'Memory, tasks, journal, learning, all surfaces',
             'BYOK — use any model with your own API key',
           ]}
         />

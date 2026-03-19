@@ -99,8 +99,8 @@ export function useChat({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'glm-4.7-flash';
-    return 'glm-4.7-flash';
+    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'qwen-flash';
+    return 'qwen-flash';
   });
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
