@@ -386,13 +386,20 @@ export default function CompanionApp({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => chat.setShowModelPicker(false)} />
                 <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] py-1 max-h-[400px] overflow-y-auto">
-                  {MODELS.map(model => (
+                  {MODELS.filter(model => {
+                    // Hide account-required models for guests
+                    if (isGuest && model.requiresAccount) return false;
+                    return true;
+                  }).map(model => (
                     <button
                       key={model.id}
-                      onClick={() => selectModel(model.id)}
+                      onClick={() => {
+                        if (isGuest && !model.free) return; // Can't select BYOK without keys
+                        selectModel(model.id);
+                      }}
                       className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-ava-surface-hover transition ${
                         chat.selectedModel === model.id ? 'bg-ava-purple/10' : ''
-                      }`}
+                      } ${isGuest && !model.free ? 'opacity-50' : ''}`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -401,15 +408,19 @@ export default function CompanionApp({
                         </div>
                         <span className="text-[11px] text-gray-500 ml-3.5">{model.provider}</span>
                       </div>
-                      {model.free ? (
+                      {model.free && !isGuest ? (
                         <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">FREE</span>
                       ) : isGuest ? (
-                        <span className="text-[10px] text-gray-500">Sign in</span>
+                        <span className="text-[10px] text-gray-500">API key</span>
                       ) : (
                         chat.selectedModel === model.id && <span className="text-ava-purple">&#10003;</span>
                       )}
                     </button>
-                  ))}
+                  ))}{isGuest && (
+                    <div className="px-3 py-2 border-t border-ava-border mt-1">
+                      <p className="text-[11px] text-gray-400 text-center">Sign up for 3M free Qwen tokens</p>
+                    </div>
+                  )}
                 </div>
               </>
             )}

@@ -51,24 +51,25 @@ export interface ModelOption {
   id: string;
   name: string;
   provider: string;
-  free: boolean;
+  free: boolean;       // true = available with free account (3M tokens)
+  requiresAccount: boolean; // true = needs signed-in account
 }
 
 export const MODELS: ModelOption[] = [
-  // Free (with account — 3M tokens)
-  { id: 'qwen-flash', name: 'Qwen Flash', provider: 'Alibaba Cloud', free: true },
-  { id: 'qwen3.5-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: true },
-  // BYOK
-  { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false },
-  { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false },
-  { id: 'deepseek-chat', name: 'DeepSeek V3.2', provider: 'DeepSeek', free: false },
-  { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek', free: false },
-  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false },
-  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false },
-  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false },
-  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false },
-  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', free: false },
-  { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', provider: 'Anthropic', free: false },
+  // Free with account (3M Qwen tokens)
+  { id: 'qwen-flash', name: 'Qwen Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
+  { id: 'qwen3.5-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
+  // BYOK — requires own API key
+  { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false, requiresAccount: false },
+  { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false, requiresAccount: false },
+  { id: 'deepseek-chat', name: 'DeepSeek V3.2', provider: 'DeepSeek', free: false, requiresAccount: false },
+  { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek', free: false, requiresAccount: false },
+  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
+  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
+  { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', provider: 'Anthropic', free: false, requiresAccount: false },
 ];
 
 // Chat — streaming (token optional for guest mode with free models)
