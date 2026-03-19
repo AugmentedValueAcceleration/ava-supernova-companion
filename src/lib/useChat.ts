@@ -33,11 +33,11 @@ function getFriendlyError(message?: string): string {
   if (msg.includes('401') || msg.includes('not authenticated') || msg.includes('invalid api key'))
     return "Your session expired. Try signing in again from Settings.";
 
-  if (msg.includes('403') || msg.includes('not available on your plan'))
-    return "This model needs a plan upgrade. You can switch to a free model or check out the plans at ava-supernova.com/pricing";
+  if (msg.includes('403') || msg.includes('not available on your plan') || msg.includes('no api key'))
+    return "No API key or account detected. Sign up for 3M free Qwen tokens, or add your own API key in Settings.";
 
   if (msg.includes('token limit') || msg.includes('limit reached'))
-    return "You've used up your tokens for the month. You can add your own API key or wait for the monthly reset.";
+    return "You've used your token allowance. Top up at ava-supernova.com/pricing, or add your own API key in Settings.";
 
   if (msg.includes('502') || msg.includes('503') || msg.includes('provider'))
     return "The AI provider is having a rough moment. Try switching models or wait a minute.";
