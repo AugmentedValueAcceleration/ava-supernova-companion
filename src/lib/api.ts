@@ -97,7 +97,7 @@ export async function sendChat(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Chat failed' }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(`${res.status}: ${err.error || 'Request failed'}`);
   }
 
   if (!res.body) throw new Error('No response body');
