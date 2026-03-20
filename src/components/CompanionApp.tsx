@@ -115,6 +115,19 @@ export default function CompanionApp({
     };
   }, []);
 
+  // Detect mobile keyboard open/close via visualViewport
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => {
+      // If viewport height is significantly less than window height, keyboard is open
+      setKeyboardOpen(vv.height < window.innerHeight * 0.75);
+    };
+    vv.addEventListener('resize', onResize);
+    return () => vv.removeEventListener('resize', onResize);
+  }, []);
+
   const textSizeClass = textSize === 'small' ? 'text-[13px]' : textSize === 'large' ? 'text-[17px]' : 'text-[15px]';
 
   // Version check — poll every 5 minutes
@@ -306,7 +319,7 @@ export default function CompanionApp({
   };
 
   return (
-    <div className="h-dvh flex flex-col bg-ava-bg pb-14 md:pb-0">
+    <div className={`h-dvh flex flex-col bg-ava-bg md:pb-0 ${keyboardOpen ? 'pb-0' : 'pb-14'}`}>
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-ava-border shrink-0">
         {/* Left: Logo + New Chat + History */}
@@ -735,8 +748,8 @@ export default function CompanionApp({
 
       </div>
 
-      {/* Mobile bottom nav — thumb-friendly, fixed to bottom even with keyboard open */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom">
+      {/* Mobile bottom nav — thumb-friendly, hidden when keyboard is open */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom transition-transform duration-200 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
         <ThumbButton
           icon={<TasksIcon />}
           label={t('tasks')}
