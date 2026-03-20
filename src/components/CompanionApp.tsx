@@ -306,7 +306,7 @@ export default function CompanionApp({
   };
 
   return (
-    <div className="h-dvh flex flex-col bg-ava-bg">
+    <div className="h-dvh flex flex-col bg-ava-bg pb-14 md:pb-0">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-ava-border shrink-0">
         {/* Left: Logo + New Chat + History */}
@@ -735,8 +735,8 @@ export default function CompanionApp({
 
       </div>
 
-      {/* Mobile bottom nav — thumb-friendly */}
-      <nav className="md:hidden shrink-0 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom">
+      {/* Mobile bottom nav — thumb-friendly, fixed to bottom even with keyboard open */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom">
         <ThumbButton
           icon={<TasksIcon />}
           label={t('tasks')}
