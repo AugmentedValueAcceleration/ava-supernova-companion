@@ -9,7 +9,6 @@ The companion app for Ava | Supernova. Same memory, same context, same brain —
 - **Chat** — Streaming conversation with Ava. Voice input. Offline message queueing. Chat history with conversations.
 - **Tasks** — Create, complete, prioritise. Due dates, categories. Overdue detection. Syncs with the extension.
 - **Memory** — Browse, search, and delete memories. Everything Ava knows about you, in one place.
-- **Learning** — View curriculums, modules, and lessons with progress bars. Continue learning on the go.
 - **Journal** — Dual journal (yours + Ava's). Mood tracking. Date navigation. Delete entries.
 - **Settings** — Model selector, BYOK provider keys, theme, text size, language (20 languages).
 - **Personality Designer** — Name your AI. Choose tone, energy, communication style. Same brain, your personality.
@@ -27,7 +26,7 @@ The companion app for Ava | Supernova. Same memory, same context, same brain —
 **Desktop** — Centered header nav
 **Mobile** — Bottom thumb nav with 15% larger chat button centered
 
-6 tabs: Chat, Tasks, Memory, Learning, Journal, Settings
+5 tabs: Chat, Tasks, Memory, Journal, Settings
 
 ## Tech Stack
 
