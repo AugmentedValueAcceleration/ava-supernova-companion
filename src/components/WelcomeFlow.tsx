@@ -83,32 +83,29 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
         />
         <PlanCard
           name="Pro"
-          price="$25/mo"
+          price="$19/mo"
           highlight
           features={[
-            'All open-source models via platform',
-            '10M tokens/month',
-            '1M Claude tokens (Haiku)',
-            '60 req/min, priority support',
+            'Qwen Flash + Qwen 3.5 Plus',
+            '15M tokens/month',
+            'Cloud sync, email support',
           ]}
         />
         <PlanCard
           name="Ultra"
-          price="$59/mo"
+          price="$39/mo"
           features={[
             'Everything in Pro',
-            '30M tokens/month',
-            '2M Claude tokens (Sonnet + Haiku)',
-            '120 req/min',
+            '40M tokens/month',
+            'Priority support + early access',
           ]}
         />
         <PlanCard
           name="Enterprise"
-          price="$129/mo"
+          price="$79/mo"
           features={[
             'Everything in Ultra',
-            '50M tokens/month',
-            '3M Claude tokens (all models inc. Opus)',
+            '100M tokens/month',
             '200 req/min, dedicated support',
           ]}
         />
@@ -126,7 +123,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
         <ConnectCard
           icon={<VSCodeIcon />}
           title="VS Code Extension"
-          desc="52 tools, full agentic coding, memory, tasks, journal — right in your editor."
+          desc="54 tools, full agentic coding, memory, tasks, journal — right in your editor."
           action="Search 'Ava Supernova' in VS Code"
           color="text-blue-400"
         />

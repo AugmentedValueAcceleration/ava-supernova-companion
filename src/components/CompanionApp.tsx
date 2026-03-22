@@ -485,7 +485,7 @@ export default function CompanionApp({
         <div className="shrink-0 bg-ava-purple/10 border-b border-ava-purple/20 px-4 py-2.5 flex items-center justify-between">
           <p className="text-sm text-gray-300">
             <span className="text-ava-purple-light font-medium">Enjoying Ava?</span>{' '}
-            <span className="hidden sm:inline">Create a free account for memory, tasks, journal, and 14 models.</span>
+            <span className="hidden sm:inline">Create a free account for memory, tasks, journal, and 12 models.</span>
             <span className="sm:hidden">Sign up free for the full experience.</span>
           </p>
           <div className="flex items-center gap-2 shrink-0 ml-3">
