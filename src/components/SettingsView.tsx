@@ -105,19 +105,21 @@ export default function SettingsView({
   // Release notes view
   const [showReleaseNotes, setShowReleaseNotes] = useState(false);
 
-  // Fetch usage for connected users
+  // Fetch usage from unified API
   useEffect(() => {
     if (!session?.access_token) return;
     setUsageLoading(true);
-    apiFetch('/usage', {}, session.access_token)
+    apiFetch('/usage/summary', {}, session.access_token)
       .then(r => r.json())
       .then(data => {
+        const totalUsed = (data.period?.free_tokens_used ?? 0) + (data.period?.tokens_used ?? 0);
+        const totalLimit = (data.period?.free_tokens_limit ?? 3000000) + (data.period?.tokens_limit ?? 0);
         setUsage({
-          tokensUsed: data.tokens_used ?? data.tokensUsed ?? 0,
-          tokensLimit: data.tokens_limit ?? data.tokensLimit ?? 0,
-          requestsUsed: data.requests_used ?? data.requestsUsed ?? 0,
-          requestsLimit: data.requests_limit ?? data.requestsLimit ?? 0,
-          plan: data.plan || data.plan_name || 'Free',
+          tokensUsed: totalUsed,
+          tokensLimit: data.isUnlimited ? Infinity : totalLimit,
+          requestsUsed: data.period?.requests_count ?? data.totals?.requests ?? 0,
+          requestsLimit: 0,
+          plan: data.tier === 'admin' ? 'Admin (∞)' : (data.tier || 'Free'),
         });
       })
       .catch(() => setUsage(null))
