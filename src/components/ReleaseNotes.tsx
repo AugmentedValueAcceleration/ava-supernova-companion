@@ -10,12 +10,17 @@ interface Release {
   body: string;
   highlights?: string[];
   date?: string;
+  platform?: string;
 }
+
+const PLAT_COLOURS: Record<string, string> = { core: '#89b4fa', extension: '#a855f7', ide: '#a6e3a1', companion: '#fab387' };
+const PLAT_LABELS: Record<string, string> = { core: 'Core', extension: 'Extension', ide: 'IDE', companion: 'Companion' };
 
 export default function ReleaseNotes({ onBack }: { onBack: () => void }) {
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [platformTab, setPlatformTab] = useState('all');
 
   useEffect(() => {
     const fetchReleases = async () => {
@@ -44,6 +49,23 @@ export default function ReleaseNotes({ onBack }: { onBack: () => void }) {
         <h2 className="font-semibold text-white text-lg">{t('releaseNotes')}</h2>
       </div>
 
+      {/* Platform tabs */}
+      <div className="px-4 pt-3 flex gap-1 flex-wrap">
+        {['all', 'core', 'extension', 'ide', 'companion'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setPlatformTab(tab)}
+            className="px-3 py-1 rounded-full text-[11px] font-semibold transition"
+            style={{
+              background: platformTab === tab ? (tab === 'all' ? '#a855f7' : PLAT_COLOURS[tab]) : '#1e1e2e',
+              color: platformTab === tab ? (tab === 'core' || tab === 'extension' ? '#fff' : '#11111b') : '#6c7086',
+            }}
+          >
+            {tab === 'all' ? 'All' : PLAT_LABELS[tab]}
+          </button>
+        ))}
+      </div>
+
       <div className="p-4 space-y-4">
         {loading ? (
           <div className="text-center text-gray-500 py-8">Loading...</div>
@@ -56,13 +78,22 @@ export default function ReleaseNotes({ onBack }: { onBack: () => void }) {
             <p className="text-sm">No release notes available</p>
           </div>
         ) : (
-          releases.map(release => (
+          releases.filter(r => platformTab === 'all' || (r.platform || 'extension') === platformTab).map(release => (
             <div key={release.version} className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white">{release.title || `v${release.version}`}</span>
                   <span className="text-[10px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded">
                     v{release.version}
+                  </span>
+                  <span
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase"
+                    style={{
+                      color: PLAT_COLOURS[release.platform || 'extension'],
+                      background: `${PLAT_COLOURS[release.platform || 'extension']}20`,
+                    }}
+                  >
+                    {PLAT_LABELS[release.platform || 'extension']}
                   </span>
                 </div>
                 {release.date && (
