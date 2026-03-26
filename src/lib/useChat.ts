@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { sendChat } from '@/lib/api';
+import { sendChat, apiFetch } from '@/lib/api';
 import { getActiveProviderKey } from '@/components/SettingsView';
 import { loadPersonality, buildPersonalityPrefix } from '@/lib/personality';
 import {
@@ -108,6 +108,7 @@ export function useChat({
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [offlineBanner, setOfflineBanner] = useState(false);
+  const [usageWarning, setUsageWarning] = useState<{ level: string; message: string }>({ level: 'none', message: '' });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -294,6 +295,16 @@ export function useChat({
     } finally {
       setStreaming(false);
       inputRef.current?.focus();
+      // Fetch usage warning after each message
+      if (token) {
+        apiFetch('/account-info', {}, token).then(r => r.json()).then(data => {
+          if (data?.warning && data.warning !== 'none') {
+            setUsageWarning({ level: data.warning, message: data.warning_message || '' });
+          } else {
+            setUsageWarning({ level: 'none', message: '' });
+          }
+        }).catch(() => {});
+      }
     }
   }, [input, streaming, messages, selectedModel, token]);
 
@@ -311,6 +322,7 @@ export function useChat({
     nudgeDismissed,
     showNudge,
     offlineBanner,
+    usageWarning,
     greeting,
     // Refs
     messagesEndRef,

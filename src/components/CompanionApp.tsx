@@ -480,6 +480,18 @@ export default function CompanionApp({
         </div>
       )}
 
+      {/* Usage warning banner */}
+      {chat.usageWarning.level !== 'none' && chat.usageWarning.message && (
+        <div className={`shrink-0 px-4 py-2.5 flex items-center gap-2 border-b text-sm ${
+          chat.usageWarning.level === 'exhausted' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+          chat.usageWarning.level === 'critical' ? 'bg-orange-500/10 border-orange-500/20 text-orange-400' :
+          'bg-amber-500/10 border-amber-500/20 text-amber-400'
+        }`}>
+          <span>{chat.usageWarning.level === 'exhausted' ? '\u26D4' : chat.usageWarning.level === 'critical' ? '\u26A0' : '\u25CB'}</span>
+          <span className="flex-1">{chat.usageWarning.message}</span>
+        </div>
+      )}
+
       {/* Nudge banner */}
       {chat.showNudge && (
         <div className="shrink-0 bg-ava-purple/10 border-b border-ava-purple/20 px-4 py-2.5 flex items-center justify-between">
