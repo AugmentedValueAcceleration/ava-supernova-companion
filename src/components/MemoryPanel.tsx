@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { memoriesApi } from '@/lib/api';
+
+const PAGE_SIZE = 100;
 
 interface Memory {
   id: string;
@@ -205,14 +207,23 @@ export default function MemoryPanel({ token }: { token: string | null }) {
     setShowAdd(true);
   };
 
-  // ── Filter ─────────────────────────────────────────────────────────
+  // ── Filter + pagination ────────────────────────────────────────────
 
-  const filtered = search.trim()
-    ? memories.filter(m =>
-        m.key.toLowerCase().includes(search.toLowerCase()) ||
-        m.content.toLowerCase().includes(search.toLowerCase())
-      )
-    : memories;
+  const [displayLimit, setDisplayLimit] = useState(PAGE_SIZE);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return memories;
+    return memories.filter(m =>
+      m.key.toLowerCase().includes(search.toLowerCase()) ||
+      m.content.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [memories, search]);
+
+  // Reset display limit when search changes
+  useEffect(() => { setDisplayLimit(PAGE_SIZE); }, [search]);
+
+  const displayed = filtered.slice(0, displayLimit);
+  const hasMore = displayLimit < filtered.length;
 
   const unsyncedCount = memories.filter(m => !m.synced).length;
 
@@ -334,7 +345,13 @@ export default function MemoryPanel({ token }: { token: string | null }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map(memory => (
+          {/* Showing count */}
+          {filtered.length > PAGE_SIZE && (
+            <div className="text-center text-[11px] text-gray-600 pb-1">
+              Showing {Math.min(displayLimit, filtered.length)} of {filtered.length} memories
+            </div>
+          )}
+          {displayed.map(memory => (
             <div key={memory.id} className="bg-ava-surface border border-ava-border rounded-lg p-3 group">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
@@ -380,6 +397,16 @@ export default function MemoryPanel({ token }: { token: string | null }) {
               </div>
             </div>
           ))}
+
+          {/* Load more */}
+          {hasMore && (
+            <button
+              onClick={() => setDisplayLimit(prev => prev + PAGE_SIZE)}
+              className="w-full rounded-lg border border-ava-border bg-ava-surface py-2.5 text-xs font-medium text-ava-purple hover:border-ava-purple/50 transition"
+            >
+              Load more ({filtered.length - displayLimit} remaining)
+            </button>
+          )}
         </div>
       )}
     </div>

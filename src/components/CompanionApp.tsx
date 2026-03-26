@@ -846,8 +846,7 @@ export default function CompanionApp({
               </svg>
             </button>
             <AuthPage
-              onSignIn={() => { setShowAuthModal(false); onSignIn(); }}
-              onApiKeyConnect={handleApiKeyConnect}
+              onApiKeyConnect={(key) => { setShowAuthModal(false); handleApiKeyConnect(key); }}
             />
           </div>
         </div>
