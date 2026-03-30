@@ -18,7 +18,7 @@ The companion app for Ava | Supernova. Same memory, same context, same brain —
 
 ## Models
 
-- **Free with account** — Qwen Flash + Qwen 3.5 Plus (3M tokens)
+- **Free with account** — Qwen Omni Flash + Qwen 3.5 Omni Plus (3M tokens)
 - **BYOK** — DeepSeek, Moonshot/Kimi, Zhipu/GLM-5, Mistral, Anthropic/Claude. Add your own API keys.
 
 ## Navigation

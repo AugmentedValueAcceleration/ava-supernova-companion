@@ -99,8 +99,8 @@ export function useChat({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'qwen-flash';
-    return 'qwen-flash';
+    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'qwen3-omni-flash';
+    return 'qwen3-omni-flash';
   });
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
