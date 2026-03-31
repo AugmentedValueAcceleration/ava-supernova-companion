@@ -304,8 +304,17 @@ export default function SettingsView({
                   destructive: true,
                   onConfirm: () => {
                     setConfirmDialog(prev => ({ ...prev, open: false }));
-                    localStorage.removeItem('ava-companion-api-key');
-                    localStorage.removeItem('ava-companion-provider-keys');
+                    // Clear all sensitive data on logout
+                    const keysToRemove = [
+                      'ava-companion-api-key', 'ava-companion-provider-keys',
+                      'ava-companion-conversations', 'ava-companion-active-conversation',
+                      'ava-companion-tasks', 'ava-companion-settings',
+                      'ava-companion-model', 'ava-companion-offline-queue',
+                      'ava-companion-mic-consent', 'ava-companion-welcomed',
+                    ];
+                    keysToRemove.forEach(k => localStorage.removeItem(k));
+                    // Clear journal entries (prefixed keys)
+                    Object.keys(localStorage).filter(k => k.startsWith('ava-companion-journal')).forEach(k => localStorage.removeItem(k));
                     onSignOut();
                   },
                 })}
