@@ -1,8 +1,20 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
+function getDeviceId(): string {
+  if (typeof window === 'undefined') return 'server';
+  let id = localStorage.getItem('ava-companion-device-id');
+  if (!id) {
+    id = crypto.randomUUID().slice(0, 16);
+    localStorage.setItem('ava-companion-device-id', id);
+  }
+  return id;
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}, token?: string) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-Ava-Platform': 'companion',
+    'X-Ava-Device': getDeviceId(),
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers as Record<string, string>),
   };
@@ -82,7 +94,7 @@ export async function sendChat(
   providerApiKey?: string | null,
   personalityPrefix?: string | null,
 ) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', 'X-Ava-Platform': 'companion', 'X-Ava-Device': getDeviceId() };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const bodyPayload: Record<string, unknown> = { message, history, model };
