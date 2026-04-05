@@ -109,6 +109,7 @@ export function useChat({
   const [messageCount, setMessageCount] = useState(0);
   const [offlineBanner, setOfflineBanner] = useState(false);
   const [usageWarning, setUsageWarning] = useState<{ level: string; message: string }>({ level: 'none', message: '' });
+  const [tokenBalance, setTokenBalance] = useState<{ used: number; limit: number; tier: string } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -118,6 +119,23 @@ export function useChat({
   }, []);
 
   useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+
+  // Fetch token balance on mount and expose for header display
+  const fetchTokenBalance = useCallback(() => {
+    if (!token) return;
+    apiFetch('/account-info', {}, token).then(r => r.json()).then(data => {
+      if (data?.usage) {
+        const used = data.usage.free_tokens_used + (data.usage.tokens_used || 0);
+        const limit = (data.usage.tokens_limit || 0) + data.usage.free_tokens_limit;
+        setTokenBalance({ used, limit, tier: data.tier || 'free' });
+      }
+      if (data?.warning && data.warning !== 'none') {
+        setUsageWarning({ level: data.warning, message: data.warning_message || '' });
+      }
+    }).catch(() => {});
+  }, [token]);
+
+  useEffect(() => { fetchTokenBalance(); }, [fetchTokenBalance]);
 
   // Save messages to conversation on change (skip greeting-only)
   useEffect(() => {
@@ -295,16 +313,8 @@ export function useChat({
     } finally {
       setStreaming(false);
       inputRef.current?.focus();
-      // Fetch usage warning after each message
-      if (token) {
-        apiFetch('/account-info', {}, token).then(r => r.json()).then(data => {
-          if (data?.warning && data.warning !== 'none') {
-            setUsageWarning({ level: data.warning, message: data.warning_message || '' });
-          } else {
-            setUsageWarning({ level: 'none', message: '' });
-          }
-        }).catch(() => {});
-      }
+      // Refresh token balance + usage warning after each message
+      fetchTokenBalance();
     }
   }, [input, streaming, messages, selectedModel, token]);
 
@@ -323,6 +333,7 @@ export function useChat({
     showNudge,
     offlineBanner,
     usageWarning,
+    tokenBalance,
     greeting,
     // Refs
     messagesEndRef,
