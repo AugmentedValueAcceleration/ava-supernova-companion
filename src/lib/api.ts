@@ -69,6 +69,7 @@ export interface ModelOption {
 
 export const MODELS: ModelOption[] = [
   // Free with account (3M Qwen tokens)
+  { id: 'qwen3.6-plus', name: 'Qwen 3.6 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3-omni-flash', name: 'Qwen Omni Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-omni-plus', name: 'Qwen 3.5 Omni Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   // BYOK — requires own API key
