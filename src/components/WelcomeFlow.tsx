@@ -9,9 +9,58 @@ interface Props {
 
 export default function WelcomeFlow({ userName, onComplete }: Props) {
   const [step, setStep] = useState(0);
+  const [consentChecked, setConsentChecked] = useState(false);
+
+  const recordConsent = () => {
+    const timestamp = new Date().toISOString();
+    localStorage.setItem('ava-companion-consent-accepted', timestamp);
+    // Record consent server-side if connected
+    const key = localStorage.getItem('ava-companion-api-key');
+    if (key) {
+      fetch('https://ava-supernova.com/api/consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}`, 'X-Ava-Platform': 'companion' },
+        body: JSON.stringify({ platform: 'companion', appVersion: '1.0.0', acceptedAt: timestamp, termsVersion: '1.0', privacyVersion: '1.0' }),
+      }).catch(() => { /* non-critical */ });
+    }
+  };
 
   const steps = [
-    // Step 0: Welcome
+    // Step 0: GDPR Consent
+    <div key="consent" className="space-y-5">
+      <div className="text-center space-y-2">
+        <h2 className="text-xl font-bold text-white">Before You Begin</h2>
+        <p className="text-sm text-gray-400">Please review our terms and privacy policy</p>
+      </div>
+
+      <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
+        <div className="text-xs text-gray-300 leading-relaxed space-y-2">
+          <p>Ava is built by <span className="text-white font-medium">Augmented Value Acceleration Ltd</span>, registered in England and Wales.</p>
+          <ul className="list-disc pl-4 space-y-1 text-gray-400">
+            <li>All data is <span className="text-emerald-400">stored locally</span> on your device by default</li>
+            <li>Cloud sync is <span className="text-emerald-400">opt-in only</span></li>
+            <li>Your data is <span className="text-emerald-400">never used to train AI models</span></li>
+            <li>No third-party analytics or tracking</li>
+          </ul>
+          <p className="text-gray-500">You can exercise your UK GDPR rights at any time in Settings.</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-4 text-xs">
+        <a href="https://ava-supernova.com/terms" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">Terms of Service</a>
+        <span className="text-gray-600">|</span>
+        <a href="https://ava-supernova.com/privacy" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">Privacy Policy</a>
+      </div>
+
+      <label className={`flex items-start gap-3 rounded-xl p-3 cursor-pointer transition border ${consentChecked ? 'border-ava-purple bg-ava-purple/10' : 'border-ava-border bg-ava-surface'}`}>
+        <input type="checkbox" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} className="mt-0.5 accent-purple-500" />
+        <span className="text-xs text-gray-300 leading-relaxed">
+          I have read and agree to the <span className="text-white font-medium">Terms of Service</span> and <span className="text-white font-medium">Privacy Policy</span>
+        </span>
+      </label>
+    </div>,
+
+    // Step 1: Welcome
     <div key="welcome" className="text-center space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-white">Welcome, {userName}!</h1>
@@ -164,7 +213,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
       {/* Footer buttons */}
       <div className="shrink-0 px-5 pb-6 pt-3 max-w-sm mx-auto w-full">
         <div className="flex gap-3">
-          {step > 0 && (
+          {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
               className="flex-1 py-3 rounded-xl border border-ava-border text-gray-400 font-medium text-sm hover:border-gray-500 transition"
@@ -173,13 +222,19 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
             </button>
           )}
           <button
-            onClick={() => step < steps.length - 1 ? setStep(step + 1) : onComplete()}
-            className="flex-1 py-3 rounded-xl bg-ava-purple text-white font-semibold text-sm hover:bg-ava-purple-dark transition"
+            onClick={() => {
+              if (step === 0) { recordConsent(); setStep(1); }
+              else if (step < steps.length - 1) setStep(step + 1);
+              else onComplete();
+            }}
+            disabled={step === 0 && !consentChecked}
+            className={`flex-1 py-3 rounded-xl bg-ava-purple text-white font-semibold text-sm transition ${step === 0 && !consentChecked ? 'opacity-30 cursor-not-allowed' : 'hover:bg-ava-purple-dark'}`}
           >
-            {step === steps.length - 1 ? "Let's go!" : 'Next'}
+            {step === 0 ? 'I Agree' : step === steps.length - 1 ? "Let's go!" : 'Next'}
           </button>
         </div>
-        {step < steps.length - 1 && (
+        {/* Skip not available on consent step */}
+        {step > 0 && step < steps.length - 1 && (
           <button onClick={onComplete} className="w-full mt-2 text-xs text-gray-600 hover:text-gray-400 transition">
             Skip for now
           </button>
