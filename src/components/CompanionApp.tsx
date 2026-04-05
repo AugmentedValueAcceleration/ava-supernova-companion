@@ -384,7 +384,7 @@ export default function CompanionApp({
           {/* Token balance pill */}
           {chat.tokenBalance && (
             <div
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium"
               style={{
                 background: chat.tokenBalance.used / chat.tokenBalance.limit > 0.9
                   ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.1)',
