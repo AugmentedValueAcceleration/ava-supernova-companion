@@ -31,6 +31,10 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Skip non-http(s) schemes — chrome-extension://, data:, etc. can't be cached
+  const url = new URL(event.request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
   // Network-first for everything — freshness over speed
   // Fall back to cache only when offline
   event.respondWith(
