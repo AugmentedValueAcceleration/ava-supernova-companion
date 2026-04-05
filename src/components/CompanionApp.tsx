@@ -17,13 +17,13 @@ import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
-import { loadPersonality } from '@/lib/personality';
+// personality lib used by PersonalityDesigner component
 
 type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality';
 
 export default function CompanionApp({
   session,
-  onSignIn,
+  onSignIn: _onSignIn,
   onSignOut,
 }: {
   session: Session | null;
