@@ -6,12 +6,6 @@ import { t } from '@/lib/i18n';
 
 // ── Option descriptors ─────────────────────────────────────────────────────
 
-const PRONOUNS = [
-  { value: 'she/her', label: 'she / her' },
-  { value: 'he/him', label: 'he / him' },
-  { value: 'they/them', label: 'they / them' },
-];
-
 const TONES = [
   { value: 'warm', label: 'Warm', desc: 'Warm and encouraging' },
   { value: 'direct', label: 'Direct', desc: 'Direct and no-nonsense' },
@@ -37,8 +31,6 @@ const STYLES = [
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function PersonalityDesigner() {
-  const [name, setName] = useState('Ava');
-  const [pronouns, setPronouns] = useState('she/her');
   const [tone, setTone] = useState('warm');
   const [energy, setEnergy] = useState('enthusiastic');
   const [style, setStyle] = useState('conversational');
@@ -48,8 +40,6 @@ export default function PersonalityDesigner() {
   // Load personality on mount
   useEffect(() => {
     const p = loadPersonality();
-    setName(p.name);
-    setPronouns(p.pronouns);
     setTone(p.tone);
     setEnergy(p.energy);
     setStyle(p.style);
@@ -57,15 +47,13 @@ export default function PersonalityDesigner() {
   }, []);
 
   const handleSave = () => {
-    savePersonality({ name, pronouns, tone, energy, style, description });
+    savePersonality({ name: 'Ava', pronouns: 'she/her', tone, energy, style, description });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
 
   const handleReset = () => {
     const p = resetPersonality();
-    setName(p.name);
-    setPronouns(p.pronouns);
     setTone(p.tone);
     setEnergy(p.energy);
     setStyle(p.style);
@@ -79,41 +67,11 @@ export default function PersonalityDesigner() {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="px-4 py-3 border-b border-ava-border">
-        <h2 className="font-semibold text-white text-lg">{t('designYourAI')}</h2>
-        <p className="text-xs text-gray-500 mt-0.5">{t('designSubtitle')}</p>
+        <h2 className="font-semibold text-white text-lg">Tune Ava&apos;s Style</h2>
+        <p className="text-xs text-gray-500 mt-0.5">Adjust how Ava communicates with you</p>
       </div>
 
       <div className="p-4 space-y-5">
-        {/* Name */}
-        <FieldSection label="NAME">
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Ava"
-            className="w-full bg-ava-bg border border-ava-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition"
-          />
-        </FieldSection>
-
-        {/* Pronouns */}
-        <FieldSection label="PRONOUNS">
-          <div className="flex gap-2">
-            {PRONOUNS.map(p => (
-              <button
-                key={p.value}
-                onClick={() => setPronouns(p.value)}
-                className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
-                  pronouns === p.value
-                    ? 'border-ava-purple bg-ava-purple/15 text-white'
-                    : 'border-ava-border bg-ava-surface text-gray-400 hover:text-white'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </FieldSection>
-
         {/* Tone */}
         <FieldSection label="TONE">
           <div className="space-y-2">
@@ -177,7 +135,7 @@ export default function PersonalityDesigner() {
         <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
           <p className="text-[11px] font-bold text-gray-500 tracking-wider mb-2">PREVIEW</p>
           <p className="text-sm text-white">
-            <span className="font-semibold text-ava-purple">{name || 'Ava'}</span>{' '}
+            <span className="font-semibold text-ava-purple">Ava</span>{' '}
             will be {toneLabel}, {energyLabel}, and {styleLabel}.
           </p>
           {description && (

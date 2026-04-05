@@ -53,10 +53,8 @@ export default function CompanionApp({
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const [personalityName, setPersonalityName] = useState<string>(() => {
-    if (typeof window !== 'undefined') return loadPersonality().name || 'Ava';
-    return 'Ava';
-  });
+  // Ava's name is fixed — not user-configurable
+  const personalityName = 'Ava';
 
   const [textSize, setTextSize] = useState<'small' | 'default' | 'large'>(() => {
     if (typeof window !== 'undefined') {
@@ -103,7 +101,7 @@ export default function CompanionApp({
       } catch { /* ignore */ }
     };
     const personalityHandler = () => {
-      setPersonalityName(loadPersonality().name || 'Ava');
+      // Personality style may have changed but name stays Ava
     };
     window.addEventListener('storage', handler);
     window.addEventListener('ava-settings-changed', handler);
