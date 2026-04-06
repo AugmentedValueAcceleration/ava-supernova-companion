@@ -112,8 +112,10 @@ export default function SettingsView({
     apiFetch('/usage/summary', {}, session.access_token)
       .then(r => r.json())
       .then(data => {
-        const totalUsed = (data.period?.free_tokens_used ?? 0) + (data.period?.tokens_used ?? 0);
-        const totalLimit = (data.period?.free_tokens_limit ?? 3000000) + (data.period?.tokens_limit ?? 0);
+        const tier = data.tier || 'free';
+        const hasSub = (data.period?.tokens_limit ?? 0) > 0 && tier !== 'free';
+        const totalUsed = hasSub ? (data.period?.tokens_used ?? 0) : (data.period?.free_tokens_used ?? 0);
+        const totalLimit = hasSub ? (data.period?.tokens_limit ?? 0) : (data.period?.free_tokens_limit ?? 3000000);
         setUsage({
           tokensUsed: totalUsed,
           tokensLimit: data.isUnlimited ? Infinity : totalLimit,

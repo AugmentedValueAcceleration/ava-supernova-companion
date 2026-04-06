@@ -468,6 +468,25 @@ export default function CompanionApp({
         </div>
       </header>
 
+      {/* Token usage bar */}
+      {chat.tokenBalance && chat.tokenBalance.limit > 0 && chat.tokenBalance.limit < 999_999_999 && (() => {
+        const remaining = Math.max(0, chat.tokenBalance.limit - chat.tokenBalance.used);
+        const pct = Math.max(0, Math.min(100, (remaining / chat.tokenBalance.limit) * 100));
+        const color = pct <= 5 ? '#ef4444' : pct <= 20 ? '#eab308' : '#a855f7';
+        return (
+          <div className="shrink-0 px-4 pb-1.5 pt-1">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(168,85,247,0.08)' }}>
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
+              </div>
+              <span className="text-[9px] tabular-nums shrink-0 font-mono" style={{ color, opacity: pct <= 20 ? 0.9 : 0.4 }}>
+                {remaining >= 1_000_000 ? `${(remaining / 1_000_000).toFixed(2)}M` : remaining >= 1000 ? `${(remaining / 1000).toFixed(1)}K` : remaining} left
+              </span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Update banner */}
       {updateAvailable && (
         <div className="shrink-0 bg-ava-purple/10 border-b border-ava-purple/20 px-4 py-2.5 flex items-center justify-between">

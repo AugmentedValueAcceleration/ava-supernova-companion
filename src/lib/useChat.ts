@@ -125,9 +125,11 @@ export function useChat({
     if (!token) return;
     apiFetch('/account-info', {}, token).then(r => r.json()).then(data => {
       if (data?.usage) {
-        const used = data.usage.free_tokens_used + (data.usage.tokens_used || 0);
-        const limit = (data.usage.tokens_limit || 0) + data.usage.free_tokens_limit;
-        setTokenBalance({ used, limit, tier: data.tier || 'free' });
+        const tier = data.tier || 'free';
+        const hasSub = data.usage.tokens_limit > 0 && tier !== 'free';
+        const used = hasSub ? data.usage.tokens_used || 0 : data.usage.free_tokens_used;
+        const limit = hasSub ? data.usage.tokens_limit : data.usage.free_tokens_limit;
+        setTokenBalance({ used, limit, tier });
       }
       if (data?.warning && data.warning !== 'none') {
         setUsageWarning({ level: data.warning, message: data.warning_message || '' });
