@@ -15,11 +15,12 @@ import MemoryPanel from './MemoryPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';
+import { SupportChat } from './SupportChat';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
 // personality lib used by PersonalityDesigner component
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality';
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support';
 
 export default function CompanionApp({
   session,
@@ -791,6 +792,12 @@ export default function CompanionApp({
               onSignOut={() => { if (apiKey) { setApiKey(null); } else { onSignOut(); } setMobileView('chat'); }}
               onClearChat={() => { clearAllConversations(); handleNewChat(); }}
               onNavigatePersonality={() => setMobileView('personality')}
+              onNavigateSupport={() => setMobileView('support')}
+            />
+          ) : mobileView === 'support' ? (
+            <SupportChat
+              token={session?.access_token || apiKey || ''}
+              onBack={() => setMobileView('settings')}
             />
           ) : null}
         </div>

@@ -59,6 +59,7 @@ interface Props {
   onSignOut: () => void;
   onClearChat: () => void;
   onNavigatePersonality?: () => void;
+  onNavigateSupport?: () => void;
 }
 
 type TextSize = 'small' | 'default' | 'large';
@@ -66,7 +67,7 @@ type Theme = 'dark' | 'light' | 'system';
 
 export default function SettingsView({
   isGuest, session, apiKey, selectedModel,
-  onSelectModel, onSignIn, onSignOut, onClearChat, onNavigatePersonality,
+  onSelectModel, onSignIn, onSignOut, onClearChat, onNavigatePersonality, onNavigateSupport,
 }: Props) {
   const [textSize, setTextSize] = useState<TextSize>('default');
   const [theme, setTheme] = useState<Theme>('dark');
@@ -490,9 +491,12 @@ export default function SettingsView({
 
         {/* Personality */}
         <Section title={t('personality')}>
-          <div className="bg-ava-surface border border-ava-border rounded-xl">
+          <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <button onClick={onNavigatePersonality} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
               <Row label={t('designYourAI')} subtitle={t('designSubtitle')} value={<ChevronRight />} />
+            </button>
+            <button onClick={onNavigateSupport} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
+              <Row label="Support" subtitle="Chat with Ava and the team" value={<ChevronRight />} />
             </button>
           </div>
         </Section>
