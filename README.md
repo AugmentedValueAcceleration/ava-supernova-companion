@@ -11,15 +11,18 @@ The companion app for Ava | Supernova. Same memory, same context, same brain —
 - **Memory** — Browse, search, and delete memories. Everything Ava knows about you, in one place.
 - **Journal** — Dual journal (yours + Ava's). Mood tracking. Date navigation. Delete entries.
 - **Settings** — Model selector, BYOK provider keys, theme, text size, language (20 languages).
-- **Personality Designer** — Name your AI. Choose tone, energy, communication style. Same brain, your personality.
+- **Ava's Style** — Choose tone, energy, communication style. Same brain, your personality.
+- **Token Usage Bar** — Visual token balance below the chat header with real-time deduction.
+- **Live Chat Support** — Chat with Ava and the team. 10-second polling. No tickets, no forms.
 - **Cloud Sync** — Local-first. Push to cloud when you choose. Sync conversations, personality, and settings.
 - **Release Notes** — See what's new directly in the app.
 - **Notifications** — Browser notifications for tasks due today.
 
 ## Models
 
-- **Free with account** — Qwen Omni Flash + Qwen 3.5 Omni Plus (3M tokens)
-- **BYOK** — DeepSeek, Moonshot/Kimi, Zhipu/GLM-5, Mistral, Anthropic/Claude. Add your own API keys.
+- **Free with account** — Qwen 3.6 Plus + Qwen Flash (3M tokens)
+- **Platform** — Qwen + MiniMax models on managed plans
+- **BYOK** — Kimi, DeepSeek, Zhipu/GLM-5, Mistral, Anthropic/Claude. Add your own API keys.
 
 ## Navigation
 
