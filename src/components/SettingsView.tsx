@@ -340,14 +340,22 @@ export default function SettingsView({
                   <Row label="Plan" value={<span className="text-xs text-ava-purple-light font-medium">{usage.plan}</span>} />
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-400">{t('tokensUsed')}</span>
-                      <span className="text-xs text-gray-500">{usage.tokensUsed.toLocaleString()} / {usage.tokensLimit.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400">Tokens Remaining</span>
+                      <span className="text-xs text-white font-semibold">{Math.max(0, usage.tokensLimit - usage.tokensUsed).toLocaleString()}</span>
                     </div>
                     <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-ava-purple rounded-full transition-all"
-                        style={{ width: `${usage.tokensLimit > 0 ? Math.min(100, (usage.tokensUsed / usage.tokensLimit) * 100) : 0}%` }}
+                        className={`h-full rounded-full transition-all ${
+                          usage.tokensLimit > 0 && (usage.tokensLimit - usage.tokensUsed) / usage.tokensLimit < 0.1 ? 'bg-red-500'
+                          : usage.tokensLimit > 0 && (usage.tokensLimit - usage.tokensUsed) / usage.tokensLimit < 0.3 ? 'bg-amber-500'
+                          : 'bg-ava-purple'
+                        }`}
+                        style={{ width: `${usage.tokensLimit > 0 ? Math.min(100, ((usage.tokensLimit - usage.tokensUsed) / usage.tokensLimit) * 100) : 0}%` }}
                       />
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-[10px] text-gray-600">{usage.tokensUsed.toLocaleString()} used</span>
+                      <span className="text-[10px] text-gray-600">{usage.tokensLimit.toLocaleString()} limit</span>
                     </div>
                   </div>
                   <div>
@@ -529,6 +537,9 @@ export default function SettingsView({
             </button>
             <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="GitHub" value={<ChevronRight />} />
+            </a>
+            <a href="https://discord.gg/tuHZzUGxA6" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+              <Row label="Discord" value={<ChevronRight />} />
             </a>
             <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label={t('website')} value={<ChevronRight />} />

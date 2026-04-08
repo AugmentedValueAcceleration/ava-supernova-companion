@@ -392,12 +392,12 @@ export default function CompanionApp({
                 border: `1px solid ${chat.tokenBalance.used / chat.tokenBalance.limit > 0.9
                   ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.15)'}`,
               }}
-              title={`${((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(2)}M tokens remaining`}
+              title={`${((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(1)}M tokens remaining`}
             >
               <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75" />
               </svg>
-              {((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(2)}M
+              {((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(1)}M
             </div>
           )}
           {/* Model selector */}
