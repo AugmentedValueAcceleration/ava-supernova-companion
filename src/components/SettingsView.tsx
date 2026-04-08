@@ -530,7 +530,7 @@ export default function SettingsView({
         <Section title={t('about')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4">
-              <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.1</span>} />
+              <Row label={t('version')} value={<span className="text-xs text-gray-500">0.1.2</span>} />
             </div>
             <button onClick={() => setShowReleaseNotes(true)} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
               <Row label={t('releaseNotes')} value={<ChevronRight />} />
