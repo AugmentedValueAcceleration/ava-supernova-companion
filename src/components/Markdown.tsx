@@ -114,6 +114,6 @@ function inlineFormat(text: string): string {
   // Italic
   out = out.replace(/\*(.+?)\*/g, '<em>$1</em>');
   // Links
-  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m: string, text: string, url: string) => /^(https?:|mailto:|\/|#)/i.test(url) ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>` : text);
   return out;
 }
