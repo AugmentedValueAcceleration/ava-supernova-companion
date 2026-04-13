@@ -289,6 +289,10 @@ export default function SettingsView({
                 <Row label={t('journal')} value={<span className="text-xs text-emerald-400">Connected</span>} />
               </div>
 
+              {/* Billing — plan, tokens, storage. Lives inside Account since the
+                  companion is mobile-first and doesn't justify a whole billing page. */}
+              <BillingSection apiKey={apiKey} session={session} />
+
               <a
                 href="https://ava-supernova.com/pricing"
                 target="_blank"
@@ -593,6 +597,128 @@ function Row({ label, subtitle, value }: { label: string; subtitle?: string; val
         {subtitle && <p className="text-[11px] text-gray-500 mt-0.5">{subtitle}</p>}
       </div>
       {value}
+    </div>
+  );
+}
+
+interface BillingInfo {
+  tier: string;
+  usage: {
+    tokens_used: number;
+    tokens_limit: number | null;
+    free_tokens_used: number;
+    free_tokens_limit: number;
+  } | null;
+  storage?: {
+    used_gb: number;
+    base_gb: number;
+    addon_gb: number;
+    total_gb: number;
+    percent_used: number;
+  };
+}
+
+function BillingSection({ apiKey, session }: { apiKey: string | null; session: Session | null }) {
+  const [info, setInfo] = useState<BillingInfo | null>(null);
+
+  // Prefer the Supabase JWT when signed in — covers users who haven't created
+  // a platform API key yet. Falls back to the API key if present.
+  const token = session?.access_token || apiKey;
+
+  useEffect(() => {
+    if (!token) { setInfo(null); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await apiFetch('/account-info', {}, token);
+        const json = await res.json();
+        if (!cancelled && json && typeof json === 'object') {
+          setInfo(json as BillingInfo);
+        }
+      } catch {
+        // Silent — panel just stays hidden if the endpoint isn't reachable
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token]);
+
+  if (!info) return null;
+
+  const tier = info.tier || 'free';
+  const freeUsed = info.usage?.free_tokens_used || 0;
+  const freeLimit = info.usage?.free_tokens_limit || 3_000_000;
+  const freePct = freeLimit > 0 ? Math.min(100, Math.round((freeUsed / freeLimit) * 100)) : 0;
+  const planUsed = info.usage?.tokens_used || 0;
+  const planLimit = info.usage?.tokens_limit;
+  const planPct = planLimit && planLimit > 0 ? Math.min(100, Math.round((planUsed / planLimit) * 100)) : 0;
+  const storage = info.storage;
+
+  const fmtTokens = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`;
+  const fmtStorage = (gb: number) => gb >= 1000 ? `${(gb / 1024).toFixed(2)} TB` : gb >= 10 ? `${Math.round(gb)} GB` : gb >= 1 ? `${gb.toFixed(1)} GB` : `${Math.round(gb * 1024)} MB`;
+
+  return (
+    <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Plan</span>
+        <span className="text-xs font-medium text-white capitalize">{tier}</span>
+      </div>
+
+      {/* Free tokens */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[11px] text-gray-400">Free tokens</span>
+          <span className="text-[11px] text-gray-500">
+            {fmtTokens(freeUsed)} / {fmtTokens(freeLimit)}
+          </span>
+        </div>
+        <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
+          <div
+            className="h-full bg-emerald-500 transition-all"
+            style={{ width: `${freePct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Plan tokens (only if a paid plan has a limit) */}
+      {planLimit !== null && planLimit !== undefined && planLimit > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[11px] text-gray-400">Plan tokens</span>
+            <span className="text-[11px] text-gray-500">
+              {fmtTokens(planUsed)} / {fmtTokens(planLimit)}
+            </span>
+          </div>
+          <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 transition-all"
+              style={{ width: `${planPct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Storage */}
+      {storage && (
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[11px] text-gray-400">Cloud storage</span>
+            <span className="text-[11px] text-gray-500">
+              {fmtStorage(storage.used_gb)} / {fmtStorage(storage.total_gb)}
+            </span>
+          </div>
+          <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
+            <div
+              className="h-full bg-purple-500 transition-all"
+              style={{ width: `${storage.percent_used}%` }}
+            />
+          </div>
+          {storage.addon_gb > 0 && (
+            <p className="text-[10px] text-gray-500 mt-1">
+              {fmtStorage(storage.base_gb)} plan + {fmtStorage(storage.addon_gb)} add-ons
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
