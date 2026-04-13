@@ -18,22 +18,40 @@ interface Memory {
 
 const STORAGE_KEY = 'ava-companion-memories';
 
+// Color map stays inclusive so legacy memories saved with older
+// category names (personal / work / project) still render with a
+// badge. The selector below only exposes the canonical core set.
 const categoryColors: Record<string, string> = {
-  personal: 'bg-blue-500',
-  work: 'bg-amber-500',
-  preference: 'bg-purple-500',
-  project: 'bg-emerald-500',
-  general: 'bg-gray-500',
   pattern: 'bg-cyan-500',
+  preference: 'bg-purple-500',
   architecture: 'bg-indigo-500',
   'bug-fix': 'bg-red-500',
   convention: 'bg-teal-500',
   'tool-config': 'bg-orange-500',
   decision: 'bg-pink-500',
   person: 'bg-yellow-500',
+  general: 'bg-gray-500',
+  // Legacy (pre-v0.39.0 companion-only categories) — kept for back-compat
+  personal: 'bg-blue-500',
+  work: 'bg-amber-500',
+  project: 'bg-emerald-500',
 };
 
-const categories = ['general', 'preference', 'personal', 'work', 'project', 'pattern', 'architecture', 'decision'] as const;
+// Canonical core MemoryCategory set — identical to the enum in
+// @ava/core's memory/types.ts. Keeping these in sync means memories
+// saved from the extension, IDE, or CLI show up with matching badges
+// here (and vice versa).
+const categories = [
+  'pattern',
+  'preference',
+  'architecture',
+  'bug-fix',
+  'convention',
+  'tool-config',
+  'decision',
+  'person',
+  'general',
+] as const;
 
 // ── Local storage helpers ────────────────────────────────────────────
 
