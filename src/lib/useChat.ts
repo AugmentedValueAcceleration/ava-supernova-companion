@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { sendChat, apiFetch } from '@/lib/api';
+import { sendChat, apiFetch, MODELS } from '@/lib/api';
 import { getActiveProviderKey } from '@/components/SettingsView';
 import { loadPersonality, buildPersonalityPrefix } from '@/lib/personality';
 import {
@@ -81,7 +81,7 @@ export function useChat({
   const greeting: Message = {
     id: '1', role: 'assistant', timestamp: new Date(),
     content: isGuest
-      ? "Hey! I'm Ava — your AI companion. I'm ready to chat using our free models, no sign up needed.\n\nWhat's on your mind?"
+      ? "Hey! I'm Ava. To start chatting, either sign in for the free tier (3M Qwen tokens a month) or drop your own API key into Settings — Kimi, DeepSeek, Claude, GLM, Mistral all work.\n\nTell me what you're up to."
       : `Hey ${userName}! I'm Ava — your companion on the go. I can manage your tasks, write journal entries, and chat about anything.\n\nWhat's on your mind?`,
   };
 
@@ -99,7 +99,19 @@ export function useChat({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-model') || 'qwen3-omni-flash';
+    if (typeof window === 'undefined') return 'qwen3-omni-flash';
+    const stored = localStorage.getItem('ava-companion-model');
+    if (stored) return stored;
+    if (isGuest) {
+      // Guest with no saved preference — pick the first model they hold a
+      // BYOK key for. If none, return empty so send-time shows the friendly
+      // "sign in or add a key" message rather than attempting a guest Qwen
+      // call that the server will reject.
+      for (const m of MODELS) {
+        if (getActiveProviderKey(m.id)) return m.id;
+      }
+      return '';
+    }
     return 'qwen3-omni-flash';
   });
   const [showModelPicker, setShowModelPicker] = useState(false);

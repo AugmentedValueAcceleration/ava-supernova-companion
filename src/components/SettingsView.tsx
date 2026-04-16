@@ -416,14 +416,25 @@ export default function SettingsView({
             <CustomSelect
               value={selectedModel}
               onChange={onSelectModel}
-              placeholder="Select a model..."
-              options={MODELS.filter(m => isGuest ? (m.free || !!getActiveProviderKey(m.id)) : true).map(m => ({
-                value: m.id,
-                label: m.name,
-                sublabel: m.provider,
-                badge: m.free ? 'FREE' : undefined,
-                badgeColor: m.free ? 'text-emerald-400 bg-emerald-400/10' : undefined,
-              }))}
+              placeholder={isGuest ? 'Sign in for free tier, or add an API key below' : 'Select a model...'}
+              // Guests only see models they have a BYOK key for. "free" means
+              // free on the platform account tier — it is not free for guests.
+              options={MODELS.filter(m => isGuest ? !!getActiveProviderKey(m.id) : true).map(m => {
+                const hasOwnKey = !!getActiveProviderKey(m.id);
+                const showFree = !isGuest && m.free && !hasOwnKey;
+                const showBYOK = hasOwnKey;
+                return {
+                  value: m.id,
+                  label: m.name,
+                  sublabel: m.provider,
+                  badge: showFree ? 'FREE' : showBYOK ? 'BYOK' : undefined,
+                  badgeColor: showFree
+                    ? 'text-emerald-400 bg-emerald-400/10'
+                    : showBYOK
+                      ? 'text-blue-400 bg-blue-400/10'
+                      : undefined,
+                };
+              })}
             />
           </div>
         </Section>
