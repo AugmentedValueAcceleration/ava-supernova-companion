@@ -11,7 +11,6 @@ import { Markdown } from './Markdown';
 import TasksPanel from './TasksPanel';
 import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
-// LearningPanel removed — teaching needs the full extension toolkit
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView from './SettingsView';

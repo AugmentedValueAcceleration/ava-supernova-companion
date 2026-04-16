@@ -2,7 +2,7 @@
 
 Your AI partner, everywhere you go.
 
-The companion app for Ava | Supernova. Same memory, same context, same brain — on any device. Chat with Ava on the bus. Check your tasks. Review your learning progress. Design her personality. All synced with the VS Code extension.
+The companion app for Ava | Supernova. Same memory, same context, same brain — on any device. Chat with Ava on the bus. Check your tasks. Review your journal. Design her personality. All synced with the VS Code extension.
 
 ## Features
 
