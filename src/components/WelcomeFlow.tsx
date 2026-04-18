@@ -125,7 +125,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
           current
           features={[
             '3M free Qwen tokens with account',
-            'Qwen Omni Flash + Qwen 3.5 Omni Plus',
+            'Every model on every plan (3.6 Plus, 3.5 Plus, 3.5 Omni Plus, 3.5 Omni Flash, 3.5 Flash)',
             'Memory, tasks, journal, learning, all surfaces',
             'BYOK — use any model with your own API key',
           ]}
@@ -135,7 +135,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
           price="$19/mo"
           highlight
           features={[
-            'Qwen Omni Flash + Qwen 3.5 Omni Plus',
+            'Same models as Free — only the token allowance scales',
             '15M tokens/month',
             'Cloud sync, email support',
           ]}

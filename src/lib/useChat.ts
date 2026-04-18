@@ -99,7 +99,7 @@ export function useChat({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window === 'undefined') return 'qwen3-omni-flash';
+    if (typeof window === 'undefined') return 'qwen3.5-flash';
     const stored = localStorage.getItem('ava-companion-model');
     if (stored) return stored;
     if (isGuest) {
@@ -112,7 +112,7 @@ export function useChat({
       }
       return '';
     }
-    return 'qwen3-omni-flash';
+    return 'qwen3.5-flash';
   });
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
