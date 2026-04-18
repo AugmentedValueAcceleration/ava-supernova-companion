@@ -1,13 +1,13 @@
 'use client';
 
 /**
- * AuthPage — companion sign-in screen (v0.37.0).
+ * AuthPage — companion sign-in screen.
  *
- * Four options matching the VS Code extension's sign-in UI:
+ * Three options, mirroring the extension + IDE sign-in UI now that the
+ * paste-your-API-key fallback has been removed:
  *   1. Continue with GitHub (primary)
  *   2. Sign in with email (secondary)
  *   3. Continue without an account (free chat, no sync)
- *   4. Have an API key? Paste it instead (30-day fallback)
  *
  * The companion is a web app, so the OAuth flow uses redirect-back instead
  * of URI schemes: we open the auth page in the same window, the server
@@ -44,10 +44,7 @@ function generateState(): string {
 }
 
 export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
-  const [showManualKey, setShowManualKey] = useState(false);
-  const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [exchanging, setExchanging] = useState(false);
 
   // ── Check for OAuth callback on mount ──────────────────────────────────
@@ -116,27 +113,6 @@ export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
     // Navigate in the same window — the server will redirect back after auth
     window.location.href = url.toString();
   }
-
-  const handleManualKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!apiKey.trim().startsWith('sk-ava-')) {
-      setError('API key must start with sk-ava-');
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/memories?limit=1`, {
-        headers: { Authorization: `Bearer ${apiKey.trim()}` },
-      });
-      if (!res.ok) throw new Error('Invalid API key');
-      onApiKeyConnect?.(apiKey.trim());
-    } catch {
-      setError('Invalid API key. Check your key in the platform dashboard.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ── Exchanging state (processing OAuth callback) ──────────────────────
   if (exchanging) {
@@ -209,46 +185,10 @@ export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
         </button>
       )}
 
-      {/* Fallback: paste API key (30-day sunset) */}
-      {!showManualKey ? (
-        <button
-          onClick={() => setShowManualKey(true)}
-          className="w-full text-center text-xs text-gray-600 hover:text-gray-400 transition"
-        >
-          Have an API key? Paste it instead
-        </button>
-      ) : (
-        <form onSubmit={handleManualKey} className="space-y-3 mt-3 p-4 bg-ava-surface rounded-xl border border-ava-border">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Manual API key</p>
-            <button
-              type="button"
-              onClick={() => { setShowManualKey(false); setApiKey(''); setError(''); }}
-              className="text-xs text-gray-500 hover:text-gray-300"
-            >
-              Hide
-            </button>
-          </div>
-          <input
-            type="password"
-            placeholder="sk-ava-..."
-            value={apiKey}
-            onChange={e => { setApiKey(e.target.value); setError(''); }}
-            required
-            className="w-full bg-ava-bg border border-ava-border rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-ava-purple focus:outline-none transition font-mono"
-          />
-          <button
-            type="submit"
-            disabled={loading || !apiKey.trim()}
-            className="w-full bg-ava-purple hover:bg-ava-purple-dark text-white font-semibold py-2.5 rounded-xl transition disabled:opacity-50 text-sm"
-          >
-            {loading ? 'Validating...' : 'Connect'}
-          </button>
-          <p className="text-[10px] text-gray-600">
-            Manual API key entry will be deprecated — please sign in with GitHub or email when possible.
-          </p>
-        </form>
-      )}
+      {/* Manual paste-API-key fallback has been removed. The sunset window
+          from the v0.37.0 ship date ended; GitHub or email sign-in is the
+          only account path now. Existing users still using a manually-
+          issued key continue to work server-side. */}
 
       <p className="text-[10px] text-gray-600 text-center mt-4">
         Local-first always. Your data stays on your device unless you explicitly sync it.
