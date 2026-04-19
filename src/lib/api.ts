@@ -11,10 +11,15 @@ function getDeviceId(): string {
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}, token?: string) {
+  // Data Mode header so server-side routes that gate on it
+  // (generate-image, generate-music, render-video, companion chat
+  // tool-level writes) see the user's choice on every call.
+  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'cloud';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Ava-Platform': 'companion',
     'X-Ava-Device': getDeviceId(),
+    'X-Ava-Data-Mode': dataMode,
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers as Record<string, string>),
   };
@@ -97,7 +102,18 @@ export async function sendChat(
   providerApiKey?: string | null,
   personalityPrefix?: string | null,
 ) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json', 'X-Ava-Platform': 'companion', 'X-Ava-Device': getDeviceId() };
+  // Data Mode is read lazily from localStorage so the user's choice
+  // travels with every turn. Server-side tool handlers (task_manage,
+  // journal_write, memory_save) skip their DB writes when this is
+  // 'local'. Default 'cloud' when the header is missing (matches the
+  // companion's cloud-first expectation).
+  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'cloud';
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Ava-Platform': 'companion',
+    'X-Ava-Device': getDeviceId(),
+    'X-Ava-Data-Mode': dataMode,
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const bodyPayload: Record<string, unknown> = { message, history, model };

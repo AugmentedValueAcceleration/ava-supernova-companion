@@ -5,6 +5,7 @@ import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
+import { getDataMode, setDataMode, type DataMode } from '@/lib/data-mode';
 import { loadPersonality } from '@/lib/personality';
 import ConfirmDialog from './ConfirmDialog';
 import ReleaseNotes from './ReleaseNotes';
@@ -71,6 +72,7 @@ export default function SettingsView({
 }: Props) {
   const [textSize, setTextSize] = useState<TextSize>('default');
   const [theme, setTheme] = useState<Theme>('dark');
+  const [dataMode, setDataModeState] = useState<DataMode>(() => getDataMode());
   // Future: notification preferences (Capacitor)
   // const [taskReminders, setTaskReminders] = useState(true);
   // const [journalPrompt, setJournalPrompt] = useState(true);
@@ -525,6 +527,42 @@ export default function SettingsView({
         </Section>
 
         {/* Notifications — only shown in native app (Capacitor) */}
+
+        {/* Privacy — Data Mode controls whether chats, memories, tasks and
+            journal entries created from this device sync to the cloud.
+            Local keeps everything on-device; Cloud syncs so the data
+            shows up on every Ava surface; Both does both. The server
+            honours the choice on every request — changing it here takes
+            effect on the very next chat turn. */}
+        <Section title="Privacy">
+          <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
+            <Row
+              label="Data Mode"
+              subtitle={
+                dataMode === 'local'
+                  ? 'On-device only — nothing touches the cloud from this companion.'
+                  : dataMode === 'cloud'
+                    ? 'Cloud-first — everything syncs across every Ava surface.'
+                    : 'Both — saved locally and synced to cloud for cross-device access.'
+              }
+              value={
+                <TogglePills
+                  options={[
+                    { value: 'local', label: 'Local' },
+                    { value: 'cloud', label: 'Cloud' },
+                    { value: 'both', label: 'Both' },
+                  ]}
+                  selected={dataMode}
+                  onChange={v => {
+                    const next = v as DataMode;
+                    setDataModeState(next);
+                    setDataMode(next);
+                  }}
+                />
+              }
+            />
+          </div>
+        </Section>
 
         {/* Data */}
         <Section title={t('data')}>
