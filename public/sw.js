@@ -1,4 +1,4 @@
-const CACHE_VERSION = '0.1.1';
+const CACHE_VERSION = '0.1.2';
 const CACHE_NAME = `ava-companion-v${CACHE_VERSION}`;
 const STATIC_ASSETS = ['/', '/manifest.json'];
 
@@ -35,12 +35,20 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-  // Network-first for everything — freshness over speed
-  // Fall back to cache only when offline
+  // API responses must never be cached. iOS Safari is aggressive about
+  // failing backgrounded/suspended fetches; if we cache API responses and
+  // fall back to cache on failure, we silently serve stale `{memories:[]}`
+  // (or any other list) to signed-in users whose first visit cached an
+  // empty/unauthenticated response. Data endpoints must always be live.
+  const isApi = url.pathname.startsWith('/api/') || /^\/api\//.test(url.pathname);
+  if (isApi) {
+    return; // Let the browser handle it directly — no SW interception
+  }
+
+  // Static assets: network-first with cache fallback for offline support.
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses for offline fallback
         if (response.ok && event.request.method === 'GET') {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
