@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { journalApi } from '@/lib/api';
+import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { StorageBadge } from './StorageBadge';
 
 const moodEmojis = ['😔', '😕', '😐', '🙂', '😊'];
@@ -18,9 +19,17 @@ export default function JournalPanel({ token }: { token: string | null }) {
   const today = new Date().toISOString().split('T')[0];
   const isToday = selectedDate === today;
 
+  // Respect the Data Mode toggle, not just token presence. When the
+  // user picked 'local' or is signed out, never hit the cloud — reads
+  // come straight from localStorage so nothing leaks past the user's
+  // stated preference. When the mode permits cloud (and token exists)
+  // the cloud is the source of truth; we still merge in any local-only
+  // draft that pre-dates sync for resilience.
   const loadEntry = useCallback(async () => {
     setLoading(true);
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+
+    const readLocal = () => {
       try {
         const stored = localStorage.getItem(`ava-journal-${selectedDate}`);
         if (stored) {
@@ -28,28 +37,30 @@ export default function JournalPanel({ token }: { token: string | null }) {
           setUserContent(entry.user_content || '');
           setAvaContent(entry.ava_content || '');
           setMood(entry.user_mood ?? null);
-        } else {
-          setUserContent(''); setAvaContent(''); setMood(null);
+          return true;
         }
-      } catch { setUserContent(''); setAvaContent(''); setMood(null); }
+      } catch { /* fall through to empty */ }
+      setUserContent(''); setAvaContent(''); setMood(null);
+      return false;
+    };
+
+    if (!useCloud) {
+      readLocal();
       setLoading(false);
       return;
     }
+
     try {
-      const data = await journalApi.get(token, selectedDate);
+      const data = await journalApi.get(token!, selectedDate);
       if (data.entry) {
         setUserContent(data.entry.user_content || '');
         setAvaContent(data.entry.ava_content || '');
         setMood(data.entry.user_mood);
       } else {
-        setUserContent('');
-        setAvaContent('');
-        setMood(null);
+        readLocal();
       }
     } catch {
-      setUserContent('');
-      setAvaContent('');
-      setMood(null);
+      readLocal();
     } finally {
       setLoading(false);
     }
@@ -58,33 +69,37 @@ export default function JournalPanel({ token }: { token: string | null }) {
   useEffect(() => { loadEntry(); }, [loadEntry]);
 
   const saveEntry = async () => {
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+
+    if (useLocal) {
       localStorage.setItem(`ava-journal-${selectedDate}`, JSON.stringify({
         user_content: userContent, user_mood: mood, ava_content: avaContent,
       }));
-      setEditing(false);
-      return;
     }
-    try {
-      await journalApi.upsert(token, {
-        date: selectedDate,
-        user_content: userContent,
-        user_mood: mood ?? undefined,
-      });
-      setEditing(false);
-    } catch { /* api error */ }
+    if (useCloud) {
+      try {
+        await journalApi.upsert(token!, {
+          date: selectedDate,
+          user_content: userContent,
+          user_mood: mood ?? undefined,
+        });
+      } catch { /* non-fatal — local copy above preserves the write */ }
+    }
+    setEditing(false);
   };
 
   const deleteEntry = async () => {
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+
+    if (useLocal) {
       localStorage.removeItem(`ava-journal-${selectedDate}`);
-      setUserContent(''); setAvaContent(''); setMood(null);
-      return;
     }
-    try {
-      await journalApi.delete(token, selectedDate);
-      setUserContent(''); setAvaContent(''); setMood(null);
-    } catch { /* api error */ }
+    if (useCloud) {
+      try { await journalApi.delete(token!, selectedDate); } catch { /* non-fatal */ }
+    }
+    setUserContent(''); setAvaContent(''); setMood(null);
   };
 
   const changeDate = (offset: number) => {

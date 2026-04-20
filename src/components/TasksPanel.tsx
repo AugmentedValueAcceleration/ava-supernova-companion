@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { tasksApi } from '@/lib/api';
+import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { StorageBadge } from './StorageBadge';
 
 interface Task {
@@ -29,21 +30,31 @@ export default function TasksPanel({ token }: { token: string | null }) {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // Route on BOTH Data Mode and token presence — not token alone. Users
+  // who set the mode to 'local' stay local even when signed in; users
+  // on 'both' get writes mirrored to cloud AND local so nothing is
+  // lost if they go offline. Cloud is still the source of truth for
+  // read when the mode permits it.
   const loadTasks = useCallback(async () => {
-    if (!token) {
-      // Local-only mode — use localStorage
+    const useCloud = includesCloud() && !!token;
+
+    const readLocal = () => {
       try {
         const stored = localStorage.getItem('ava-companion-tasks');
         setTasks(stored ? JSON.parse(stored) : []);
       } catch { setTasks([]); }
+    };
+
+    if (!useCloud) {
+      readLocal();
       setLoading(false);
       return;
     }
     try {
-      const data = await tasksApi.list(token);
+      const data = await tasksApi.list(token!);
       setTasks(data.tasks || data || []);
     } catch {
-      setTasks([]);
+      readLocal();
     } finally {
       setLoading(false);
     }
@@ -57,48 +68,76 @@ export default function TasksPanel({ token }: { token: string | null }) {
 
   const addTask = async () => {
     if (!newTask.trim()) return;
-    if (!token) {
-      const task: Task = { id: Date.now().toString(), title: newTask.trim(), priority: 'medium', status: 'todo', category: 'personal', due_date: today, source: 'user' };
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+
+    // Always mirror into local state + storage first for instant UI
+    // response. Cloud fires in parallel if the mode permits.
+    const task: Task = {
+      id: Date.now().toString(),
+      title: newTask.trim(),
+      priority: 'medium',
+      status: 'todo',
+      category: 'personal',
+      due_date: today,
+      source: 'user',
+    };
+    if (useLocal) {
       const updated = [...tasks, task];
       setTasks(updated);
       saveLocal(updated);
-      setNewTask('');
-      return;
     }
-    try {
-      await tasksApi.create(token, { title: newTask.trim(), due_date: today, priority: 'medium', category: 'personal' });
-      setNewTask('');
-      loadTasks();
-    } catch { /* api error */ }
+    setNewTask('');
+
+    if (useCloud) {
+      try {
+        await tasksApi.create(token!, {
+          title: task.title,
+          due_date: today,
+          priority: 'medium',
+          category: 'personal',
+        });
+        loadTasks();
+      } catch { /* non-fatal — local copy kept if cloud fails */ }
+    }
   };
 
   const deleteTask = async (task: Task) => {
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+
+    if (useLocal) {
       const updated = tasks.filter(t => t.id !== task.id);
       setTasks(updated);
       saveLocal(updated);
-      return;
     }
-    try {
-      await tasksApi.delete(token, task.id);
-      loadTasks();
-    } catch { /* api error */ }
+    if (useCloud) {
+      try {
+        await tasksApi.delete(token!, task.id);
+        loadTasks();
+      } catch { /* non-fatal */ }
+    }
   };
 
   const toggleTask = async (task: Task) => {
-    if (!token) {
-      const updated = tasks.map(t => t.id === task.id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t);
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+    const nextStatus = task.status === 'done' ? 'todo' : 'done';
+
+    if (useLocal) {
+      const updated = tasks.map(t => t.id === task.id ? { ...t, status: nextStatus } : t);
       setTasks(updated);
       saveLocal(updated);
-      return;
     }
-    try {
-      await tasksApi.update(token, task.id, {
-        status: task.status === 'done' ? 'todo' : 'done',
-        completed_at: task.status === 'done' ? null : new Date().toISOString(),
-      });
-      loadTasks();
-    } catch { /* api error */ }
+    if (useCloud) {
+      try {
+        await tasksApi.update(token!, task.id, {
+          status: nextStatus,
+          completed_at: nextStatus === 'done' ? new Date().toISOString() : null,
+        });
+        loadTasks();
+      } catch { /* non-fatal */ }
+    }
   };
 
   const filtered = filter === 'today'

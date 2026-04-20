@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { memoriesApi } from '@/lib/api';
+import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { StorageBadge } from './StorageBadge';
 
 const PAGE_SIZE = 100;
@@ -84,21 +85,26 @@ export default function MemoryPanel({ token }: { token: string | null }) {
 
   // ── Load memories ──────────────────────────────────────────────────
 
+  // Route on Data Mode + token. When mode='local' (or no token) we
+  // stay entirely local — never call the cloud endpoint regardless of
+  // token availability. When the mode permits cloud, the remote list
+  // is the source of truth and any local unsynced entries are merged
+  // in so a draft isn't lost between sessions.
   const loadMemories = useCallback(async () => {
     setLoading(true);
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+
+    if (!useCloud) {
       setMemories(loadLocal());
       setLoading(false);
       return;
     }
     try {
-      const data = await memoriesApi.list(token);
+      const data = await memoriesApi.list(token!);
       const remote: Memory[] = (data.memories || data || []).map((m: Memory) => ({ ...m, synced: true }));
-      // Merge with any unsynced local memories
       const local = loadLocal().filter(m => !m.synced);
       setMemories([...local, ...remote]);
     } catch {
-      // Fall back to local
       setMemories(loadLocal());
     } finally {
       setLoading(false);
@@ -112,6 +118,9 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   const addMemory = async () => {
     if (!formKey.trim() || !formContent.trim()) return;
 
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+
     const memory: Memory = {
       id: crypto.randomUUID(),
       key: formKey.trim(),
@@ -122,20 +131,27 @@ export default function MemoryPanel({ token }: { token: string | null }) {
       synced: false,
     };
 
-    if (!token) {
+    if (useCloud) {
+      try {
+        await memoriesApi.create(token!, { key: memory.key, content: memory.content, category: memory.category });
+        // If mode=both, still persist a local copy as backup; synced
+        // flag stays false in local store because the cloud owns the
+        // canonical id. loadMemories() merges remote in and reflects
+        // synced:true there.
+        if (useLocal) saveLocal([memory, ...loadLocal()]);
+        loadMemories();
+        resetForm();
+        return;
+      } catch {
+        // Cloud write failed — if mode=cloud only, surface nothing
+        // and let the user retry. If local is also permitted, fall
+        // through to local write below so the entry survives.
+      }
+    }
+    if (useLocal) {
       const updated = [memory, ...memories];
       setMemories(updated);
-      saveLocal(updated);
-    } else {
-      try {
-        await memoriesApi.create(token, { key: memory.key, content: memory.content, category: memory.category });
-        loadMemories();
-      } catch {
-        // Save locally as fallback
-        const updated = [memory, ...memories];
-        setMemories(updated);
-        saveLocal(updated);
-      }
+      saveLocal([memory, ...loadLocal()]);
     }
     resetForm();
   };
@@ -143,39 +159,36 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   const updateMemory = async () => {
     if (!editingId || !formKey.trim() || !formContent.trim()) return;
 
-    if (!token) {
+    const useCloud = includesCloud() && !!token;
+    const useLocal = includesLocal() || !token;
+    const mem = memories.find(m => m.id === editingId);
+    const patch = { key: formKey.trim(), content: formContent.trim(), category: formCategory };
+
+    if (useCloud && mem?.synced) {
+      try {
+        await memoriesApi.update(token!, editingId, patch);
+        loadMemories();
+        resetForm();
+        return;
+      } catch { /* fall through to local mirror */ }
+    }
+    if (useLocal) {
       const updated = memories.map(m => m.id === editingId
-        ? { ...m, key: formKey.trim(), content: formContent.trim(), category: formCategory, updated_at: new Date().toISOString() }
+        ? { ...m, ...patch, updated_at: new Date().toISOString() }
         : m
       );
       setMemories(updated);
-      saveLocal(updated);
-    } else {
-      const mem = memories.find(m => m.id === editingId);
-      if (mem?.synced) {
-        try {
-          await memoriesApi.update(token, editingId, { key: formKey.trim(), content: formContent.trim(), category: formCategory });
-          loadMemories();
-        } catch { /* ignore */ }
-      } else {
-        // Local-only memory — update in localStorage
-        const updated = memories.map(m => m.id === editingId
-          ? { ...m, key: formKey.trim(), content: formContent.trim(), category: formCategory, updated_at: new Date().toISOString() }
-          : m
-        );
-        setMemories(updated);
-        saveLocal(updated);
-      }
+      saveLocal(updated.filter(m => !m.synced));
     }
     resetForm();
   };
 
   const deleteMemory = async (id: string) => {
+    const useCloud = includesCloud() && !!token;
     const mem = memories.find(m => m.id === id);
-    if (token && mem?.synced) {
-      try {
-        await memoriesApi.delete(token, id);
-      } catch { /* ignore */ }
+
+    if (useCloud && mem?.synced) {
+      try { await memoriesApi.delete(token!, id); } catch { /* non-fatal */ }
     }
     const updated = memories.filter(m => m.id !== id);
     setMemories(updated);
