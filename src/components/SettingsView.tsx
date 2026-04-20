@@ -108,27 +108,41 @@ export default function SettingsView({
   // Release notes view
   const [showReleaseNotes, setShowReleaseNotes] = useState(false);
 
-  // Fetch usage from unified API
+  // Fetch usage from unified API. Re-runs on session change and also
+  // whenever the companion tab regains visibility — so an upgrade made
+  // on the website in another tab propagates to the companion settings
+  // view without requiring a full page reload.
   useEffect(() => {
     if (!session?.access_token) return;
-    setUsageLoading(true);
-    apiFetch('/usage/summary', {}, session.access_token)
-      .then(r => r.json())
-      .then(data => {
-        const tier = data.tier || 'free';
-        const hasSub = (data.period?.tokens_limit ?? 0) > 0 && tier !== 'free';
-        const totalUsed = hasSub ? (data.period?.tokens_used ?? 0) : (data.period?.free_tokens_used ?? 0);
-        const totalLimit = hasSub ? (data.period?.tokens_limit ?? 0) : (data.period?.free_tokens_limit ?? 3000000);
-        setUsage({
-          tokensUsed: totalUsed,
-          tokensLimit: data.isUnlimited ? Infinity : totalLimit,
-          requestsUsed: data.period?.requests_count ?? data.totals?.requests ?? 0,
-          requestsLimit: 0,
-          plan: data.tier === 'admin' ? 'Admin (∞)' : (data.tier || 'Free'),
-        });
-      })
-      .catch(() => setUsage(null))
-      .finally(() => setUsageLoading(false));
+    const token = session.access_token;
+
+    const loadUsage = (showSpinner: boolean) => {
+      if (showSpinner) setUsageLoading(true);
+      apiFetch('/usage/summary', {}, token)
+        .then(r => r.json())
+        .then(data => {
+          const tier = data.tier || 'free';
+          const hasSub = (data.period?.tokens_limit ?? 0) > 0 && tier !== 'free';
+          const totalUsed = hasSub ? (data.period?.tokens_used ?? 0) : (data.period?.free_tokens_used ?? 0);
+          const totalLimit = hasSub ? (data.period?.tokens_limit ?? 0) : (data.period?.free_tokens_limit ?? 3000000);
+          setUsage({
+            tokensUsed: totalUsed,
+            tokensLimit: data.isUnlimited ? Infinity : totalLimit,
+            requestsUsed: data.period?.requests_count ?? data.totals?.requests ?? 0,
+            requestsLimit: 0,
+            plan: data.tier === 'admin' ? 'Admin (∞)' : (data.tier || 'Free'),
+          });
+        })
+        .catch(() => setUsage(null))
+        .finally(() => { if (showSpinner) setUsageLoading(false); });
+    };
+
+    loadUsage(true);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') loadUsage(false);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [session?.access_token]);
 
   const handleSyncConversations = async () => {
