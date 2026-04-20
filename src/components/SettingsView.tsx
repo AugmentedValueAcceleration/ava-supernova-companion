@@ -121,10 +121,12 @@ export default function SettingsView({
       apiFetch('/usage/summary', {}, token)
         .then(r => r.json())
         .then(data => {
-          const tier = data.tier || 'free';
-          const hasSub = (data.period?.tokens_limit ?? 0) > 0 && tier !== 'free';
-          const totalUsed = hasSub ? (data.period?.tokens_used ?? 0) : (data.period?.free_tokens_used ?? 0);
-          const totalLimit = hasSub ? (data.period?.tokens_limit ?? 0) : (data.period?.free_tokens_limit ?? 3000000);
+          // Unified total — sum free pool + subscription pool so the
+          // Usage card matches the single bar on Billing (and extension /
+          // web Usage page). Backend still burns free first then overflows.
+          const totalUsed = (data.period?.free_tokens_used ?? 0) + (data.period?.tokens_used ?? 0);
+          const totalLimit =
+            (data.period?.free_tokens_limit ?? 3_000_000) + (data.period?.tokens_limit ?? 0);
           setUsage({
             tokensUsed: totalUsed,
             tokensLimit: data.isUnlimited ? Infinity : totalLimit,
@@ -679,6 +681,16 @@ interface BillingInfo {
     total_gb: number;
     percent_used: number;
   };
+  /**
+   * Active subscription for paid tiers. Drives the "Renews X" line —
+   * usage.period_end tracks the monthly usage window (calendar for free,
+   * sub cycle for paid) and is NOT the renewal date. Null for free/admin.
+   */
+  subscription?: {
+    status: string;
+    current_period_start: string | null;
+    current_period_end: string | null;
+  } | null;
 }
 
 function BillingSection({ apiKey, session }: { apiKey: string | null; session: Session | null }) {
@@ -710,11 +722,16 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   const tier = info.tier || 'free';
   const freeUsed = info.usage?.free_tokens_used || 0;
   const freeLimit = info.usage?.free_tokens_limit || 3_000_000;
-  const freePct = freeLimit > 0 ? Math.min(100, Math.round((freeUsed / freeLimit) * 100)) : 0;
   const planUsed = info.usage?.tokens_used || 0;
-  const planLimit = info.usage?.tokens_limit;
-  const planPct = planLimit && planLimit > 0 ? Math.min(100, Math.round((planUsed / planLimit) * 100)) : 0;
+  const planLimit = info.usage?.tokens_limit || 0;
+  // Unified total — backend still burns free first, overflows to sub pool,
+  // but the UI shows one combined bar so users don't have to mentally merge
+  // the two.
+  const totalUsed = freeUsed + planUsed;
+  const totalLimit = freeLimit + planLimit;
+  const totalPct = totalLimit > 0 ? Math.min(100, Math.round((totalUsed / totalLimit) * 100)) : 0;
   const storage = info.storage;
+  const renewsAt = info.subscription?.current_period_end;
 
   const fmtTokens = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`;
   const fmtStorage = (gb: number) => gb >= 1000 ? `${(gb / 1024).toFixed(2)} TB` : gb >= 10 ? `${Math.round(gb)} GB` : gb >= 1 ? `${gb.toFixed(1)} GB` : `${Math.round(gb * 1024)} MB`;
@@ -723,42 +740,31 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
     <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Plan</span>
-        <span className="text-xs font-medium text-white capitalize">{tier}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-white capitalize">{tier}</span>
+          {renewsAt && (
+            <span className="text-[10px] text-gray-500">
+              Renews {new Date(renewsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Free tokens */}
+      {/* Unified token bar — free + subscription + top-ups combined. */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[11px] text-gray-400">Free tokens</span>
+          <span className="text-[11px] text-gray-400">Tokens Remaining</span>
           <span className="text-[11px] text-gray-500">
-            {fmtTokens(freeUsed)} / {fmtTokens(freeLimit)}
+            {fmtTokens(Math.max(0, totalLimit - totalUsed))} / {fmtTokens(totalLimit)}
           </span>
         </div>
         <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
           <div
-            className="h-full bg-emerald-500 transition-all"
-            style={{ width: `${freePct}%` }}
+            className="h-full bg-ava-purple transition-all"
+            style={{ width: `${totalPct}%` }}
           />
         </div>
       </div>
-
-      {/* Plan tokens (only if a paid plan has a limit) */}
-      {planLimit !== null && planLimit !== undefined && planLimit > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] text-gray-400">Plan tokens</span>
-            <span className="text-[11px] text-gray-500">
-              {fmtTokens(planUsed)} / {fmtTokens(planLimit)}
-            </span>
-          </div>
-          <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 transition-all"
-              style={{ width: `${planPct}%` }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Storage */}
       {storage && (
