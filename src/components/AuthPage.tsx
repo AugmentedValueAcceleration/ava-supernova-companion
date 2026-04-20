@@ -51,17 +51,39 @@ export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
   // After the user authorizes on the website, the server redirects back to
   // the companion's URL with ?code=X&state=Y in the query string. Detect
   // this on mount, exchange the code, and connect.
+  //
+  // Uses localStorage (not sessionStorage) because magic-link emails open
+  // in a different browser tab than the one that initiated sign-in —
+  // sessionStorage is tab-scoped and would drop the state token, leading
+  // to silent verification failure and the "authorization complete but
+  // never redirects back" bug. State is a one-shot random value with a
+  // 60s TTL via the server-side device_auth_codes table, so carrying it
+  // across tabs in localStorage is safe.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     const state = params.get('state');
-    const savedState = sessionStorage.getItem('ava-signin-state');
+    const savedState = localStorage.getItem('ava-signin-state');
+    const savedAt = Number(localStorage.getItem('ava-signin-state-at') || '0');
 
-    if (code && state && savedState === state) {
+    // Expire the local state after 10 minutes — longer than the server's
+    // 60s code TTL but short enough that a stale entry from a stalled
+    // sign-in weeks ago can't accidentally match a fresh callback.
+    const stateExpired = savedAt && Date.now() - savedAt > 10 * 60 * 1000;
+
+    if (code && state && savedState === state && !stateExpired) {
       // Clean the URL immediately so refreshing doesn't re-process
       window.history.replaceState({}, '', window.location.pathname);
-      sessionStorage.removeItem('ava-signin-state');
+      localStorage.removeItem('ava-signin-state');
+      localStorage.removeItem('ava-signin-state-at');
       exchangeCode(code, state);
+    } else if (code && state && !savedState) {
+      // Callback arrived but our local state is gone — likely a second
+      // browser (email opened on phone, sign-in started on desktop) or
+      // the state storage was cleared. Surface it instead of failing
+      // silently.
+      window.history.replaceState({}, '', window.location.pathname);
+      setError('Sign-in link opened in a different browser than the one you started with. Try signing in again from this device.');
     }
   }, []);
 
@@ -99,7 +121,8 @@ export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
 
   function startSignIn(method: 'github' | 'email') {
     const state = generateState();
-    sessionStorage.setItem('ava-signin-state', state);
+    localStorage.setItem('ava-signin-state', state);
+    localStorage.setItem('ava-signin-state-at', String(Date.now()));
 
     const url = new URL('/auth/extension', WEB_ORIGIN);
     url.searchParams.set('state', state);
