@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { MODELS } from '@/lib/api';
+import { API_BASE, MODELS } from '@/lib/api';
 import { t } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
@@ -196,6 +196,78 @@ export default function CompanionApp({
       timestamp: new Date(),
     }]);
   };
+
+  // ── OAuth callback handler — runs on every page load ──────────────────
+  // After the user authorizes on the web, the server redirects back to
+  // the companion with ?code=X&state=Y. That redirect arrives at whatever
+  // page the companion happens to be on, NOT at the AuthPage modal —
+  // previously the exchange only fired when the modal was open, so fresh
+  // page loads left the user stuck on the URL with no processing. Moved
+  // up here so it runs regardless of modal state.
+  const [authExchanging, setAuthExchanging] = useState(false);
+  const [authCallbackError, setAuthCallbackError] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    if (!code || !state) return;
+
+    const savedState = localStorage.getItem('ava-signin-state');
+    const savedAt = Number(localStorage.getItem('ava-signin-state-at') || '0');
+    const stateExpired = savedAt && Date.now() - savedAt > 10 * 60 * 1000;
+
+    // Always clean the URL so a refresh doesn't re-process the same code
+    window.history.replaceState({}, '', window.location.pathname);
+
+    if (!savedState) {
+      setAuthCallbackError('Sign-in link opened in a different browser than the one you started with. Tap "Sign in" to try again from this device.');
+      return;
+    }
+    if (savedState !== state || stateExpired) {
+      localStorage.removeItem('ava-signin-state');
+      localStorage.removeItem('ava-signin-state-at');
+      setAuthCallbackError('Sign-in link expired or doesn\'t match this device. Tap "Sign in" to try again.');
+      return;
+    }
+
+    localStorage.removeItem('ava-signin-state');
+    localStorage.removeItem('ava-signin-state-at');
+
+    const deviceId = (() => {
+      let id = localStorage.getItem('ava-companion-device-id');
+      if (!id) {
+        id = crypto.randomUUID().slice(0, 16);
+        localStorage.setItem('ava-companion-device-id', id);
+      }
+      return id;
+    })();
+
+    setAuthExchanging(true);
+    fetch(`${API_BASE}/auth/extension/exchange`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, device_id: deviceId, state }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({ error: 'Exchange failed' }));
+          throw new Error(body.error || `HTTP ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.key) {
+          handleApiKeyConnect(data.key);
+        } else {
+          setAuthCallbackError('No platform key returned. Please try signing in again.');
+        }
+      })
+      .catch((err) => {
+        setAuthCallbackError(err instanceof Error ? err.message : 'Sign-in failed');
+      })
+      .finally(() => setAuthExchanging(false));
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -837,6 +909,31 @@ export default function CompanionApp({
           onClick={() => setMobileView('settings')}
         />
       </nav>
+
+      {/* OAuth callback overlays — show feedback while exchanging and
+          surface any failure so the user isn't silently stranded. */}
+      {authExchanging && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="rounded-2xl bg-ava-surface border border-ava-border px-6 py-5 text-center">
+            <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-purple-500/30 border-t-purple-500" />
+            <p className="text-sm text-gray-300">Signing you in…</p>
+          </div>
+        </div>
+      )}
+      {authCallbackError && !authExchanging && (
+        <div className="fixed bottom-24 left-4 right-4 z-[55] rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300 shadow-lg">
+          <div className="flex items-start gap-2">
+            <p className="flex-1">{authCallbackError}</p>
+            <button
+              onClick={() => setAuthCallbackError(null)}
+              className="shrink-0 text-red-300/70 hover:text-red-200"
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Welcome flow for new signups */}
       {showWelcome && (
