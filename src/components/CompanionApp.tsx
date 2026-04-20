@@ -13,7 +13,7 @@ import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
-import SettingsView from './SettingsView';
+import SettingsView, { getActiveProviderKey } from './SettingsView';
 import { SupportChat } from './SupportChat';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
@@ -189,6 +189,19 @@ export default function CompanionApp({
   const handleApiKeyConnect = (key: string) => {
     setApiKey(key);
     setShowAuthModal(false);
+    // Fresh sign-in UX: start them on the best free model so the chat
+    // works out of the box. Skip if they already have a saved model that
+    // is still valid for a signed-in user (respects prior preference).
+    const current = chat.selectedModel;
+    const currentModel = MODELS.find((m) => m.id === current);
+    const currentIsValid = currentModel
+      && (currentModel.free || getActiveProviderKey(currentModel.id));
+    if (!currentIsValid) {
+      chat.setSelectedModel('qwen3.6-plus');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ava-companion-model', 'qwen3.6-plus');
+      }
+    }
     chat.setMessages([{
       id: '1',
       role: 'assistant',
@@ -196,6 +209,28 @@ export default function CompanionApp({
       timestamp: new Date(),
     }]);
   };
+
+  // ── Auto-pick a sensible default model when login state changes ───────
+  // Covers the Supabase session path (magic-link / password sign-in from
+  // the web) that doesn't flow through handleApiKeyConnect. If the user
+  // lands on the companion already signed in (or signs in via the
+  // parent-level flow) and their current model is a BYOK one they have
+  // no key for — or is empty — switch them to qwen3.6-plus so Chat works
+  // immediately. Respects existing valid preferences.
+  useEffect(() => {
+    if (isGuest) return;
+    const currentModel = MODELS.find((m) => m.id === chat.selectedModel);
+    const currentIsValid = currentModel
+      && (currentModel.free || getActiveProviderKey(currentModel.id));
+    if (!currentIsValid) {
+      chat.setSelectedModel('qwen3.6-plus');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ava-companion-model', 'qwen3.6-plus');
+      }
+    }
+    // Only react to login-state changes, not every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGuest]);
 
   // ── OAuth callback handler — runs on every page load ──────────────────
   // After the user authorizes on the web, the server redirects back to
@@ -489,8 +524,15 @@ export default function CompanionApp({
                 <div className="fixed inset-0 z-10" onClick={() => chat.setShowModelPicker(false)} />
                 <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] py-1 max-h-[400px] overflow-y-auto">
                   {MODELS.filter(model => {
-                    // Hide account-required models for guests
+                    // Guests don't see account-required (Qwen platform) models.
                     if (isGuest && model.requiresAccount) return false;
+                    // Signed-in users don't see BYOK models they have no key
+                    // configured for — selecting one would just fail on send.
+                    // Once a key is added in Settings the model shows up on
+                    // the next picker open (filter is re-evaluated on render).
+                    if (!isGuest && !model.free && !getActiveProviderKey(model.id)) {
+                      return false;
+                    }
                     return true;
                   }).map(model => (
                     <button
