@@ -607,9 +607,12 @@ export default function SettingsView({
             <a href="https://github.com/AugmentedValueAcceleration/ava-supernova" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label="GitHub" value={<ChevronRight />} />
             </a>
-            <a href="https://discord.gg/tuHZzUGxA6" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
-              <Row label="Discord" value={<ChevronRight />} />
-            </a>
+            <div className="block p-4 opacity-60 cursor-not-allowed" aria-disabled="true">
+              <Row
+                label="Discord"
+                value={<span className="text-[10px] uppercase tracking-wider text-gray-500">Coming soon</span>}
+              />
+            </div>
             <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label={t('website')} value={<ChevronRight />} />
             </a>
