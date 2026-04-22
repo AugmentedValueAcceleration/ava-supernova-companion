@@ -141,8 +141,8 @@ export function useChat({
     apiFetch('/account-info', {}, token).then(r => r.json()).then(data => {
       if (data?.usage) {
         const tier = data.tier || 'free';
-        const used = (data.usage.free_tokens_used || 0) + (data.usage.tokens_used || 0);
-        const limit = (data.usage.free_tokens_limit || 0) + (data.usage.tokens_limit || 0);
+        const used = (data.usage.free_credits_used || 0) + (data.usage.credits_used || 0);
+        const limit = (data.usage.free_credits_limit || 0) + (data.usage.credits_limit || 0);
         setTokenBalance({ used, limit, tier });
       }
       if (data?.warning && data.warning !== 'none') {
