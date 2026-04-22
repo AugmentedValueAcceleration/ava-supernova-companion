@@ -124,9 +124,9 @@ export default function SettingsView({
           // Unified total — sum free pool + subscription pool so the
           // Usage card matches the single bar on Billing (and extension /
           // web Usage page). Backend still burns free first then overflows.
-          const totalUsed = (data.period?.free_tokens_used ?? 0) + (data.period?.tokens_used ?? 0);
+          const totalUsed = (data.period?.free_credits_used ?? 0) + (data.period?.credits_used ?? 0);
           const totalLimit =
-            (data.period?.free_tokens_limit ?? 3_000_000) + (data.period?.tokens_limit ?? 0);
+            (data.period?.free_credits_limit ?? 1_500) + (data.period?.credits_limit ?? 0);
           setUsage({
             tokensUsed: totalUsed,
             tokensLimit: data.isUnlimited ? Infinity : totalLimit,
@@ -672,10 +672,10 @@ function Row({ label, subtitle, value }: { label: string; subtitle?: string; val
 interface BillingInfo {
   tier: string;
   usage: {
-    tokens_used: number;
-    tokens_limit: number | null;
-    free_tokens_used: number;
-    free_tokens_limit: number;
+    credits_used: number;
+    credits_limit: number | null;
+    free_credits_used: number;
+    free_credits_limit: number;
   } | null;
   storage?: {
     used_gb: number;
@@ -723,10 +723,10 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   if (!info) return null;
 
   const tier = info.tier || 'free';
-  const freeUsed = info.usage?.free_tokens_used || 0;
-  const freeLimit = info.usage?.free_tokens_limit || 3_000_000;
-  const planUsed = info.usage?.tokens_used || 0;
-  const planLimit = info.usage?.tokens_limit || 0;
+  const freeUsed = info.usage?.free_credits_used || 0;
+  const freeLimit = info.usage?.free_credits_limit || 1_500;
+  const planUsed = info.usage?.credits_used || 0;
+  const planLimit = info.usage?.credits_limit || 0;
   // Unified total — backend still burns free first, overflows to sub pool,
   // but the UI shows one combined bar so users don't have to mentally merge
   // the two.
