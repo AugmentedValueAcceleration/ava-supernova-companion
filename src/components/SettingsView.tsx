@@ -128,12 +128,12 @@ export default function SettingsView({
           // Usage card matches the single bar on Billing (and extension /
           // web Usage page). Backend still burns free first then overflows.
           const totalUsed = (data.period?.free_credits_used ?? 0) + (data.period?.credits_used ?? 0);
-          // Free-pool fallback is tier-aware: 1,500 for free users, 0
-          // for paid. Previously defaulted to 1,500 regardless, which
+          // Free-pool fallback is tier-aware: 300 for free users, 0
+          // for paid. A prior bug defaulted to 1,500 regardless, which
           // phantom-inflated every Pro/Ultra user's combined allowance
-          // by 1,500 on top of their real plan quota.
+          // by the free amount on top of their real plan quota.
           const tier = String(data.tier || 'free');
-          const freeLimitDefault = tier === 'free' ? 1_500 : 0;
+          const freeLimitDefault = tier === 'free' ? 300 : 0;
           const totalLimit =
             (data.period?.free_credits_limit ?? freeLimitDefault) + (data.period?.credits_limit ?? 0);
           setUsage({
@@ -738,7 +738,7 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   // every paid user doesn't actually have. Row-missing fallback is
   // tier-aware: 1,500 for free, 0 for paid, matching what the server
   // will write on first call.
-  const freeLimit = info.usage?.free_credits_limit ?? (tier === 'free' ? 1_500 : 0);
+  const freeLimit = info.usage?.free_credits_limit ?? (tier === 'free' ? 300 : 0);
   const planUsed = info.usage?.credits_used ?? 0;
   const planLimit = info.usage?.credits_limit ?? 0;
   // Unified total — backend still burns free first, overflows to sub pool,
