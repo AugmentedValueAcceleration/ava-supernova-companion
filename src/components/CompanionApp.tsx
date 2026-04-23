@@ -486,26 +486,30 @@ export default function CompanionApp({
 
         {/* Right: Token balance + Model selector + Sign In */}
         <div className="flex items-center gap-2">
-          {/* Token balance pill */}
-          {chat.tokenBalance && (
-            <div
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium"
-              style={{
-                background: chat.tokenBalance.used / chat.tokenBalance.limit > 0.9
-                  ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.1)',
-                color: chat.tokenBalance.used / chat.tokenBalance.limit > 0.9
-                  ? '#f87171' : '#c084fc',
-                border: `1px solid ${chat.tokenBalance.used / chat.tokenBalance.limit > 0.9
-                  ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.15)'}`,
-              }}
-              title={`${((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(1)}M tokens remaining`}
-            >
-              <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75" />
-              </svg>
-              {((chat.tokenBalance.limit - chat.tokenBalance.used) / 1_000_000).toFixed(1)}M
-            </div>
-          )}
+          {/* Credit balance pill — credits are small numbers (1,500 /
+              15,000 / 75,000), not millions. The old formatter divided
+              by 1M and showed "0.0M" for every paid user. Now: exact
+              thousands-separated value, always precise, never ambiguous. */}
+          {chat.tokenBalance && chat.tokenBalance.limit > 0 && (() => {
+            const remaining = Math.max(0, chat.tokenBalance.limit - chat.tokenBalance.used);
+            const over90 = chat.tokenBalance.used / chat.tokenBalance.limit > 0.9;
+            return (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium"
+                style={{
+                  background: over90 ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.1)',
+                  color: over90 ? '#f87171' : '#c084fc',
+                  border: `1px solid ${over90 ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.15)'}`,
+                }}
+                title={`${remaining.toLocaleString('en-US')} credits remaining`}
+              >
+                <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75" />
+                </svg>
+                {remaining.toLocaleString('en-US')}
+              </div>
+            );
+          })()}
           {/* Model selector */}
           <div className="relative">
             <button
@@ -582,7 +586,9 @@ export default function CompanionApp({
         </div>
       </header>
 
-      {/* Token usage bar */}
+      {/* Credit usage bar — hidden for admin tier (sentinel ~1e9 limit)
+          and while the balance is still loading. Credits are thousands,
+          not millions, so the old M/K formatter read wrong on paid tiers. */}
       {chat.tokenBalance && chat.tokenBalance.limit > 0 && chat.tokenBalance.limit < 999_999_999 && (() => {
         const remaining = Math.max(0, chat.tokenBalance.limit - chat.tokenBalance.used);
         const pct = Math.max(0, Math.min(100, (remaining / chat.tokenBalance.limit) * 100));
@@ -594,7 +600,7 @@ export default function CompanionApp({
                 <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
               </div>
               <span className="text-[9px] tabular-nums shrink-0 font-mono" style={{ color, opacity: pct <= 20 ? 0.9 : 0.4 }}>
-                {remaining >= 1_000_000 ? `${(remaining / 1_000_000).toFixed(2)}M` : remaining >= 1000 ? `${(remaining / 1000).toFixed(1)}K` : remaining} left
+                {remaining.toLocaleString('en-US')} credits left
               </span>
             </div>
           </div>
