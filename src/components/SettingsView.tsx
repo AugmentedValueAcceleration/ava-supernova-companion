@@ -125,8 +125,14 @@ export default function SettingsView({
           // Usage card matches the single bar on Billing (and extension /
           // web Usage page). Backend still burns free first then overflows.
           const totalUsed = (data.period?.free_credits_used ?? 0) + (data.period?.credits_used ?? 0);
+          // Free-pool fallback is tier-aware: 1,500 for free users, 0
+          // for paid. Previously defaulted to 1,500 regardless, which
+          // phantom-inflated every Pro/Ultra user's combined allowance
+          // by 1,500 on top of their real plan quota.
+          const tier = String(data.tier || 'free');
+          const freeLimitDefault = tier === 'free' ? 1_500 : 0;
           const totalLimit =
-            (data.period?.free_credits_limit ?? 1_500) + (data.period?.credits_limit ?? 0);
+            (data.period?.free_credits_limit ?? freeLimitDefault) + (data.period?.credits_limit ?? 0);
           setUsage({
             tokensUsed: totalUsed,
             tokensLimit: data.isUnlimited ? Infinity : totalLimit,
@@ -362,7 +368,7 @@ export default function SettingsView({
                   <Row label="Plan" value={<span className="text-xs text-ava-purple-light font-medium">{usage.plan}</span>} />
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-400">Tokens Remaining</span>
+                      <span className="text-xs text-gray-400">Credits Remaining</span>
                       <span className="text-xs text-white font-semibold">{Math.max(0, usage.tokensLimit - usage.tokensUsed).toLocaleString()}</span>
                     </div>
                     <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
@@ -723,10 +729,15 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   if (!info) return null;
 
   const tier = info.tier || 'free';
-  const freeUsed = info.usage?.free_credits_used || 0;
-  const freeLimit = info.usage?.free_credits_limit || 1_500;
-  const planUsed = info.usage?.credits_used || 0;
-  const planLimit = info.usage?.credits_limit || 0;
+  const freeUsed = info.usage?.free_credits_used ?? 0;
+  // ?? not || — paid tiers legitimately have free_credits_limit = 0.
+  // With `||`, zeros flipped to 1,500 and phantom-added a free pool
+  // every paid user doesn't actually have. Row-missing fallback is
+  // tier-aware: 1,500 for free, 0 for paid, matching what the server
+  // will write on first call.
+  const freeLimit = info.usage?.free_credits_limit ?? (tier === 'free' ? 1_500 : 0);
+  const planUsed = info.usage?.credits_used ?? 0;
+  const planLimit = info.usage?.credits_limit ?? 0;
   // Unified total — backend still burns free first, overflows to sub pool,
   // but the UI shows one combined bar so users don't have to mentally merge
   // the two.
@@ -736,7 +747,9 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   const storage = info.storage;
   const renewsAt = info.subscription?.current_period_end;
 
-  const fmtTokens = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`;
+  // Credits are small numbers — "15K" reads fine, "1.5K" for 1,500 is
+  // ambiguous. Use comma separators so the exact value is always visible.
+  const fmtCredits = (n: number) => n.toLocaleString('en-US');
   const fmtStorage = (gb: number) => gb >= 1000 ? `${(gb / 1024).toFixed(2)} TB` : gb >= 10 ? `${Math.round(gb)} GB` : gb >= 1 ? `${gb.toFixed(1)} GB` : `${Math.round(gb * 1024)} MB`;
 
   return (
@@ -753,12 +766,12 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
         </div>
       </div>
 
-      {/* Unified token bar — free + subscription + top-ups combined. */}
+      {/* Unified credit bar — free + subscription + top-ups combined. */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[11px] text-gray-400">Tokens Remaining</span>
+          <span className="text-[11px] text-gray-400">Credits Remaining</span>
           <span className="text-[11px] text-gray-500">
-            {fmtTokens(Math.max(0, totalLimit - totalUsed))} / {fmtTokens(totalLimit)}
+            {fmtCredits(Math.max(0, totalLimit - totalUsed))} / {fmtCredits(totalLimit)}
           </span>
         </div>
         <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
