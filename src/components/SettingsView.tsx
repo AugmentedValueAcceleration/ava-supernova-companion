@@ -17,15 +17,17 @@ interface ProviderKeys {
   qwen?: string;
   mistral?: string;
   anthropic?: string;
+  xiaomi?: string;
 }
 
 const PROVIDER_KEY_FIELDS: Array<{ key: keyof ProviderKeys; label: string; placeholder: string }> = [
-  { key: 'deepseek', label: 'DeepSeek', placeholder: 'sk-...' },
-  { key: 'kimi', label: 'Moonshot / Kimi', placeholder: 'sk-...' },
-  { key: 'glm', label: 'Zhipu AI (GLM)', placeholder: '...' },
-  { key: 'qwen', label: 'Alibaba Cloud (Qwen)', placeholder: 'sk-...' },
-  { key: 'mistral', label: 'Mistral AI', placeholder: '...' },
-  { key: 'anthropic', label: 'Anthropic (Claude)', placeholder: 'sk-ant-...' },
+  { key: 'deepseek',  label: 'DeepSeek',              placeholder: 'sk-...' },
+  { key: 'kimi',      label: 'Moonshot / Kimi',       placeholder: 'sk-...' },
+  { key: 'glm',       label: 'Zhipu AI (GLM)',        placeholder: '...' },
+  { key: 'qwen',      label: 'Alibaba Cloud (Qwen)',  placeholder: 'sk-...' },
+  { key: 'mistral',   label: 'Mistral AI',            placeholder: '...' },
+  { key: 'anthropic', label: 'Anthropic (Claude)',    placeholder: 'sk-ant-...' },
+  { key: 'xiaomi',    label: 'Xiaomi (MiMo)',         placeholder: '...' },
 ];
 
 export function loadProviderKeys(): ProviderKeys {
@@ -47,6 +49,7 @@ export function getActiveProviderKey(model: string): string | null {
   if (provider.includes('alibaba')) return keys.qwen || null;
   if (provider.includes('mistral')) return keys.mistral || null;
   if (provider.includes('anthropic')) return keys.anthropic || null;
+  if (provider.includes('xiaomi')) return keys.xiaomi || null;
   return null;
 }
 
