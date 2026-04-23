@@ -484,8 +484,13 @@ export default function CompanionApp({
           ))}
         </nav>
 
-        {/* Right: Token balance + Model selector + Sign In */}
-        <div className="flex items-center gap-2">
+        {/* Right: Credit balance + Model selector + Sign In. On narrow
+            screens the cluster has to cram into ~160px — use tighter gap,
+            icon-only pill, and a smaller model-name cap so the button
+            stays fully on-screen. The dropdown below is absolutely
+            right-0 to the button, so any clip on the button clips the
+            panel too. */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink min-w-0">
           {/* Credit balance pill — credits are small numbers (1,500 /
               15,000 / 75,000), not millions. The old formatter divided
               by 1M and showed "0.0M" for every paid user. Now: exact
@@ -494,8 +499,11 @@ export default function CompanionApp({
             const remaining = Math.max(0, chat.tokenBalance.limit - chat.tokenBalance.used);
             const over90 = chat.tokenBalance.used / chat.tokenBalance.limit > 0.9;
             return (
+              // Hidden on the narrowest screens — the progress bar directly
+              // beneath the header already shows exact remaining + percent
+              // color, so duplicating here just costs horizontal space.
               <div
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium shrink-0"
                 style={{
                   background: over90 ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.1)',
                   color: over90 ? '#f87171' : '#c084fc',
@@ -511,14 +519,14 @@ export default function CompanionApp({
             );
           })()}
           {/* Model selector */}
-          <div className="relative">
+          <div className="relative shrink min-w-0">
             <button
               onClick={() => chat.setShowModelPicker(!chat.showModelPicker)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ava-surface border border-ava-border text-sm text-gray-300 hover:border-ava-purple transition"
+              className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg bg-ava-surface border border-ava-border text-sm text-gray-300 hover:border-ava-purple transition max-w-full"
             >
-              <div className={`w-1.5 h-1.5 rounded-full ${currentModel?.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
-              <span className="max-w-[120px] truncate">{currentModel?.name || chat.selectedModel}</span>
-              <svg className="w-3 h-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className={`w-1.5 h-1.5 shrink-0 rounded-full ${currentModel?.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
+              <span className="max-w-[80px] sm:max-w-[120px] truncate">{currentModel?.name || chat.selectedModel}</span>
+              <svg className="w-3 h-3 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -526,7 +534,10 @@ export default function CompanionApp({
             {chat.showModelPicker && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => chat.setShowModelPicker(false)} />
-                <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] py-1 max-h-[400px] overflow-y-auto">
+                {/* max-w-[calc(100vw-2rem)] caps the dropdown to viewport
+                    minus header padding on narrow screens — otherwise the
+                    240px min-width would overflow on a ~360px phone. */}
+                <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] max-w-[calc(100vw-2rem)] py-1 max-h-[400px] overflow-y-auto">
                   {MODELS.filter(model => {
                     // Guests don't see account-required (Qwen platform) models.
                     if (isGuest && model.requiresAccount) return false;
