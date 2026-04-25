@@ -282,7 +282,7 @@ export default function DesktopPairingPanel({ userId, deviceName }: Props) {
             <div style={{ fontSize: 28, marginBottom: 8 }}>💻</div>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No desktop sessions online</div>
             <div style={{ fontSize: 12, color: theme.textMuted, lineHeight: 1.5 }}>
-              Start Ava | Supernova IDE on your computer and enter desktop mode (@@) to see it here.
+              Start Ava Supernova IDE on your computer and enter desktop mode (@@) to see it here.
             </div>
           </div>
         ) : (

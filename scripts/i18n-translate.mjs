@@ -86,7 +86,7 @@ const LANGUAGE_NAMES = {
 };
 
 const DO_NOT_TRANSLATE = [
-  'Ava', 'Supernova', 'Ava | Supernova', 'JARVIS',
+  'Ava', 'Supernova', 'Ava Supernova', 'JARVIS',
   'Qwen', 'DeepSeek', 'Kimi', 'Mistral', 'MiniMax', 'Anthropic', 'Claude',
   'GitHub', 'Slack', 'Discord', 'Git',
   'IDE', 'CLI', 'API', 'URL', 'HTTP', 'HTTPS', 'JSON', 'YAML', 'SQL',
@@ -127,7 +127,7 @@ function replaceTsValue(text, key, newValue) {
 
 function buildSystemPrompt(targetLanguage, glossary) {
   return [
-    `You are a professional UI-string translator for Ava | Supernova's companion app (a mobile PWA + Capacitor wrap).`,
+    `You are a professional UI-string translator for Ava Supernova's companion app (a mobile PWA + Capacitor wrap).`,
     `Translate the provided strings from English into ${targetLanguage}.`,
     ``,
     `Rules:`,
