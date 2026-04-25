@@ -68,23 +68,33 @@ export interface ModelOption {
   id: string;
   name: string;
   provider: string;
-  free: boolean;       // true = available with free account (3M tokens)
+  free: boolean;       // true = available with free account credits
   requiresAccount: boolean; // true = needs signed-in account
+  adminOnly?: boolean; // true = filtered out of picker unless user.tier === 'admin'
 }
 
 export const MODELS: ModelOption[] = [
-  // Free with account (3M Qwen tokens)
+  // Free with account (300 credits/month — Free tier)
   { id: 'qwen3.6-plus', name: 'Qwen 3.6 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-omni-flash', name: 'Qwen 3.5 Omni Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-omni-plus', name: 'Qwen 3.5 Omni Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
+  // Platform-managed DeepSeek V4 — admin-locked preview while DeepSeek
+  // partnership conversation is pending. Server-side admin gate (migration
+  // 218 + /api/models filter) backs this; tier filter on the picker is
+  // belt-and-braces. Both gates flip together when DeepSeek confirms.
+  { id: 'deepseek-v4-pro-platform', name: 'DeepSeek V4 Pro', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
+  { id: 'deepseek-v4-flash-platform', name: 'DeepSeek V4 Flash', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
   // BYOK — requires own API key
   { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot AI', free: false, requiresAccount: false },
   { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false, requiresAccount: false },
   { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false, requiresAccount: false },
-  { id: 'deepseek-chat', name: 'DeepSeek V3.2', provider: 'DeepSeek', free: false, requiresAccount: false },
-  { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek', free: false, requiresAccount: false },
+  // DeepSeek V4 (2026-04-24, MIT-licensed open-weight, 1M context).
+  // Legacy `deepseek-chat` / `deepseek-reasoner` IDs removed — they retire
+  // 2026-07-24 upstream and currently silently route to V4 Flash anyway.
+  { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
+  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },

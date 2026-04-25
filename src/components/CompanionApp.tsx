@@ -548,6 +548,14 @@ export default function CompanionApp({
                     if (!isGuest && !model.free && !getActiveProviderKey(model.id)) {
                       return false;
                     }
+                    // Admin-only models (currently the V4 platform-managed
+                    // entries while DeepSeek partnership is pending) hidden
+                    // from non-admin users. Server-side admin gate on
+                    // /api/models is the source of truth; this is the
+                    // client-side mirror so non-admin can't see or select.
+                    if (model.adminOnly && chat.tokenBalance?.tier !== 'admin') {
+                      return false;
+                    }
                     return true;
                   }).map(model => (
                     <button
