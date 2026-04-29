@@ -95,9 +95,15 @@ export const MODELS: ModelOption[] = [
   // 2026-07-24 upstream and currently silently route to V4 Flash anyway.
   { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
-  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },
+  // Mistral — chat + task surface only, so we curate to two lanes:
+  //   - Medium 3.5 = the merged flagship for deeper work (256K, vision)
+  //   - Small 4   = the fast lane for everyday taps and short tasks
+  // Large 3 (heavy MoE), Codestral (code-only), and Devstral 2 (agentic-
+  // coding) are deliberately omitted from companion — overkill for a
+  // mobile chat-and-tasks surface. Operators who need them stay on the
+  // IDE / extension where the full Mistral lineup is exposed.
+  { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'claude-opus-4-7', name: 'Claude Opus 4.7', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
