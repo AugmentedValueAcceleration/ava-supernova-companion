@@ -74,36 +74,44 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
-  // Free with account (300 credits/month — Free tier)
+  // ── PLATFORM (managed, with account) ────────────────────────────────────
+  // Companion is a phone-sized chat + tasks surface, so the platform
+  // menu is curated — heavy coordinator-class models (Qwen 3.5 Plus /
+  // Omni Plus, DeepSeek V4 Pro, Mistral Large 3) are omitted as overkill.
+  // Three providers represented: Mistral, DeepSeek, Qwen — locked
+  // 2026-04-29 with the operator. BYOK below carries the full lineup
+  // for users who pay per token and want the choice.
+  //
+  // Roles each platform model owns:
+  //   - Qwen 3.6 Plus       → chat with depth (the one heavy lane the
+  //                            operator wanted included — not too pricey)
+  //   - Qwen 3.5 Omni Flash → fast chat with vision (camera input)
+  //   - Qwen 3.5 Flash      → fastest text-only tasks, cheapest entry
+  //   - DeepSeek V4 Flash   → light alt to Qwen, MIT open-weight
+  //                            (admin-only until DeepSeek partnership
+  //                            confirms — both gates flip together)
+  //   - Mistral Medium 3.5  → mid-tier chat with vision, EU-friendly
+  //   - Mistral Small 4     → fast EU-friendly tasks
   { id: 'qwen3.6-plus', name: 'Qwen 3.6 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-omni-flash', name: 'Qwen 3.5 Omni Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'qwen3.5-omni-plus', name: 'Qwen 3.5 Omni Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'qwen3.5-plus', name: 'Qwen 3.5 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  // Platform-managed DeepSeek V4 — admin-locked preview while DeepSeek
-  // partnership conversation is pending. Server-side admin gate (migration
-  // 218 + /api/models filter) backs this; tier filter on the picker is
-  // belt-and-braces. Both gates flip together when DeepSeek confirms.
-  { id: 'deepseek-v4-pro-platform', name: 'DeepSeek V4 Pro', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
+  { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'deepseek-v4-flash-platform', name: 'DeepSeek V4 Flash', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
-  // BYOK — requires own API key
+  { id: 'mistral-medium-3.5-platform', name: 'Mistral Medium 3.5', provider: 'Mistral (managed)', free: true, requiresAccount: true },
+  { id: 'mistral-small-4-platform', name: 'Mistral Small 4', provider: 'Mistral (managed)', free: true, requiresAccount: true },
+
+  // ── BYOK — full lineup, no curation ────────────────────────────────────
+  // The user pays per token, so it's their call which to use. Mirror of
+  // the IDE / extension BYOK lineup for consistency across surfaces.
   { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot AI', free: false, requiresAccount: false },
   { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false, requiresAccount: false },
   { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false, requiresAccount: false },
-  // DeepSeek V4 (2026-04-24, MIT-licensed open-weight, 1M context).
-  // Legacy `deepseek-chat` / `deepseek-reasoner` IDs removed — they retire
-  // 2026-07-24 upstream and currently silently route to V4 Flash anyway.
   { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
-  // Mistral — chat + task surface only, so we curate to two lanes:
-  //   - Medium 3.5 = the merged flagship for deeper work (256K, vision)
-  //   - Small 4   = the fast lane for everyday taps and short tasks
-  // Large 3 (heavy MoE), Codestral (code-only), and Devstral 2 (agentic-
-  // coding) are deliberately omitted from companion — overkill for a
-  // mobile chat-and-tasks surface. Operators who need them stay on the
-  // IDE / extension where the full Mistral lineup is exposed.
+  { id: 'mistral-large-latest', name: 'Mistral Large 3', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'claude-opus-4-7', name: 'Claude Opus 4.7', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
