@@ -20,9 +20,10 @@ The companion app for Ava Supernova. Same memory, same context, same brain — o
 
 ## Models
 
-- **Free with account** — Qwen 3.6 Plus + Qwen Flash (3M tokens)
-- **Platform** — Qwen + MiniMax models on managed plans
-- **BYOK** — Kimi, DeepSeek, Zhipu/GLM-5, Mistral, Anthropic/Claude. Add your own API keys.
+- **Free for everyone** — 300 Ava Credits per month on every model. No card, no trial.
+- **Platform plans** — Pro / Ultra / Enterprise scale credit allowances and rate limits, never gate features. All models on every tier.
+- **BYOK** — Kimi K2.6, Anthropic / Claude, DeepSeek V4, Zhipu / GLM-5, Mistral, plus Qwen and MiniMax. Add your own API keys; calls go straight to the provider.
+- **Local + offline** — Point at any OpenAI-compatible endpoint (Ollama, LM Studio, vLLM). Full Companion, $0 ongoing, nothing leaves your device.
 
 ## Navigation
 
