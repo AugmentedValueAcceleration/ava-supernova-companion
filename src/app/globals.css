@@ -35,6 +35,16 @@ body {
   background: #3A3A5E;
 }
 
+/* Carousel rows — hide the scrollbar while keeping swipe/scroll (used by the
+   wellbeing catalogue filter chips). */
+.no-scrollbar {
+  -ms-overflow-style: none;   /* IE / old Edge */
+  scrollbar-width: none;       /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / WebKit */
+}
+
 /* Markdown in messages */
 /* Safe area for mobile bottom nav */
 .safe-area-bottom {

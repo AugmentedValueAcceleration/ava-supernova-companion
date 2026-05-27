@@ -17,9 +17,11 @@ import SettingsView, { getActiveProviderKey } from './SettingsView';
 import { SupportChat } from './SupportChat';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
+import { WellbeingSection, type WellbeingView } from './Wellbeing';
+import { syncPlans } from '@/lib/health-plan-sync';
 // personality lib used by PersonalityDesigner component
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support';
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | WellbeingView;
 
 export default function CompanionApp({
   session,
@@ -48,6 +50,10 @@ export default function CompanionApp({
   const chat = useChat({ session, token, isGuest, userName });
 
   const [mobileView, setMobileView] = useState<MobileView>('chat');
+  // Which bottom-nav sheet is open: the ✦ Wellbeing quick-actions, the More menu, or none.
+  const [navSheet, setNavSheet] = useState<null | 'wellbeing' | 'more'>(null);
+  // Drives the open animation — the sheet scales up from the ✦ button (bottom-centre).
+  const [sheetIn, setSheetIn] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -83,6 +89,20 @@ export default function CompanionApp({
       } catch { /* ignore */ }
     }
   }, []);
+
+  // Pull health plans from the cloud on mount (and when auth changes) so a
+  // plan made on another surface shows up here. No-ops in local mode / guest.
+  useEffect(() => {
+    syncPlans(token).catch(() => { /* offline — retried next mount */ });
+  }, [token]);
+
+  // Trigger the sheet's grow-from-button animation one frame after it mounts,
+  // and reset when it closes so the next open animates afresh.
+  useEffect(() => {
+    if (!navSheet) { setSheetIn(false); return; }
+    const id = requestAnimationFrame(() => setSheetIn(true));
+    return () => cancelAnimationFrame(id);
+  }, [navSheet]);
 
   // Listen for text size changes from settings
   useEffect(() => {
@@ -937,45 +957,93 @@ export default function CompanionApp({
               token={session?.access_token || apiKey || ''}
               onBack={() => setMobileView('settings')}
             />
+          ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts' || mobileView === 'profile') ? (
+            <WellbeingSection view={mobileView} token={token} />
           ) : null}
         </div>
 
       </div>
 
-      {/* Mobile bottom nav — thumb-friendly, hidden when keyboard is open */}
+      {/* Mobile bottom nav — [Chat][Tasks][✦ Wellbeing][Journal][More].
+          Hidden when the keyboard is open. */}
       <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom transition-transform duration-200 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
-        <ThumbButton
-          icon={<TasksIcon />}
-          label={t('tasks')}
-          active={mobileView === 'tasks'}
-          onClick={handleTaskNav}
-        />
-        <ThumbButton
-          icon={<MemoryIcon />}
-          label={t('memory')}
-          active={mobileView === 'memory'}
-          onClick={() => setMobileView('memory')}
-        />
         <ThumbButton
           icon={<ChatIcon />}
           label={t('chat')}
           active={mobileView === 'chat'}
-          onClick={() => setMobileView('chat')}
-          primary
+          onClick={() => { setNavSheet(null); setMobileView('chat'); }}
+        />
+        <ThumbButton
+          icon={<TasksIcon />}
+          label={t('tasks')}
+          active={mobileView === 'tasks'}
+          onClick={() => { setNavSheet(null); handleTaskNav(); }}
+        />
+        <ThumbButton
+          icon={<WellbeingNavIcon />}
+          label="Wellbeing"
+          active={navSheet === 'wellbeing' || ['today', 'gym', 'plans', 'recipes', 'workouts', 'profile'].includes(mobileView)}
+          onClick={() => setNavSheet(navSheet === 'wellbeing' ? null : 'wellbeing')}
+          hero
         />
         <ThumbButton
           icon={<JournalIcon />}
           label={t('journal')}
           active={mobileView === 'journal'}
-          onClick={() => setMobileView('journal')}
+          onClick={() => { setNavSheet(null); setMobileView('journal'); }}
         />
         <ThumbButton
-          icon={<SettingsIcon />}
-          label={t('settings')}
-          active={mobileView === 'settings'}
-          onClick={() => setMobileView('settings')}
+          icon={<MoreIcon />}
+          label="More"
+          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings'].includes(mobileView)}
+          onClick={() => setNavSheet(navSheet === 'more' ? null : 'more')}
         />
       </nav>
+
+      {/* Mobile nav sheets — ✦ Wellbeing quick-actions and the More menu.
+          One overlay; tap the scrim or a tile to dismiss. */}
+      {navSheet && (
+        <div className="md:hidden fixed inset-0 z-[55]" onClick={() => setNavSheet(null)}>
+          {/* No sheet, no backdrop. The pills float just above the bottom nav
+              and grow straight out of the ✦ / More button. This transparent
+              layer only catches an outside tap to close. */}
+          {navSheet === 'wellbeing' ? (
+            <div
+              className="absolute inset-x-4 bottom-36 grid grid-cols-3 gap-2.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {WELLBEING_TILES.map((tile, i) => (
+                <button
+                  key={tile.view}
+                  onClick={() => { setMobileView(tile.view); setNavSheet(null); }}
+                  style={{ transitionDelay: sheetIn ? `${i * 40}ms` : '0ms' }}
+                  className={`flex flex-col items-center gap-1.5 rounded-2xl border border-ava-border bg-ava-surface shadow-lg shadow-black/40 py-3.5 hover:border-ava-purple/50 origin-bottom transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-8'}`}
+                >
+                  <span className="text-ava-purple-light [&>svg]:w-5 [&>svg]:h-5">{tile.icon}</span>
+                  <span className="text-[11px] text-gray-300">{tile.label}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="absolute right-4 bottom-36 flex flex-col gap-2 w-44"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {MORE_ITEMS.map((item, i) => (
+                <button
+                  key={item.view}
+                  onClick={() => { setMobileView(item.view); setNavSheet(null); }}
+                  style={{ transitionDelay: sheetIn ? `${i * 40}ms` : '0ms' }}
+                  className={`flex items-center gap-3 rounded-full border border-ava-border bg-ava-surface shadow-xl shadow-black/50 px-4 py-3 text-left hover:border-ava-purple/50 origin-bottom-right transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-6'}`}
+                >
+                  <span className="text-gray-400">{item.icon}</span>
+                  <span className="text-sm text-gray-200">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* OAuth callback overlays — show feedback while exchanging and
           surface any failure so the user isn't silently stranded. */}
@@ -1089,10 +1157,21 @@ export default function CompanionApp({
   );
 }
 
-// Thumb menu button
-function ThumbButton({ icon, label, active, onClick, primary }: {
-  icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; primary?: boolean;
+// Thumb menu button. `hero` renders the prominent center wellbeing button —
+// a raised, filled circle that floats above the bar.
+function ThumbButton({ icon, label, active, onClick, primary, hero }: {
+  icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; primary?: boolean; hero?: boolean;
 }) {
+  if (hero) {
+    return (
+      <button onClick={onClick} className="flex flex-col items-center gap-0.5 -mt-6" aria-label={label}>
+        <span className={`flex items-center justify-center w-14 h-14 rounded-full border-4 border-ava-surface shadow-lg shadow-ava-purple/40 text-white transition active:scale-95 ${active ? 'bg-ava-purple-dark' : 'bg-ava-purple'}`}>
+          {icon}
+        </span>
+        <span className={`text-[10px] font-medium ${active ? 'text-ava-purple' : 'text-gray-400'}`}>{label}</span>
+      </button>
+    );
+  }
   return (
     <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-3 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''} ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
       {icon}
@@ -1101,6 +1180,31 @@ function ThumbButton({ icon, label, active, onClick, primary }: {
   );
 }
 
+// Center wellbeing nav icon (heart) + More icon (ellipsis).
+function WellbeingNavIcon() {
+  return <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>;
+}
+function MoreIcon() {
+  return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>;
+}
+
+// Wellbeing quick-action sheet tiles + More menu items.
+const WELLBEING_TILES: { view: WellbeingView; label: string; icon: React.ReactNode }[] = [
+  { view: 'today',    label: 'Today',    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg> },
+  { view: 'gym',      label: 'Gym',      icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l3.75 2.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+  { view: 'plans',    label: 'Plans',    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
+  { view: 'recipes',  label: 'Recipes',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l3-3 3 3 4-5" /></svg> },
+  { view: 'workouts', label: 'Workouts', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.5 6.5l11 11M5 8L3.5 6.5M19 16l1.5 1.5M8 5L6.5 3.5M16 19l1.5 1.5" /></svg> },
+  { view: 'profile',  label: 'Profile',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg> },
+];
+
+const MORE_ITEMS: { view: MobileView; label: string; icon: React.ReactNode }[] = [
+  { view: 'memory',      label: 'Memory',      icon: <MemoryIconSm /> },
+  { view: 'personality', label: 'Personality', icon: <PersonalityIconSm /> },
+  { view: 'support',     label: 'Support',     icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg> },
+  { view: 'settings',    label: 'Settings',    icon: <SettingsIconSm /> },
+];
+
 // Icons
 function ChatIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg>;
@@ -1108,14 +1212,8 @@ function ChatIcon() {
 function TasksIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 }
-function MemoryIcon() {
-  return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>;
-}
 function JournalIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
-}
-function SettingsIcon() {
-  return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 }
 
 // Small icons for desktop header nav

@@ -34,3 +34,19 @@ export function includesCloud(): boolean {
   const m = getDataMode();
   return m === 'cloud' || m === 'both';
 }
+
+// Health data (plans, profile, logs) is LOCAL BY DEFAULT — it only syncs to
+// the cloud when the user explicitly opts in, independent of the global chat
+// data mode above. The opt-in toggle + tier storage-capacity gating land in
+// the whole-app settings pass; until then this returns false (fully local).
+const HEALTH_SYNC_KEY = 'ava-health-sync';
+export function healthSyncEnabled(): boolean {
+  if (typeof localStorage === 'undefined') return false;
+  return localStorage.getItem(HEALTH_SYNC_KEY) === 'on';
+}
+export function setHealthSync(on: boolean): void {
+  if (typeof localStorage === 'undefined') return;
+  if (on) localStorage.setItem(HEALTH_SYNC_KEY, 'on');
+  else localStorage.removeItem(HEALTH_SYNC_KEY);
+  window.dispatchEvent(new CustomEvent('ava-health-sync-changed', { detail: on }));
+}

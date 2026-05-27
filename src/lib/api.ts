@@ -43,6 +43,49 @@ export const tasksApi = {
     apiFetch(`/tasks/${id}`, { method: 'DELETE' }, token).then(r => r.json()),
 };
 
+// Health catalogue — public, paginated read of the exercise + recipe
+// libraries (same endpoints the extension/IDE use). No auth needed.
+export const healthCatalogApi = {
+  exercises: (p: { offset?: number; limit?: number; q?: string; workoutType?: string | null }) => {
+    const u = new URLSearchParams({ limit: String(p.limit ?? 24), offset: String(p.offset ?? 0) });
+    if (p.q) u.set('q', p.q);
+    if (p.workoutType) u.set('workout_type', p.workoutType);
+    return apiFetch(`/health/exercises?${u.toString()}`).then(r => r.json());
+  },
+  recipes: (p: { offset?: number; limit?: number; q?: string; course?: string | null }) => {
+    const u = new URLSearchParams({ limit: String(p.limit ?? 24), offset: String(p.offset ?? 0) });
+    if (p.q) u.set('q', p.q);
+    if (p.course) u.set('course', p.course);
+    return apiFetch(`/health/recipes?${u.toString()}`).then(r => r.json());
+  },
+  exercise: (slug: string) => apiFetch(`/health/exercises/${encodeURIComponent(slug)}`).then(r => r.json()),
+  recipe: (slug: string) => apiFetch(`/health/recipes/${encodeURIComponent(slug)}`).then(r => r.json()),
+};
+
+// Health profile — single-object cloud copy for cross-surface sync.
+export const profileApi = {
+  get: (token: string) => apiFetch('/health/profile/sync', {}, token).then(r => r.json()),
+  sync: (token: string, profile: unknown) =>
+    apiFetch('/health/profile/sync', { method: 'POST', body: JSON.stringify({ profile }) }, token).then(r => r.json()),
+};
+
+// Morning brief — Ava-authored paragraph from a profile + log snapshot.
+// Charges 1 credit (server-side, off the resolved user id).
+export const briefApi = {
+  generate: (token: string, context: { date: string; profile: unknown; log: unknown }) =>
+    apiFetch('/health/morning-brief', { method: 'POST', body: JSON.stringify({ context }) }, token).then(r => r.json()),
+};
+
+// Health plans — cloud copy for cross-surface sync (see health-plan-sync.ts)
+export const plansApi = {
+  list: (token: string) =>
+    apiFetch('/health/plans/sync', {}, token).then(r => r.json()),
+  sync: (token: string, plans: unknown[]) =>
+    apiFetch('/health/plans/sync', { method: 'POST', body: JSON.stringify({ plans }) }, token).then(r => r.json()),
+  remove: (token: string, id: string) =>
+    apiFetch(`/health/plans/sync?id=${encodeURIComponent(id)}`, { method: 'DELETE' }, token).then(r => r.json()),
+};
+
 // Journal
 export const journalApi = {
   get: (token: string, date: string) => apiFetch(`/journal/${date}`, {}, token).then(r => r.json()),
