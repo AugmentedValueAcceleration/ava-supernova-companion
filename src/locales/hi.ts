@@ -88,6 +88,14 @@ export const hiStrings: Record<StringKey, string> = {
   'resetToDefault': 'डिफ़ॉल्ट पर रीसेट करें',
   'saved': 'सहेजा गया!',
 
+  // Privacy / Data Mode
+  'privacy': 'गोपनीयता',
+  'dataMode': 'डेटा मोड',
+  'dataModeLocal': 'स्थानीय',
+  'dataModeCloud': 'क्लाउड',
+  'dataModeLocalDesc': 'केवल डिवाइस पर — इस कंपैनियन से कुछ भी बाहर नहीं जाता।',
+  'dataModeCloudDesc': 'पहले स्थानीय फिर क्लाउड सिंक — आपका डेटा हर Ava सतह पर।',
+
   // Tasks + Journal body strings
   'loading': 'लोड हो रहा है...',
   'addTaskPlaceholder': 'कार्य जोड़ें...',

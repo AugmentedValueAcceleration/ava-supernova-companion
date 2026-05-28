@@ -88,6 +88,14 @@ export const zhTWStrings: Record<StringKey, string> = {
   'resetToDefault': '重設為預設',
   'saved': '已儲存！',
 
+  // Privacy / Data Mode
+  'privacy': '隱私',
+  'dataMode': '資料模式',
+  'dataModeLocal': '本機',
+  'dataModeCloud': '雲端',
+  'dataModeLocalDesc': '僅本機 — 沒有任何內容離開此 companion。',
+  'dataModeCloudDesc': '本機優先 + 雲端同步 — 資料出現在每個 Ava 介面。',
+
   // Tasks + Journal body strings
   'loading': '載入中…',
   'addTaskPlaceholder': '新增任務...',

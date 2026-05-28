@@ -88,6 +88,14 @@ export const nlStrings: Record<StringKey, string> = {
   'resetToDefault': 'Resetten naar standaard',
   'saved': 'Opgeslagen!',
 
+  // Privacy / Data Mode
+  'privacy': 'Privacy',
+  'dataMode': 'Datamodus',
+  'dataModeLocal': 'Lokaal',
+  'dataModeCloud': 'Cloud',
+  'dataModeLocalDesc': 'Alleen op het apparaat — niets verlaat deze companion.',
+  'dataModeCloudDesc': 'Lokaal eerst met cloudsynchronisatie — je gegevens op elk Ava-oppervlak.',
+
   // Tasks + Journal body strings
   'loading': 'Bezig met laden...',
   'addTaskPlaceholder': 'Taak toevoegen...',

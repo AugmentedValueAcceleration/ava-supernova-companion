@@ -88,6 +88,14 @@ export const ukStrings: Record<StringKey, string> = {
   'resetToDefault': 'Скинути до стандартних',
   'saved': 'Збережено!',
 
+  // Privacy / Data Mode
+  'privacy': 'Конфіденційність',
+  'dataMode': 'Режим даних',
+  'dataModeLocal': 'Локально',
+  'dataModeCloud': 'Хмара',
+  'dataModeLocalDesc': 'Лише на пристрої — нічого не залишає цього компаньйона.',
+  'dataModeCloudDesc': 'Спочатку локально з хмарною синхронізацією — ваші дані на всіх поверхнях Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Завантаження...',
   'addTaskPlaceholder': 'Додати завдання...',

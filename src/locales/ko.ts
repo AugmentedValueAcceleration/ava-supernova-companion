@@ -88,6 +88,14 @@ export const koStrings: Record<StringKey, string> = {
   'resetToDefault': '기본값으로 재설정',
   'saved': '저장 완료!',
 
+  // Privacy / Data Mode
+  'privacy': '개인 정보',
+  'dataMode': '데이터 모드',
+  'dataModeLocal': '로컬',
+  'dataModeCloud': '클라우드',
+  'dataModeLocalDesc': '기기에서만 — 이 컴패니언에서 아무것도 나가지 않습니다.',
+  'dataModeCloudDesc': '로컬 우선 + 클라우드 동기화 — 모든 Ava 표면의 데이터.',
+
   // Tasks + Journal body strings
   'loading': '로딩 중...',
   'addTaskPlaceholder': '할 일 추가...',

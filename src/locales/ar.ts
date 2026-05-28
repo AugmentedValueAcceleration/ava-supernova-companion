@@ -88,6 +88,14 @@ export const arStrings: Record<StringKey, string> = {
   'resetToDefault': 'إعادة تعيين إلى الافتراضي',
   'saved': 'تم الحفظ!',
 
+  // Privacy / Data Mode
+  'privacy': 'الخصوصية',
+  'dataMode': 'وضع البيانات',
+  'dataModeLocal': 'محلي',
+  'dataModeCloud': 'سحابي',
+  'dataModeLocalDesc': 'على الجهاز فقط — لا شيء يغادر هذا الرفيق.',
+  'dataModeCloudDesc': 'محلي أولاً مع مزامنة سحابية — بياناتك على كل سطح من Ava.',
+
   // Tasks + Journal body strings
   'loading': 'جارٍ التحميل...',
   'addTaskPlaceholder': 'أضف مهمة...',

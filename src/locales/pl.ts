@@ -88,6 +88,14 @@ export const plStrings: Record<StringKey, string> = {
   'resetToDefault': 'Przywróć domyślne',
   'saved': 'Zapisano!',
 
+  // Privacy / Data Mode
+  'privacy': 'Prywatność',
+  'dataMode': 'Tryb danych',
+  'dataModeLocal': 'Lokalnie',
+  'dataModeCloud': 'Chmura',
+  'dataModeLocalDesc': 'Tylko na urządzeniu — nic nie opuszcza tego companiona.',
+  'dataModeCloudDesc': 'Najpierw lokalnie z synchronizacją w chmurze — Twoje dane na każdej powierzchni Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Ładowanie...',
   'addTaskPlaceholder': 'Dodaj zadanie...',

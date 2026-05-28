@@ -88,6 +88,14 @@ export const jaStrings: Record<StringKey, string> = {
   'resetToDefault': 'デフォルトに戻す',
   'saved': '保存しました！',
 
+  // Privacy / Data Mode
+  'privacy': 'プライバシー',
+  'dataMode': 'データモード',
+  'dataModeLocal': 'ローカル',
+  'dataModeCloud': 'クラウド',
+  'dataModeLocalDesc': 'デバイスのみ — このコンパニオンから何も出ません。',
+  'dataModeCloudDesc': 'ローカル優先＋クラウド同期 — Ava のすべての画面にあなたのデータ。',
+
   // Tasks + Journal body strings
   'loading': '読み込み中…',
   'addTaskPlaceholder': 'タスクを追加…',

@@ -88,6 +88,14 @@ export const ruStrings: Record<StringKey, string> = {
   'resetToDefault': 'Сбросить по умолчанию',
   'saved': 'Сохранено!',
 
+  // Privacy / Data Mode
+  'privacy': 'Конфиденциальность',
+  'dataMode': 'Режим данных',
+  'dataModeLocal': 'Локально',
+  'dataModeCloud': 'Облако',
+  'dataModeLocalDesc': 'Только на устройстве — ничего не покидает этот компаньон.',
+  'dataModeCloudDesc': 'Сначала локально с облачной синхронизацией — ваши данные на всех поверхностях Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Загрузка...',
   'addTaskPlaceholder': 'Добавить задачу...',

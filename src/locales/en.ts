@@ -93,6 +93,14 @@ export const enStrings = {
   'deleteTask': 'Delete task',
   'deleteEntry': 'Delete entry',
 
+  // Privacy / Data Mode (local-first framing — Local is default).
+  'privacy': 'Privacy',
+  'dataMode': 'Data Mode',
+  'dataModeLocal': 'Local',
+  'dataModeCloud': 'Cloud',
+  'dataModeLocalDesc': 'On-device only — nothing leaves this companion.',
+  'dataModeCloudDesc': 'Local-first with cloud sync — your data on every Ava surface.',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Today',

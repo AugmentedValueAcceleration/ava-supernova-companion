@@ -555,27 +555,25 @@ export default function SettingsView({
 
         {/* Privacy — Data Mode controls whether chats, memories, tasks and
             journal entries created from this device sync to the cloud.
-            Local keeps everything on-device; Cloud syncs so the data
-            shows up on every Ava surface; Both does both. The server
-            honours the choice on every request — changing it here takes
-            effect on the very next chat turn. */}
-        <Section title="Privacy">
+            Local keeps everything on-device (the default — local-first is
+            sacred); Cloud is local-first PLUS a cloud mirror so the same
+            data shows up on every Ava surface. The server honours the
+            choice on every request — changing it here takes effect on
+            the very next chat turn. */}
+        <Section title={t('privacy')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
             <Row
-              label="Data Mode"
+              label={t('dataMode')}
               subtitle={
                 dataMode === 'local'
-                  ? 'On-device only — nothing touches the cloud from this companion.'
-                  : dataMode === 'cloud'
-                    ? 'Cloud-first — everything syncs across every Ava surface.'
-                    : 'Both — saved locally and synced to cloud for cross-device access.'
+                  ? t('dataModeLocalDesc')
+                  : t('dataModeCloudDesc')
               }
               value={
                 <TogglePills
                   options={[
-                    { value: 'local', label: 'Local' },
-                    { value: 'cloud', label: 'Cloud' },
-                    { value: 'both', label: 'Both' },
+                    { value: 'local', label: t('dataModeLocal') },
+                    { value: 'cloud', label: t('dataModeCloud') },
                   ]}
                   selected={dataMode}
                   onChange={v => {

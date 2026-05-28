@@ -88,6 +88,14 @@ export const trStrings: Record<StringKey, string> = {
   'resetToDefault': 'Varsayılanlara Sıfırla',
   'saved': 'Kaydedildi!',
 
+  // Privacy / Data Mode
+  'privacy': 'Gizlilik',
+  'dataMode': 'Veri Modu',
+  'dataModeLocal': 'Yerel',
+  'dataModeCloud': 'Bulut',
+  'dataModeLocalDesc': 'Yalnızca cihazda — bu companion\'dan hiçbir şey çıkmaz.',
+  'dataModeCloudDesc': 'Önce yerel sonra bulut senkronu — verileriniz her Ava yüzeyinde.',
+
   // Tasks + Journal body strings
   'loading': 'Yükleniyor...',
   'addTaskPlaceholder': 'Görev ekle...',

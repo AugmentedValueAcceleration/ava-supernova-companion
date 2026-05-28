@@ -88,6 +88,14 @@ export const deStrings: Record<StringKey, string> = {
   'resetToDefault': 'Auf Standard zurücksetzen',
   'saved': 'Gespeichert!',
 
+  // Privacy / Data Mode
+  'privacy': 'Datenschutz',
+  'dataMode': 'Datenmodus',
+  'dataModeLocal': 'Lokal',
+  'dataModeCloud': 'Cloud',
+  'dataModeLocalDesc': 'Nur auf dem Gerät — nichts verlässt diesen Companion.',
+  'dataModeCloudDesc': 'Local-first mit Cloud-Sync — deine Daten auf jeder Ava-Oberfläche.',
+
   // Tasks + Journal body strings
   'loading': 'Wird geladen...',
   'addTaskPlaceholder': 'Aufgabe hinzufügen...',

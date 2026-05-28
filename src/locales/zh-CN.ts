@@ -88,6 +88,14 @@ export const zhCNStrings: Record<StringKey, string> = {
   'resetToDefault': '重置为默认',
   'saved': '已保存！',
 
+  // Privacy / Data Mode
+  'privacy': '隐私',
+  'dataMode': '数据模式',
+  'dataModeLocal': '本地',
+  'dataModeCloud': '云端',
+  'dataModeLocalDesc': '仅本设备 — 没有任何内容离开此 companion。',
+  'dataModeCloudDesc': '本地优先 + 云端同步 — 数据出现在每个 Ava 界面。',
+
   // Tasks + Journal body strings
   'loading': '加载中…',
   'addTaskPlaceholder': '添加任务...',

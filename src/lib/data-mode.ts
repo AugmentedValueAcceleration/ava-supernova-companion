@@ -1,38 +1,43 @@
-// Mobile companion's Data Mode helper. Mirrors the extension / IDE
-// helper but defaults to 'cloud' — companion users signed up for a
-// sync-first experience, so privacy-first "Local" is opt-in.
-//
-// The value is read by sendChat() on every request (sent as the
-// X-Ava-Data-Mode header so the server's tool-level writes skip cloud
-// persistence when Local) and by any client-side sync action that
-// wants to know the user's preference before firing.
+// Mobile companion's Data Mode helper. Local-first by default: every
+// companion install starts on-device, and Cloud is an opt-in extra
+// layer that mirrors the same writes upstream so the data shows up on
+// every Ava surface. There is no longer a separate "Both" — Cloud
+// already implies local-first underneath. Legacy 'both' values are
+// migrated to 'cloud' on read.
 
-export type DataMode = 'local' | 'cloud' | 'both';
+export type DataMode = 'local' | 'cloud';
 
 const KEY = 'ava-data-mode';
 
 export function getDataMode(): DataMode {
-  if (typeof localStorage === 'undefined') return 'cloud';
+  if (typeof localStorage === 'undefined') return 'local';
   const raw = localStorage.getItem(KEY);
-  if (raw === 'local' || raw === 'cloud' || raw === 'both') return raw;
-  return 'cloud';
+  if (raw === 'local') return 'local';
+  if (raw === 'cloud') return 'cloud';
+  if (raw === 'both') {
+    // Legacy value — migrate forward. Old 'both' wrote local+cloud,
+    // new 'cloud' does the same thing, so this is a no-op semantically.
+    localStorage.setItem(KEY, 'cloud');
+    return 'cloud';
+  }
+  return 'local';
 }
 
 export function setDataMode(mode: DataMode): void {
   if (typeof localStorage === 'undefined') return;
   localStorage.setItem(KEY, mode);
-  // Let other components react without waiting for a next mount.
   window.dispatchEvent(new CustomEvent('ava-data-mode-changed', { detail: mode }));
 }
 
+// Local is always part of the write path under the new semantics — even
+// Cloud mode writes a local mirror first so the UI stays instant and the
+// app survives offline.
 export function includesLocal(): boolean {
-  const m = getDataMode();
-  return m === 'local' || m === 'both';
+  return true;
 }
 
 export function includesCloud(): boolean {
-  const m = getDataMode();
-  return m === 'cloud' || m === 'both';
+  return getDataMode() === 'cloud';
 }
 
 // Health data (plans, profile, logs) is LOCAL BY DEFAULT — it only syncs to

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { API_BASE, MODELS } from '@/lib/api';
-import { t } from '@/lib/i18n';
+import { t, type StringKey } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
 import { requestNotificationPermission, startTaskNotifications } from '@/lib/notifications';
@@ -1018,7 +1018,7 @@ export default function CompanionApp({
                   className={`flex flex-col items-center gap-1.5 rounded-2xl border border-ava-border bg-ava-surface shadow-lg shadow-black/40 py-3.5 hover:border-ava-purple/50 origin-bottom transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-8'}`}
                 >
                   <span className="text-ava-purple-light [&>svg]:w-5 [&>svg]:h-5">{tile.icon}</span>
-                  <span className="text-[11px] text-gray-300">{tile.label}</span>
+                  <span className="text-[11px] text-gray-300">{t(tile.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -1187,12 +1187,12 @@ function MoreIcon() {
 }
 
 // Wellbeing quick-action sheet tiles + More menu items.
-const WELLBEING_TILES: { view: WellbeingView; label: string; icon: React.ReactNode }[] = [
-  { view: 'today',    label: 'Today',    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg> },
-  { view: 'gym',      label: 'Gym',      icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l3.75 2.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  { view: 'plans',    label: 'Plans',    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
-  { view: 'recipes',  label: 'Recipes',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l3-3 3 3 4-5" /></svg> },
-  { view: 'workouts', label: 'Workouts', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.5 6.5l11 11M5 8L3.5 6.5M19 16l1.5 1.5M8 5L6.5 3.5M16 19l1.5 1.5" /></svg> },
+const WELLBEING_TILES: { view: WellbeingView; labelKey: StringKey; icon: React.ReactNode }[] = [
+  { view: 'today',    labelKey: 'wellbeingTabToday',     icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg> },
+  { view: 'gym',      labelKey: 'gymHeading',            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l3.75 2.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+  { view: 'plans',    labelKey: 'plansHeading',          icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
+  { view: 'recipes',  labelKey: 'catalogRecipesTitle',   icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l3-3 3 3 4-5" /></svg> },
+  { view: 'workouts', labelKey: 'catalogWorkoutsTitle',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.5 6.5l11 11M5 8L3.5 6.5M19 16l1.5 1.5M8 5L6.5 3.5M16 19l1.5 1.5" /></svg> },
 ];
 
 const MORE_ITEMS: { view: MobileView; label: string; icon: React.ReactNode }[] = [

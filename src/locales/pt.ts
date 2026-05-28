@@ -88,6 +88,14 @@ export const ptStrings: Record<StringKey, string> = {
   'resetToDefault': 'Redefinir para o Padrão',
   'saved': 'Salvo!',
 
+  // Privacy / Data Mode
+  'privacy': 'Privacidade',
+  'dataMode': 'Modo de dados',
+  'dataModeLocal': 'Local',
+  'dataModeCloud': 'Nuvem',
+  'dataModeLocalDesc': 'Apenas no dispositivo — nada sai deste companion.',
+  'dataModeCloudDesc': 'Local primeiro com sincronização na nuvem — seus dados em todas as superfícies Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Carregando...',
   'addTaskPlaceholder': 'Adicionar tarefa...',

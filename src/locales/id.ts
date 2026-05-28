@@ -88,6 +88,14 @@ export const idStrings: Record<StringKey, string> = {
   'resetToDefault': 'Kembalikan ke Pengaturan Awal',
   'saved': 'Tersimpan!',
 
+  // Privacy / Data Mode
+  'privacy': 'Privasi',
+  'dataMode': 'Mode Data',
+  'dataModeLocal': 'Lokal',
+  'dataModeCloud': 'Cloud',
+  'dataModeLocalDesc': 'Hanya di perangkat — tidak ada yang keluar dari companion ini.',
+  'dataModeCloudDesc': 'Lokal dulu dengan sinkronisasi cloud — datamu di setiap permukaan Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Memuat...',
   'addTaskPlaceholder': 'Tambah tugas...',

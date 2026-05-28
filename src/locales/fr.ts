@@ -88,6 +88,14 @@ export const frStrings: Record<StringKey, string> = {
   'resetToDefault': 'Réinitialiser par défaut',
   'saved': 'Enregistré !',
 
+  // Privacy / Data Mode
+  'privacy': 'Confidentialité',
+  'dataMode': 'Mode de données',
+  'dataModeLocal': 'Local',
+  'dataModeCloud': 'Cloud',
+  'dataModeLocalDesc': 'Sur l\'appareil uniquement — rien ne quitte ce companion.',
+  'dataModeCloudDesc': 'Local d\'abord avec sync cloud — vos données sur chaque surface d\'Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Chargement...',
   'addTaskPlaceholder': 'Ajouter une tâche...',

@@ -88,6 +88,14 @@ export const thStrings: Record<StringKey, string> = {
   'resetToDefault': 'รีเซ็ตเป็นค่าเริ่มต้น',
   'saved': 'บันทึกแล้ว!',
 
+  // Privacy / Data Mode
+  'privacy': 'ความเป็นส่วนตัว',
+  'dataMode': 'โหมดข้อมูล',
+  'dataModeLocal': 'ภายในเครื่อง',
+  'dataModeCloud': 'คลาวด์',
+  'dataModeLocalDesc': 'บนอุปกรณ์เท่านั้น — ไม่มีอะไรออกจากแอปนี้',
+  'dataModeCloudDesc': 'ภายในเครื่องก่อนแล้วซิงค์คลาวด์ — ข้อมูลของคุณบนทุกพื้นผิว Ava',
+
   // Tasks + Journal body strings
   'loading': 'กำลังโหลด...',
   'addTaskPlaceholder': 'เพิ่มงาน...',

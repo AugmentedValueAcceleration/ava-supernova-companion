@@ -23,7 +23,7 @@ export function StorageBadge({ token }: { token: string | null }) {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<DataMode>).detail;
-      if (detail === 'local' || detail === 'cloud' || detail === 'both') setMode(detail);
+      if (detail === 'local' || detail === 'cloud') setMode(detail);
     };
     window.addEventListener('ava-data-mode-changed', handler);
     return () => window.removeEventListener('ava-data-mode-changed', handler);
@@ -33,9 +33,7 @@ export function StorageBadge({ token }: { token: string | null }) {
 
   const styles = effective === 'cloud'
     ? { wrap: 'border-blue-500/20 bg-blue-500/10 text-blue-400', dot: 'bg-blue-400', label: 'Cloud' }
-    : effective === 'both'
-      ? { wrap: 'border-purple-500/20 bg-purple-500/10 text-purple-400', dot: 'bg-purple-400', label: 'Both' }
-      : { wrap: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400', dot: 'bg-emerald-400', label: 'Local' };
+    : { wrap: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400', dot: 'bg-emerald-400', label: 'Local' };
 
   return (
     <span
@@ -43,9 +41,7 @@ export function StorageBadge({ token }: { token: string | null }) {
       title={
         effective === 'local'
           ? 'Local — data stays on this device. Change in Settings → Privacy.'
-          : effective === 'cloud'
-            ? 'Cloud — data syncs to the platform. Change in Settings → Privacy.'
-            : 'Both — local backup + cloud sync. Change in Settings → Privacy.'
+          : 'Cloud — local-first with sync to every Ava surface. Change in Settings → Privacy.'
       }
     >
       <span className={`h-1.5 w-1.5 rounded-full ${styles.dot}`} />

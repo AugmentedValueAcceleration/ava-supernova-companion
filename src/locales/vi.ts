@@ -88,6 +88,14 @@ export const viStrings: Record<StringKey, string> = {
   'resetToDefault': 'Đặt lại mặc định',
   'saved': 'Đã lưu!',
 
+  // Privacy / Data Mode
+  'privacy': 'Quyền riêng tư',
+  'dataMode': 'Chế độ dữ liệu',
+  'dataModeLocal': 'Cục bộ',
+  'dataModeCloud': 'Đám mây',
+  'dataModeLocalDesc': 'Chỉ trên thiết bị — không có gì rời khỏi companion này.',
+  'dataModeCloudDesc': 'Cục bộ trước với đồng bộ đám mây — dữ liệu của bạn trên mọi bề mặt Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Đang tải...',
   'addTaskPlaceholder': 'Thêm việc...',

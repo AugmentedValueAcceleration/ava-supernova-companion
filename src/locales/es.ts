@@ -88,6 +88,14 @@ export const esStrings: Record<StringKey, string> = {
   'resetToDefault': 'Restablecer',
   'saved': 'Guardado!',
 
+  // Privacy / Data Mode
+  'privacy': 'Privacidad',
+  'dataMode': 'Modo de datos',
+  'dataModeLocal': 'Local',
+  'dataModeCloud': 'Nube',
+  'dataModeLocalDesc': 'Solo en el dispositivo — nada sale de este companion.',
+  'dataModeCloudDesc': 'Local primero con sincronización en la nube — tus datos en cada superficie de Ava.',
+
   // Tasks + Journal body strings
   'loading': 'Cargando...',
   'addTaskPlaceholder': 'Añadir tarea...',
