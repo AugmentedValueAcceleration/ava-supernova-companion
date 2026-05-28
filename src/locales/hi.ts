@@ -87,6 +87,13 @@ export const hiStrings: Record<StringKey, string> = {
   'designSubtitle': 'इसे अपना बनाएं',
   'resetToDefault': 'डिफ़ॉल्ट पर रीसेट करें',
   'saved': 'सहेजा गया!',
+
+  // Tasks + Journal body strings
+  'loading': 'लोड हो रहा है...',
+  'addTaskPlaceholder': 'कार्य जोड़ें...',
+  'deleteTask': 'कार्य हटाएँ',
+  'deleteEntry': 'प्रविष्टि हटाएँ',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'आज',

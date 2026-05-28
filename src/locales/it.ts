@@ -87,6 +87,13 @@ export const itStrings: Record<StringKey, string> = {
   'designSubtitle': 'Rendilo tuo',
   'resetToDefault': 'Reimposta predefinito',
   'saved': 'Salvato!',
+
+  // Tasks + Journal body strings
+  'loading': 'Caricamento...',
+  'addTaskPlaceholder': 'Aggiungi attività...',
+  'deleteTask': 'Elimina attività',
+  'deleteEntry': 'Elimina voce',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Oggi',

@@ -87,6 +87,13 @@ export const viStrings: Record<StringKey, string> = {
   'designSubtitle': 'Biến nó thành của bạn',
   'resetToDefault': 'Đặt lại mặc định',
   'saved': 'Đã lưu!',
+
+  // Tasks + Journal body strings
+  'loading': 'Đang tải...',
+  'addTaskPlaceholder': 'Thêm việc...',
+  'deleteTask': 'Xóa việc',
+  'deleteEntry': 'Xóa mục',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Hôm nay',

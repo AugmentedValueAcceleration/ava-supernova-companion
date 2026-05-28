@@ -87,6 +87,13 @@ export const trStrings: Record<StringKey, string> = {
   'designSubtitle': 'Kendinize Özel Yapın',
   'resetToDefault': 'Varsayılanlara Sıfırla',
   'saved': 'Kaydedildi!',
+
+  // Tasks + Journal body strings
+  'loading': 'Yükleniyor...',
+  'addTaskPlaceholder': 'Görev ekle...',
+  'deleteTask': 'Görevi sil',
+  'deleteEntry': 'Girişi sil',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Bugün',

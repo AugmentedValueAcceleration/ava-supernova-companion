@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { journalApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { StorageBadge } from './StorageBadge';
@@ -8,6 +9,7 @@ import { StorageBadge } from './StorageBadge';
 const moodEmojis = ['😔', '😕', '😐', '🙂', '😊'];
 
 export default function JournalPanel({ token }: { token: string | null }) {
+  useLocale();
   const [tab, setTab] = useState<'yours' | 'ava'>('yours');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [userContent, setUserContent] = useState('');
@@ -112,7 +114,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
     }
   };
 
-  const dateLabel = isToday ? 'Today' : new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {
+  const dateLabel = isToday ? t('today') : new Date(selectedDate + 'T12:00:00').toLocaleDateString(undefined, {
     weekday: 'short', month: 'short', day: 'numeric',
   });
 
@@ -151,23 +153,23 @@ export default function JournalPanel({ token }: { token: string | null }) {
           onClick={() => setTab('yours')}
           className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'yours' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
         >
-          Your Journal
+          {t('yourJournal')}
         </button>
         <button
           onClick={() => setTab('ava')}
           className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'ava' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
         >
-          Ava&apos;s Journal
+          {t('avasJournal')}
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500 py-8">Loading...</div>
+        <div className="text-center text-gray-500 py-8">{t('loading')}</div>
       ) : tab === 'yours' ? (
         <div>
           {/* Mood */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs text-gray-500">Mood:</span>
+            <span className="text-xs text-gray-500">{t('mood')}:</span>
             {moodEmojis.map((emoji, i) => (
               <button
                 key={i}
@@ -186,16 +188,16 @@ export default function JournalPanel({ token }: { token: string | null }) {
               <textarea
                 value={userContent}
                 onChange={e => setUserContent(e.target.value)}
-                placeholder="How are you feeling? What happened today?"
+                placeholder={t('howAreYou')}
                 autoFocus
                 className="w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none min-h-[200px]"
               />
               <div className="flex gap-2 mt-2">
                 <button onClick={saveEntry} className="bg-ava-purple text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple-dark transition">
-                  Save
+                  {t('saveEntry')}
                 </button>
                 <button onClick={() => { setEditing(false); loadEntry(); }} className="bg-ava-surface text-gray-400 text-sm px-4 py-1.5 rounded-lg border border-ava-border hover:text-white transition">
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -203,20 +205,20 @@ export default function JournalPanel({ token }: { token: string | null }) {
             <div>
               <button onClick={() => setEditing(true)} className="text-left w-full">
                 <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{userContent}</p>
-                <p className="text-[11px] text-gray-600 mt-2">Tap to edit</p>
+                <p className="text-[11px] text-gray-600 mt-2">{t('tapToEdit')}</p>
               </button>
               <button
                 onClick={deleteEntry}
                 className="mt-2 text-xs text-red-400/60 hover:text-red-400 transition"
               >
-                Delete entry
+                {t('deleteEntry')}
               </button>
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500 text-sm">No entry for this day</p>
+              <p className="text-gray-500 text-sm">{t('noEntry')}</p>
               <button onClick={() => setEditing(true)} className="mt-2 bg-ava-purple text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple-dark transition">
-                Write Entry
+                {t('writeEntry')}
               </button>
             </div>
           )}
@@ -233,8 +235,8 @@ export default function JournalPanel({ token }: { token: string | null }) {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500 text-sm">Ava hasn&apos;t written anything for this day</p>
-              <p className="text-gray-600 text-xs mt-1">Ava writes her thoughts at the end of sessions</p>
+              <p className="text-gray-500 text-sm">{t('avaNoEntry')}</p>
+              <p className="text-gray-600 text-xs mt-1">{t('avaWrites')}</p>
             </div>
           )}
         </div>

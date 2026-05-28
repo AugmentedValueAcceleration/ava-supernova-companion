@@ -87,6 +87,13 @@ export const idStrings: Record<StringKey, string> = {
   'designSubtitle': 'Jadikan milikmu',
   'resetToDefault': 'Kembalikan ke Pengaturan Awal',
   'saved': 'Tersimpan!',
+
+  // Tasks + Journal body strings
+  'loading': 'Memuat...',
+  'addTaskPlaceholder': 'Tambah tugas...',
+  'deleteTask': 'Hapus tugas',
+  'deleteEntry': 'Hapus entri',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Hari ini',

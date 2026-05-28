@@ -87,6 +87,13 @@ export const thStrings: Record<StringKey, string> = {
   'designSubtitle': 'ทำให้เป็นของคุณ',
   'resetToDefault': 'รีเซ็ตเป็นค่าเริ่มต้น',
   'saved': 'บันทึกแล้ว!',
+
+  // Tasks + Journal body strings
+  'loading': 'กำลังโหลด...',
+  'addTaskPlaceholder': 'เพิ่มงาน...',
+  'deleteTask': 'ลบงาน',
+  'deleteEntry': 'ลบรายการ',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'วันนี้',

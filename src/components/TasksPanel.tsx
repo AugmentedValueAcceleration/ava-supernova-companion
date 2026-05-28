@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { StorageBadge } from './StorageBadge';
@@ -23,6 +24,7 @@ const priorityColors: Record<string, string> = {
 };
 
 export default function TasksPanel({ token }: { token: string | null }) {
+  useLocale();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<'today' | 'all'>('today');
   const [newTask, setNewTask] = useState('');
@@ -156,13 +158,13 @@ export default function TasksPanel({ token }: { token: string | null }) {
           onClick={() => setFilter('today')}
           className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'today' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
         >
-          Today
+          {t('today')}
         </button>
         <button
           onClick={() => setFilter('all')}
           className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'all' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
         >
-          All
+          {t('all')}
         </button>
       </div>
 
@@ -172,7 +174,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
           value={newTask}
           onChange={e => setNewTask(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && addTask()}
-          placeholder="Add a task..."
+          placeholder={t('addTaskPlaceholder')}
           className="flex-1 bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
         />
         <button
@@ -186,11 +188,11 @@ export default function TasksPanel({ token }: { token: string | null }) {
 
       {/* Task list */}
       {loading ? (
-        <div className="text-center text-gray-500 py-8">Loading...</div>
+        <div className="text-center text-gray-500 py-8">{t('loading')}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          <p>{filter === 'today' ? 'Nothing for today' : 'No active tasks'}</p>
-          <p className="text-xs mt-1">Add a task above or ask Ava</p>
+          <p>{filter === 'today' ? t('nothingToday') : t('noActiveTasks')}</p>
+          <p className="text-xs mt-1">{t('addTaskHint')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -219,7 +221,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
                     <span className="text-xs text-gray-500">{task.priority}</span>
                     {task.due_date && (
                       <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
-                        {task.due_date === today ? 'Today' : task.due_date}
+                        {task.due_date === today ? t('today') : task.due_date}
                       </span>
                     )}
                   </div>
@@ -227,7 +229,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
                 <button
                   onClick={() => deleteTask(task)}
                   className="shrink-0 p-1.5 text-gray-600 hover:text-red-400 transition"
-                  title="Delete task"
+                  title={t('deleteTask')}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

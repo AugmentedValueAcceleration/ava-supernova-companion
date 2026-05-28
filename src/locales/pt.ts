@@ -87,6 +87,13 @@ export const ptStrings: Record<StringKey, string> = {
   'designSubtitle': 'Torne-a sua',
   'resetToDefault': 'Redefinir para o Padrão',
   'saved': 'Salvo!',
+
+  // Tasks + Journal body strings
+  'loading': 'Carregando...',
+  'addTaskPlaceholder': 'Adicionar tarefa...',
+  'deleteTask': 'Excluir tarefa',
+  'deleteEntry': 'Excluir entrada',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Hoje',

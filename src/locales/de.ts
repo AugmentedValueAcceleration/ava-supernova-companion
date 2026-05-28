@@ -87,6 +87,13 @@ export const deStrings: Record<StringKey, string> = {
   'designSubtitle': 'Mache es zu deinem',
   'resetToDefault': 'Auf Standard zurücksetzen',
   'saved': 'Gespeichert!',
+
+  // Tasks + Journal body strings
+  'loading': 'Wird geladen...',
+  'addTaskPlaceholder': 'Aufgabe hinzufügen...',
+  'deleteTask': 'Aufgabe löschen',
+  'deleteEntry': 'Eintrag löschen',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Heute',

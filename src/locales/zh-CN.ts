@@ -87,6 +87,13 @@ export const zhCNStrings: Record<StringKey, string> = {
   'designSubtitle': '打造专属个性',
   'resetToDefault': '重置为默认',
   'saved': '已保存！',
+
+  // Tasks + Journal body strings
+  'loading': '加载中…',
+  'addTaskPlaceholder': '添加任务...',
+  'deleteTask': '删除任务',
+  'deleteEntry': '删除条目',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': '今天',

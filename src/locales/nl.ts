@@ -87,6 +87,13 @@ export const nlStrings: Record<StringKey, string> = {
   'designSubtitle': 'Maak het van jou',
   'resetToDefault': 'Resetten naar standaard',
   'saved': 'Opgeslagen!',
+
+  // Tasks + Journal body strings
+  'loading': 'Bezig met laden...',
+  'addTaskPlaceholder': 'Taak toevoegen...',
+  'deleteTask': 'Taak verwijderen',
+  'deleteEntry': 'Vermelding verwijderen',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Vandaag',

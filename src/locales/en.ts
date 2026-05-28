@@ -87,6 +87,12 @@ export const enStrings = {
   'resetToDefault': 'Reset to Default',
   'saved': 'Saved!',
 
+  // Tasks + Journal body strings (the headers were already covered).
+  'loading': 'Loading...',
+  'addTaskPlaceholder': 'Add a task...',
+  'deleteTask': 'Delete task',
+  'deleteEntry': 'Delete entry',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Today',

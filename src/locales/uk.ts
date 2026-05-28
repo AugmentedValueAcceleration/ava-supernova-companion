@@ -87,6 +87,13 @@ export const ukStrings: Record<StringKey, string> = {
   'designSubtitle': 'Зробіть його своїм',
   'resetToDefault': 'Скинути до стандартних',
   'saved': 'Збережено!',
+
+  // Tasks + Journal body strings
+  'loading': 'Завантаження...',
+  'addTaskPlaceholder': 'Додати завдання...',
+  'deleteTask': 'Видалити завдання',
+  'deleteEntry': 'Видалити запис',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Сьогодні',

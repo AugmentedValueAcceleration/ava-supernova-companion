@@ -87,6 +87,13 @@ export const arStrings: Record<StringKey, string> = {
   'designSubtitle': 'اجعله خاصًا بك',
   'resetToDefault': 'إعادة تعيين إلى الافتراضي',
   'saved': 'تم الحفظ!',
+
+  // Tasks + Journal body strings
+  'loading': 'جارٍ التحميل...',
+  'addTaskPlaceholder': 'أضف مهمة...',
+  'deleteTask': 'حذف المهمة',
+  'deleteEntry': 'حذف الإدخال',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'اليوم',

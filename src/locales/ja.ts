@@ -87,6 +87,13 @@ export const jaStrings: Record<StringKey, string> = {
   'designSubtitle': '自分だけのものにして',
   'resetToDefault': 'デフォルトに戻す',
   'saved': '保存しました！',
+
+  // Tasks + Journal body strings
+  'loading': '読み込み中…',
+  'addTaskPlaceholder': 'タスクを追加…',
+  'deleteTask': 'タスクを削除',
+  'deleteEntry': 'エントリを削除',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': '今日',

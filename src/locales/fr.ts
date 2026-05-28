@@ -87,6 +87,13 @@ export const frStrings: Record<StringKey, string> = {
   'designSubtitle': 'Faites-le vôtre',
   'resetToDefault': 'Réinitialiser par défaut',
   'saved': 'Enregistré !',
+
+  // Tasks + Journal body strings
+  'loading': 'Chargement...',
+  'addTaskPlaceholder': 'Ajouter une tâche...',
+  'deleteTask': 'Supprimer la tâche',
+  'deleteEntry': 'Supprimer l\'entrée',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Aujourd\'hui',

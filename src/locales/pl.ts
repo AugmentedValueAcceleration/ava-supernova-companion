@@ -87,6 +87,13 @@ export const plStrings: Record<StringKey, string> = {
   'designSubtitle': 'Spraw, by była Twoja',
   'resetToDefault': 'Przywróć domyślne',
   'saved': 'Zapisano!',
+
+  // Tasks + Journal body strings
+  'loading': 'Ładowanie...',
+  'addTaskPlaceholder': 'Dodaj zadanie...',
+  'deleteTask': 'Usuń zadanie',
+  'deleteEntry': 'Usuń wpis',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Dziś',

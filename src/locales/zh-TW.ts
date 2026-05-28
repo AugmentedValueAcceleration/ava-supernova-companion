@@ -87,6 +87,13 @@ export const zhTWStrings: Record<StringKey, string> = {
   'designSubtitle': '打造屬於您的',
   'resetToDefault': '重設為預設',
   'saved': '已儲存！',
+
+  // Tasks + Journal body strings
+  'loading': '載入中…',
+  'addTaskPlaceholder': '新增任務...',
+  'deleteTask': '刪除任務',
+  'deleteEntry': '刪除項目',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': '今天',

@@ -87,6 +87,13 @@ export const ruStrings: Record<StringKey, string> = {
   'designSubtitle': 'Сделайте его своим',
   'resetToDefault': 'Сбросить по умолчанию',
   'saved': 'Сохранено!',
+
+  // Tasks + Journal body strings
+  'loading': 'Загрузка...',
+  'addTaskPlaceholder': 'Добавить задачу...',
+  'deleteTask': 'Удалить задачу',
+  'deleteEntry': 'Удалить запись',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Сегодня',

@@ -87,6 +87,13 @@ export const koStrings: Record<StringKey, string> = {
   'designSubtitle': '나만의 것으로 만드세요',
   'resetToDefault': '기본값으로 재설정',
   'saved': '저장 완료!',
+
+  // Tasks + Journal body strings
+  'loading': '로딩 중...',
+  'addTaskPlaceholder': '할 일 추가...',
+  'deleteTask': '할 일 삭제',
+  'deleteEntry': '항목 삭제',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': '오늘',

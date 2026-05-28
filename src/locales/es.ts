@@ -87,6 +87,13 @@ export const esStrings: Record<StringKey, string> = {
   'designSubtitle': 'Hazla tuya',
   'resetToDefault': 'Restablecer',
   'saved': 'Guardado!',
+
+  // Tasks + Journal body strings
+  'loading': 'Cargando...',
+  'addTaskPlaceholder': 'Añadir tarea...',
+  'deleteTask': 'Eliminar tarea',
+  'deleteEntry': 'Eliminar entrada',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Hoy',
