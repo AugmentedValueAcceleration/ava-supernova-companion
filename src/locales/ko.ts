@@ -88,6 +88,13 @@ export const koStrings: Record<StringKey, string> = {
   'resetToDefault': '기본값으로 재설정',
   'saved': '저장 완료!',
 
+  // More menu + model picker + BYOK
+  'support': '지원',
+  'modelPickerSignInHint': '무료 티어를 위해 로그인하거나 아래에 API 키를 추가하세요',
+  'modelPickerSelect': '모델 선택...',
+  'byokTitle': 'API 키 (BYOK)',
+  'byokDescription': '플랫폼 계정 없이 모든 모델을 사용하려면 자체 API 키를 추가하세요. 키는 기기에 로컬로 저장됩니다.',
+
   // Privacy / Data Mode
   'privacy': '개인 정보',
   'dataMode': '데이터 모드',

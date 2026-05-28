@@ -88,6 +88,13 @@ export const viStrings: Record<StringKey, string> = {
   'resetToDefault': 'Đặt lại mặc định',
   'saved': 'Đã lưu!',
 
+  // More menu + model picker + BYOK
+  'support': 'Hỗ trợ',
+  'modelPickerSignInHint': 'Đăng nhập để dùng gói miễn phí, hoặc thêm khóa API bên dưới',
+  'modelPickerSelect': 'Chọn một mô hình...',
+  'byokTitle': 'KHÓA API (BYOK)',
+  'byokDescription': 'Thêm khóa API của riêng bạn để sử dụng bất kỳ mô hình nào mà không cần tài khoản nền tảng. Khóa được lưu cục bộ trên thiết bị của bạn.',
+
   // Privacy / Data Mode
   'privacy': 'Quyền riêng tư',
   'dataMode': 'Chế độ dữ liệu',

@@ -88,6 +88,13 @@ export const trStrings: Record<StringKey, string> = {
   'resetToDefault': 'Varsayılanlara Sıfırla',
   'saved': 'Kaydedildi!',
 
+  // More menu + model picker + BYOK
+  'support': 'Destek',
+  'modelPickerSignInHint': 'Ücretsiz katman için giriş yap veya aşağıya API anahtarı ekle',
+  'modelPickerSelect': 'Bir model seç...',
+  'byokTitle': 'API ANAHTARLARI (BYOK)',
+  'byokDescription': 'Platform hesabı olmadan herhangi bir modeli kullanmak için kendi API anahtarlarını ekle. Anahtarlar cihazında yerel olarak saklanır.',
+
   // Privacy / Data Mode
   'privacy': 'Gizlilik',
   'dataMode': 'Veri Modu',

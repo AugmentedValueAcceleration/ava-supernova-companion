@@ -88,6 +88,13 @@ export const jaStrings: Record<StringKey, string> = {
   'resetToDefault': 'デフォルトに戻す',
   'saved': '保存しました！',
 
+  // More menu + model picker + BYOK
+  'support': 'サポート',
+  'modelPickerSignInHint': '無料ティアにサインインするか、下に API キーを追加してください',
+  'modelPickerSelect': 'モデルを選択…',
+  'byokTitle': 'API キー (BYOK)',
+  'byokDescription': 'プラットフォームアカウントなしで任意のモデルを使用するには、独自の API キーを追加してください。キーはデバイスにローカル保存されます。',
+
   // Privacy / Data Mode
   'privacy': 'プライバシー',
   'dataMode': 'データモード',

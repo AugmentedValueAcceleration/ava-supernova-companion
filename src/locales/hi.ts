@@ -88,6 +88,13 @@ export const hiStrings: Record<StringKey, string> = {
   'resetToDefault': 'डिफ़ॉल्ट पर रीसेट करें',
   'saved': 'सहेजा गया!',
 
+  // More menu + model picker + BYOK
+  'support': 'सहायता',
+  'modelPickerSignInHint': 'मुफ़्त टियर के लिए साइन इन करें, या नीचे API कुंजी जोड़ें',
+  'modelPickerSelect': 'मॉडल चुनें...',
+  'byokTitle': 'API कुंजियाँ (BYOK)',
+  'byokDescription': 'प्लेटफ़ॉर्म खाते के बिना किसी भी मॉडल का उपयोग करने के लिए अपनी स्वयं की API कुंजियाँ जोड़ें। कुंजियाँ आपके डिवाइस पर स्थानीय रूप से संग्रहीत होती हैं।',
+
   // Privacy / Data Mode
   'privacy': 'गोपनीयता',
   'dataMode': 'डेटा मोड',

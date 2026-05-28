@@ -88,6 +88,13 @@ export const idStrings: Record<StringKey, string> = {
   'resetToDefault': 'Kembalikan ke Pengaturan Awal',
   'saved': 'Tersimpan!',
 
+  // More menu + model picker + BYOK
+  'support': 'Dukungan',
+  'modelPickerSignInHint': 'Masuk untuk tier gratis, atau tambahkan kunci API di bawah',
+  'modelPickerSelect': 'Pilih model...',
+  'byokTitle': 'KUNCI API (BYOK)',
+  'byokDescription': 'Tambahkan kunci API milikmu sendiri untuk menggunakan model apa pun tanpa akun platform. Kunci disimpan lokal di perangkatmu.',
+
   // Privacy / Data Mode
   'privacy': 'Privasi',
   'dataMode': 'Mode Data',

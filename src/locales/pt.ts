@@ -88,6 +88,13 @@ export const ptStrings: Record<StringKey, string> = {
   'resetToDefault': 'Redefinir para o Padrão',
   'saved': 'Salvo!',
 
+  // More menu + model picker + BYOK
+  'support': 'Suporte',
+  'modelPickerSignInHint': 'Entre para o nível gratuito, ou adicione uma chave API abaixo',
+  'modelPickerSelect': 'Selecione um modelo...',
+  'byokTitle': 'CHAVES API (BYOK)',
+  'byokDescription': 'Adicione suas próprias chaves API para usar qualquer modelo sem uma conta da plataforma. As chaves são armazenadas localmente no seu dispositivo.',
+
   // Privacy / Data Mode
   'privacy': 'Privacidade',
   'dataMode': 'Modo de dados',

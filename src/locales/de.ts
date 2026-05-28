@@ -88,6 +88,13 @@ export const deStrings: Record<StringKey, string> = {
   'resetToDefault': 'Auf Standard zurücksetzen',
   'saved': 'Gespeichert!',
 
+  // More menu + model picker + BYOK
+  'support': 'Support',
+  'modelPickerSignInHint': 'Für kostenlose Stufe anmelden oder API-Schlüssel unten hinzufügen',
+  'modelPickerSelect': 'Modell auswählen...',
+  'byokTitle': 'API-SCHLÜSSEL (BYOK)',
+  'byokDescription': 'Füge deine eigenen API-Schlüssel hinzu, um jedes Modell ohne Plattformkonto zu nutzen. Schlüssel werden lokal auf deinem Gerät gespeichert.',
+
   // Privacy / Data Mode
   'privacy': 'Datenschutz',
   'dataMode': 'Datenmodus',

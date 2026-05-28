@@ -88,6 +88,13 @@ export const esStrings: Record<StringKey, string> = {
   'resetToDefault': 'Restablecer',
   'saved': 'Guardado!',
 
+  // More menu + model picker + BYOK
+  'support': 'Soporte',
+  'modelPickerSignInHint': 'Inicia sesión para el nivel gratuito, o añade una clave API abajo',
+  'modelPickerSelect': 'Selecciona un modelo...',
+  'byokTitle': 'CLAVES API (BYOK)',
+  'byokDescription': 'Añade tus propias claves API para usar cualquier modelo sin una cuenta en la plataforma. Las claves se guardan localmente en tu dispositivo.',
+
   // Privacy / Data Mode
   'privacy': 'Privacidad',
   'dataMode': 'Modo de datos',

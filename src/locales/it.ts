@@ -88,6 +88,13 @@ export const itStrings: Record<StringKey, string> = {
   'resetToDefault': 'Reimposta predefinito',
   'saved': 'Salvato!',
 
+  // More menu + model picker + BYOK
+  'support': 'Supporto',
+  'modelPickerSignInHint': 'Accedi per il piano gratuito, o aggiungi una chiave API qui sotto',
+  'modelPickerSelect': 'Seleziona un modello...',
+  'byokTitle': 'CHIAVI API (BYOK)',
+  'byokDescription': 'Aggiungi le tue chiavi API per usare qualsiasi modello senza un account della piattaforma. Le chiavi sono salvate localmente sul tuo dispositivo.',
+
   // Privacy / Data Mode
   'privacy': 'Privacy',
   'dataMode': 'Modalità dati',

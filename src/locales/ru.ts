@@ -88,6 +88,13 @@ export const ruStrings: Record<StringKey, string> = {
   'resetToDefault': 'Сбросить по умолчанию',
   'saved': 'Сохранено!',
 
+  // More menu + model picker + BYOK
+  'support': 'Поддержка',
+  'modelPickerSignInHint': 'Войдите для бесплатного уровня или добавьте ключ API ниже',
+  'modelPickerSelect': 'Выберите модель...',
+  'byokTitle': 'КЛЮЧИ API (BYOK)',
+  'byokDescription': 'Добавьте свои ключи API, чтобы использовать любую модель без учётной записи платформы. Ключи хранятся локально на вашем устройстве.',
+
   // Privacy / Data Mode
   'privacy': 'Конфиденциальность',
   'dataMode': 'Режим данных',

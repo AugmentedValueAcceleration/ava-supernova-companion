@@ -88,6 +88,13 @@ export const arStrings: Record<StringKey, string> = {
   'resetToDefault': 'إعادة تعيين إلى الافتراضي',
   'saved': 'تم الحفظ!',
 
+  // More menu + model picker + BYOK
+  'support': 'الدعم',
+  'modelPickerSignInHint': 'سجّل الدخول للباقة المجانية، أو أضف مفتاح API أدناه',
+  'modelPickerSelect': 'اختر نموذجًا...',
+  'byokTitle': 'مفاتيح API (BYOK)',
+  'byokDescription': 'أضف مفاتيح API الخاصة بك لاستخدام أي نموذج بدون حساب المنصة. تُخزَّن المفاتيح محليًا على جهازك.',
+
   // Privacy / Data Mode
   'privacy': 'الخصوصية',
   'dataMode': 'وضع البيانات',

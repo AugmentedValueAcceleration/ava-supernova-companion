@@ -88,6 +88,13 @@ export const zhTWStrings: Record<StringKey, string> = {
   'resetToDefault': '重設為預設',
   'saved': '已儲存！',
 
+  // More menu + model picker + BYOK
+  'support': '支援',
+  'modelPickerSignInHint': '登入以取得免費方案，或在下方新增 API 金鑰',
+  'modelPickerSelect': '選擇模型...',
+  'byokTitle': 'API 金鑰 (BYOK)',
+  'byokDescription': '新增你自己的 API 金鑰即可在沒有平台帳戶的情況下使用任何模型。金鑰會儲存在你的本機裝置上。',
+
   // Privacy / Data Mode
   'privacy': '隱私',
   'dataMode': '資料模式',

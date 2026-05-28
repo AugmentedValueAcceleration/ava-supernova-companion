@@ -88,6 +88,13 @@ export const nlStrings: Record<StringKey, string> = {
   'resetToDefault': 'Resetten naar standaard',
   'saved': 'Opgeslagen!',
 
+  // More menu + model picker + BYOK
+  'support': 'Ondersteuning',
+  'modelPickerSignInHint': 'Log in voor het gratis tier, of voeg hieronder een API-sleutel toe',
+  'modelPickerSelect': 'Selecteer een model...',
+  'byokTitle': 'API-SLEUTELS (BYOK)',
+  'byokDescription': 'Voeg je eigen API-sleutels toe om elk model te gebruiken zonder platform-account. Sleutels worden lokaal op je apparaat opgeslagen.',
+
   // Privacy / Data Mode
   'privacy': 'Privacy',
   'dataMode': 'Datamodus',

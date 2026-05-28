@@ -443,7 +443,7 @@ export default function SettingsView({
             <CustomSelect
               value={selectedModel}
               onChange={onSelectModel}
-              placeholder={isGuest ? 'Sign in for free tier, or add an API key below' : 'Select a model...'}
+              placeholder={isGuest ? t('modelPickerSignInHint') : t('modelPickerSelect')}
               // Guests only see models they have a BYOK key for. "free" means
               // free on the platform account tier — it is not free for guests.
               options={MODELS.filter(m => isGuest ? !!getActiveProviderKey(m.id) : true).map(m => {
@@ -467,11 +467,11 @@ export default function SettingsView({
         </Section>
 
         {/* Provider API Keys (BYOK) */}
-        <Section title="API KEYS (BYOK)">
+        <Section title={t('byokTitle')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4">
               <p className="text-xs text-gray-500 mb-3">
-                Add your own API keys to use any model without a platform account. Keys are stored locally on your device.
+                {t('byokDescription')}
               </p>
             </div>
             {PROVIDER_KEY_FIELDS.map(f => (

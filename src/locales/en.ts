@@ -101,6 +101,13 @@ export const enStrings = {
   'dataModeLocalDesc': 'On-device only — nothing leaves this companion.',
   'dataModeCloudDesc': 'Local-first with cloud sync — your data on every Ava surface.',
 
+  // More menu + model picker + BYOK
+  'support': 'Support',
+  'modelPickerSignInHint': 'Sign in for free tier, or add an API key below',
+  'modelPickerSelect': 'Select a model...',
+  'byokTitle': 'API KEYS (BYOK)',
+  'byokDescription': 'Add your own API keys to use any model without a platform account. Keys are stored locally on your device.',
+
   // ── Wellbeing surface ──────────────────────────────────────────────────
   // Tabs
   'wellbeingTabToday': 'Today',

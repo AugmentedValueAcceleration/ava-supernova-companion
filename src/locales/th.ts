@@ -88,6 +88,13 @@ export const thStrings: Record<StringKey, string> = {
   'resetToDefault': 'รีเซ็ตเป็นค่าเริ่มต้น',
   'saved': 'บันทึกแล้ว!',
 
+  // More menu + model picker + BYOK
+  'support': 'การสนับสนุน',
+  'modelPickerSignInHint': 'ลงชื่อเข้าใช้สำหรับระดับฟรี หรือเพิ่มคีย์ API ด้านล่าง',
+  'modelPickerSelect': 'เลือกโมเดล...',
+  'byokTitle': 'คีย์ API (BYOK)',
+  'byokDescription': 'เพิ่มคีย์ API ของคุณเองเพื่อใช้โมเดลใด ๆ โดยไม่ต้องมีบัญชีแพลตฟอร์ม คีย์จะถูกเก็บไว้ในเครื่องของคุณ',
+
   // Privacy / Data Mode
   'privacy': 'ความเป็นส่วนตัว',
   'dataMode': 'โหมดข้อมูล',

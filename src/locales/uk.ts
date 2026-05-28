@@ -88,6 +88,13 @@ export const ukStrings: Record<StringKey, string> = {
   'resetToDefault': 'Скинути до стандартних',
   'saved': 'Збережено!',
 
+  // More menu + model picker + BYOK
+  'support': 'Підтримка',
+  'modelPickerSignInHint': 'Увійдіть для безкоштовного рівня або додайте ключ API нижче',
+  'modelPickerSelect': 'Виберіть модель...',
+  'byokTitle': 'КЛЮЧІ API (BYOK)',
+  'byokDescription': 'Додайте власні ключі API, щоб використовувати будь-яку модель без облікового запису платформи. Ключі зберігаються локально на вашому пристрої.',
+
   // Privacy / Data Mode
   'privacy': 'Конфіденційність',
   'dataMode': 'Режим даних',

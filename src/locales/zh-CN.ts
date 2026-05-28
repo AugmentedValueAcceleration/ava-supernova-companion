@@ -88,6 +88,13 @@ export const zhCNStrings: Record<StringKey, string> = {
   'resetToDefault': '重置为默认',
   'saved': '已保存！',
 
+  // More menu + model picker + BYOK
+  'support': '支持',
+  'modelPickerSignInHint': '登录以获取免费层，或在下方添加 API 密钥',
+  'modelPickerSelect': '选择模型...',
+  'byokTitle': 'API 密钥 (BYOK)',
+  'byokDescription': '添加你自己的 API 密钥即可在没有平台账户的情况下使用任何模型。密钥本地存储在你的设备上。',
+
   // Privacy / Data Mode
   'privacy': '隐私',
   'dataMode': '数据模式',

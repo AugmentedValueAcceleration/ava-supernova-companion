@@ -88,6 +88,13 @@ export const plStrings: Record<StringKey, string> = {
   'resetToDefault': 'Przywróć domyślne',
   'saved': 'Zapisano!',
 
+  // More menu + model picker + BYOK
+  'support': 'Wsparcie',
+  'modelPickerSignInHint': 'Zaloguj się dla bezpłatnego poziomu lub dodaj klucz API poniżej',
+  'modelPickerSelect': 'Wybierz model...',
+  'byokTitle': 'KLUCZE API (BYOK)',
+  'byokDescription': 'Dodaj własne klucze API, aby używać dowolnego modelu bez konta platformy. Klucze są przechowywane lokalnie na Twoim urządzeniu.',
+
   // Privacy / Data Mode
   'privacy': 'Prywatność',
   'dataMode': 'Tryb danych',
