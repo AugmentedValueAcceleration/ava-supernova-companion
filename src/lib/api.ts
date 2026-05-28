@@ -225,6 +225,14 @@ export async function sendChat(
         const parsed = JSON.parse(data);
         if (parsed.type === 'text' && parsed.content) {
           onChunk(parsed.content);
+        } else if (parsed.type === 'health_plan' && parsed.plan) {
+          // Phase 4c: companion-Ava (on core) emits health plans she builds —
+          // save into the local-first plan store so it lands in the Plans tab.
+          // Lazy require so it's tree-shaken for non-health chats.
+          // savePlan applies the one-active-per-type archive rule and stamps
+          // start_date when status === 'active' — same lifecycle as a plan
+          // created via the manual builder.
+          import('./health-plan-store').then(m => { try { m.savePlan(parsed.plan); } catch { /* ignore */ } });
         }
       } catch {
         // skip
