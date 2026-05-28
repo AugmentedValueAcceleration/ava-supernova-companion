@@ -10,16 +10,32 @@ function getDeviceId(): string {
   return id;
 }
 
+// Read the user's active companion locale (set via Settings → Language).
+// Falls back to 'en' on the server or when the lang preference is missing.
+// The server uses this on chat turns to make Ava reply in the user's
+// chosen language without an explicit "language changed" notification —
+// every request carries it, so a fresh choice takes effect on the very
+// next message.
+function getCompanionLang(): string {
+  if (typeof localStorage === 'undefined' || typeof navigator === 'undefined') return 'en';
+  const saved = localStorage.getItem('ava-companion-lang');
+  if (saved && saved !== 'auto') return saved;
+  return (navigator.language || 'en').split('-')[0] === 'zh'
+    ? navigator.language.toLowerCase().includes('tw') ? 'zh-TW' : 'zh-CN'
+    : (navigator.language || 'en').split('-')[0];
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}, token?: string) {
   // Data Mode header so server-side routes that gate on it
   // (generate-image, generate-music, render-video, companion chat
   // tool-level writes) see the user's choice on every call.
-  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'cloud';
+  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'local';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Ava-Platform': 'companion',
     'X-Ava-Device': getDeviceId(),
     'X-Ava-Data-Mode': dataMode,
+    'X-Ava-Language': getCompanionLang(),
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers as Record<string, string>),
   };
@@ -178,16 +194,22 @@ export async function sendChat(
   // journal_write, memory_save) skip their DB writes when this is
   // 'local'. Default 'cloud' when the header is missing (matches the
   // companion's cloud-first expectation).
-  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'cloud';
+  const dataMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('ava-data-mode') : null) || 'local';
+  const lang = getCompanionLang();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Ava-Platform': 'companion',
     'X-Ava-Device': getDeviceId(),
     'X-Ava-Data-Mode': dataMode,
+    'X-Ava-Language': lang,
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const bodyPayload: Record<string, unknown> = { message, history, model };
+  // Also include in body for endpoints that prefer to read it that way.
+  // Whichever the server reads, the latest user-chosen locale travels
+  // on every turn, so a language change in Settings takes effect on the
+  // very next message without any explicit notification.
+  const bodyPayload: Record<string, unknown> = { message, history, model, language: lang };
   if (providerApiKey) bodyPayload.providerApiKey = providerApiKey;
   if (personalityPrefix) bodyPayload.personalityPrefix = personalityPrefix;
 
