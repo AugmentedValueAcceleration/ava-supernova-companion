@@ -595,9 +595,7 @@ export default function CompanionApp({
                         </div>
                         <span className="text-[11px] text-gray-500 ml-3.5">{model.provider}</span>
                       </div>
-                      {model.free && !isGuest ? (
-                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">FREE</span>
-                      ) : isGuest ? (
+                      {isGuest ? (
                         <span className="text-[10px] text-gray-500">API key</span>
                       ) : (
                         chat.selectedModel === model.id && <span className="text-ava-purple">&#10003;</span>
@@ -605,7 +603,7 @@ export default function CompanionApp({
                     </button>
                   ))}{isGuest && (
                     <div className="px-3 py-2 border-t border-ava-border mt-1">
-                      <p className="text-[11px] text-gray-400 text-center">Sign up for 3M free Qwen tokens</p>
+                      <p className="text-[11px] text-gray-400 text-center">Sign up for 300 free credits/month</p>
                     </div>
                   )}
                 </div>
@@ -957,7 +955,7 @@ export default function CompanionApp({
               token={session?.access_token || apiKey || ''}
               onBack={() => setMobileView('settings')}
             />
-          ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts' || mobileView === 'profile') ? (
+          ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts') ? (
             <WellbeingSection view={mobileView} token={token} />
           ) : null}
         </div>
@@ -982,7 +980,7 @@ export default function CompanionApp({
         <ThumbButton
           icon={<WellbeingNavIcon />}
           label="Wellbeing"
-          active={navSheet === 'wellbeing' || ['today', 'gym', 'plans', 'recipes', 'workouts', 'profile'].includes(mobileView)}
+          active={navSheet === 'wellbeing' || ['today', 'gym', 'plans', 'recipes', 'workouts'].includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'wellbeing' ? null : 'wellbeing')}
           hero
         />
@@ -1195,7 +1193,6 @@ const WELLBEING_TILES: { view: WellbeingView; label: string; icon: React.ReactNo
   { view: 'plans',    label: 'Plans',    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
   { view: 'recipes',  label: 'Recipes',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l3-3 3 3 4-5" /></svg> },
   { view: 'workouts', label: 'Workouts', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.5 6.5l11 11M5 8L3.5 6.5M19 16l1.5 1.5M8 5L6.5 3.5M16 19l1.5 1.5" /></svg> },
-  { view: 'profile',  label: 'Profile',  icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg> },
 ];
 
 const MORE_ITEMS: { view: MobileView; label: string; icon: React.ReactNode }[] = [

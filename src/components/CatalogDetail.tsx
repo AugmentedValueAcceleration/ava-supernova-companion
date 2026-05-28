@@ -8,6 +8,7 @@
 // and per-skill-level versions (times, nutrition, steps).
 
 import { useState, useEffect } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { healthCatalogApi } from '@/lib/api';
 import type { ExerciseDetail, RecipeDetail, RecipeStep } from '@/lib/health-types';
 
@@ -34,7 +35,7 @@ function DetailShell({ onBack, image, title, subtitle, children }: {
       <div className="max-w-3xl mx-auto w-full pb-28">
         <button onClick={onBack} className="sticky top-0 z-10 flex items-center gap-2 w-full px-4 py-3 bg-ava-bg/95 backdrop-blur text-sm text-gray-300 hover:text-white">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-          Back
+          {t('catalogDetailBackButton')}
         </button>
         <div className="aspect-video bg-black/30 flex items-center justify-center">
           {image
@@ -87,8 +88,9 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
   const { data, error, loading } = useDetail<ExerciseDetail>(
     () => healthCatalogApi.exercise(slug).then(r => r.exercise as ExerciseDetail), [slug]);
 
+  useLocale();
   if (loading) return <StateScreen onBack={onBack}><Spinner /></StateScreen>;
-  if (error || !data) return <StateScreen onBack={onBack}>Couldn’t load this exercise.</StateScreen>;
+  if (error || !data) return <StateScreen onBack={onBack}>{t('catalogDetailExerciseLoadError')}</StateScreen>;
 
   const r = data.routine;
   const routineBits = [
@@ -109,7 +111,7 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
       {data.description && <p className="text-sm text-gray-300 leading-relaxed">{data.description}</p>}
 
       {data.muscles.length > 0 && (
-        <Section title="Muscles">
+        <Section title={t('catalogDetailMusclesSection')}>
           <div className="flex flex-wrap gap-1.5">
             {data.muscles.map(m => <Tag key={m.slug} primary={m.role === 'primary'}>{m.name}</Tag>)}
           </div>
@@ -117,7 +119,7 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
       )}
 
       {data.equipment.length > 0 && (
-        <Section title="Equipment">
+        <Section title={t('catalogDetailEquipmentSection')}>
           <div className="flex flex-wrap gap-1.5">
             {data.equipment.map(e => <Tag key={e.slug}>{e.name}</Tag>)}
           </div>
@@ -125,14 +127,14 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
       )}
 
       {routineBits.length > 0 && (
-        <Section title="Routine">
+        <Section title={t('catalogDetailRoutineSection')}>
           <p className="text-sm text-gray-300">{routineBits.join(' · ')}</p>
-          {r.progression && <p className="text-xs text-gray-500 mt-1">Progression: {r.progression}</p>}
+          {r.progression && <p className="text-xs text-gray-500 mt-1">{t('catalogDetailProgressionLabel')} {r.progression}</p>}
         </Section>
       )}
 
       {data.steps.length > 0 && (
-        <Section title="How to">
+        <Section title={t('catalogDetailHowToSection')}>
           <ol className="space-y-2">
             {data.steps.map((s, i) => (
               <li key={i} className="flex gap-3 text-sm text-gray-300">
@@ -145,7 +147,7 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
       )}
 
       {data.common_mistakes && (
-        <Section title="Common mistakes">
+        <Section title={t('catalogDetailCommonMistakesSection')}>
           <p className="text-sm text-gray-300 leading-relaxed">{data.common_mistakes}</p>
         </Section>
       )}
@@ -153,7 +155,7 @@ export function ExerciseDetailView({ slug, onBack }: { slug: string; onBack: () 
       {data.demo_video_url && (
         <a href={data.demo_video_url} target="_blank" rel="noopener noreferrer"
            className="inline-block rounded-full border border-ava-border bg-ava-surface px-4 py-2 text-sm text-ava-purple-light">
-          Watch demo →
+          {t('catalogDetailWatchDemoButton')}
         </a>
       )}
     </DetailShell>
@@ -168,12 +170,13 @@ function fmtStepTime(secs: number | null): string {
 }
 
 export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () => void }) {
+  useLocale();
   const { data, error, loading } = useDetail<RecipeDetail>(
     () => healthCatalogApi.recipe(slug).then(r => r.recipe as RecipeDetail), [slug]);
   const [levelIdx, setLevelIdx] = useState(0);
 
   if (loading) return <StateScreen onBack={onBack}><Spinner /></StateScreen>;
-  if (error || !data) return <StateScreen onBack={onBack}>Couldn’t load this recipe.</StateScreen>;
+  if (error || !data) return <StateScreen onBack={onBack}>{t('catalogDetailRecipeLoadError')}</StateScreen>;
 
   const version = data.versions[levelIdx] ?? data.versions[0] ?? null;
   const timeBits = version ? [
@@ -206,7 +209,7 @@ export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () =>
       {timeBits.length > 0 && <p className="text-sm text-gray-300">{timeBits.join(' · ')}</p>}
 
       {macros.length > 0 && (
-        <Section title="Nutrition (per serving)">
+        <Section title={t('catalogDetailNutritionSection')}>
           <div className="flex flex-wrap gap-1.5">
             {macros.map(([k, v]) => <Tag key={k}>{k.replace(/_/g, ' ').replace(' g', '')}: {v}</Tag>)}
           </div>
@@ -214,14 +217,14 @@ export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () =>
       )}
 
       {data.ingredients.length > 0 && (
-        <Section title="Ingredients">
+        <Section title={t('catalogDetailIngredientsSection')}>
           <ul className="space-y-1.5">
             {data.ingredients.map((ing, i) => (
               <li key={i} className="text-sm text-gray-300 flex gap-2">
                 <span className="text-ava-purple-light/60">•</span>
                 <span>
                   {[ing.quantity, ing.unit, ing.name].filter(Boolean).join(' ')}
-                  {ing.optional && <span className="text-gray-500 text-xs"> (optional)</span>}
+                  {ing.optional && <span className="text-gray-500 text-xs"> {t('catalogDetailIngredientOptional')}</span>}
                   {ing.notes && <span className="text-gray-500 text-xs"> — {ing.notes}</span>}
                 </span>
               </li>
@@ -231,7 +234,7 @@ export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () =>
       )}
 
       {version && version.steps.length > 0 && (
-        <Section title="Method">
+        <Section title={t('catalogDetailMethodSection')}>
           <ol className="space-y-3">
             {version.steps.map((s, i) => {
               const time = fmtStepTime(s.time_estimate_seconds);
@@ -241,7 +244,7 @@ export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () =>
                   <div className="leading-relaxed">
                     <span>{s.action}</span>
                     {s.technique_term && <span className="ml-2 text-[10px] uppercase tracking-wide text-ava-purple-light/70">{s.technique_term}</span>}
-                    {s.tricky_flag && <span className="ml-2 text-[10px] text-amber-400/80">tricky</span>}
+                    {s.tricky_flag && <span className="ml-2 text-[10px] text-amber-400/80">{t('catalogDetailTrickyFlag')}</span>}
                     {(s.notes || time) && (
                       <div className="text-xs text-gray-500 mt-0.5">
                         {[s.notes, time].filter(Boolean).join(' · ')}
@@ -256,7 +259,7 @@ export function RecipeDetailView({ slug, onBack }: { slug: string; onBack: () =>
       )}
 
       {data.source_attribution && (
-        <p className="text-[10px] text-gray-600 pt-2">Source: {data.source_attribution}</p>
+        <p className="text-[10px] text-gray-600 pt-2">{t('catalogDetailSourceLabel')} {data.source_attribution}</p>
       )}
     </DetailShell>
   );

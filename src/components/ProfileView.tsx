@@ -8,21 +8,26 @@
 // — they need the taxonomy pickers (a later refinement).
 
 import { useState, useEffect, useCallback } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { loadProfile, saveProfile, syncProfile } from '@/lib/health-profile-store';
 import { emptyHealthProfile, type HealthProfile, type HealthGoal } from '@/lib/health-types';
 
-const GOALS: [HealthGoal, string][] = [
-  ['fat_loss', 'Fat loss'],
-  ['muscle_gain', 'Muscle gain'],
-  ['maintenance', 'Maintenance'],
-  ['athletic', 'Athletic'],
-  ['recovery', 'Recovery'],
-  ['longevity', 'Longevity'],
-];
+function goalLabel(g: HealthGoal): string {
+  switch (g) {
+    case 'fat_loss':    return t('plansGoalFatLoss');
+    case 'muscle_gain': return t('plansGoalMuscleGain');
+    case 'maintenance': return t('plansGoalMaintenance');
+    case 'athletic':    return t('plansGoalAthletic');
+    case 'recovery':    return t('plansGoalRecovery');
+    case 'longevity':   return t('plansGoalLongevity');
+  }
+}
+const GOALS: HealthGoal[] = ['fat_loss', 'muscle_gain', 'maintenance', 'athletic', 'recovery', 'longevity'];
 
 const inputCls = 'w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none';
 
 export function ProfileView({ token }: { token?: string | null }) {
+  useLocale();
   const [profile, setProfile] = useState<HealthProfile>(() => loadProfile() ?? emptyHealthProfile());
   const [saved, setSaved] = useState(false);
 
@@ -54,58 +59,58 @@ export function ProfileView({ token }: { token?: string | null }) {
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto w-full pb-28">
         <div className="px-4 py-3 border-b border-ava-border">
-          <h2 className="font-semibold text-white text-lg">Profile</h2>
-          <p className="text-xs text-gray-500 mt-0.5">What Ava plans your day around.</p>
+          <h2 className="font-semibold text-white text-lg">{t('profileHeading')}</h2>
+          <p className="text-xs text-gray-500 mt-0.5">{t('profileDescription')}</p>
         </div>
         <div className="px-4 py-4 space-y-6">
-          <Section title="Body">
-            <Field label="Sex">
+          <Section title={t('profileBodySection')}>
+            <Field label={t('profileSexLabel')}>
               <select value={profile.body.sex ?? ''} onChange={e => setBody({ sex: (e.target.value || null) as HealthProfile['body']['sex'] })} className={inputCls}>
                 <option value="">—</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="other">Other</option>
+                <option value="female">{t('profileSexFemale')}</option>
+                <option value="male">{t('profileSexMale')}</option>
+                <option value="other">{t('profileSexOther')}</option>
               </select>
             </Field>
-            <Field label="Date of birth">
+            <Field label={t('profileDobLabel')}>
               <input type="date" value={profile.body.date_of_birth ?? ''} onChange={e => setBody({ date_of_birth: e.target.value || null })} className={inputCls} />
             </Field>
-            <Field label="Height">
+            <Field label={t('profileHeightLabel')}>
               <HeightField cm={profile.body.height_cm} onChange={v => setBody({ height_cm: v })} />
             </Field>
-            <Field label="Weight">
+            <Field label={t('profileWeightLabel')}>
               <WeightField kg={profile.body.weight_kg} onChange={v => setBody({ weight_kg: v })} />
             </Field>
-            <Field label="Body fat % (optional)">
+            <Field label={t('profileBodyFatLabel')}>
               <input inputMode="decimal" value={profile.body.body_fat_pct ?? ''} onChange={e => setBody({ body_fat_pct: num(e.target.value) })} className={inputCls} />
             </Field>
           </Section>
 
-          <Section title="Goal">
-            <Field label="Primary goal">
+          <Section title={t('profileGoalSection')}>
+            <Field label={t('profilePrimaryGoalLabel')}>
               <select value={profile.goals.primary ?? ''} onChange={e => setGoals({ primary: (e.target.value || null) as HealthGoal | null })} className={inputCls}>
                 <option value="">—</option>
-                {GOALS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+                {GOALS.map(v => <option key={v} value={v}>{goalLabel(v)}</option>)}
               </select>
             </Field>
-            <Field label="This week’s focus">
-              <input value={profile.goals.weekly_focus ?? ''} onChange={e => setGoals({ weekly_focus: e.target.value || null })} placeholder="e.g. deload week" className={inputCls} />
+            <Field label={t('profileWeeklyFocusLabel')}>
+              <input value={profile.goals.weekly_focus ?? ''} onChange={e => setGoals({ weekly_focus: e.target.value || null })} placeholder={t('profileWeeklyFocusPlaceholder')} className={inputCls} />
             </Field>
           </Section>
 
-          <Section title="Sleep target">
+          <Section title={t('profileSleepTargetSection')}>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Bedtime">
+              <Field label={t('profileBedtimeLabel')}>
                 <input type="time" value={profile.schedule.sleep_target.bedtime ?? ''} onChange={e => setSleep({ bedtime: e.target.value || null })} className={inputCls} />
               </Field>
-              <Field label="Wake">
+              <Field label={t('profileWakeLabel')}>
                 <input type="time" value={profile.schedule.sleep_target.wake ?? ''} onChange={e => setSleep({ wake: e.target.value || null })} className={inputCls} />
               </Field>
             </div>
           </Section>
 
           <button onClick={save} className="w-full rounded-full bg-ava-purple py-3 text-sm font-semibold text-white hover:bg-ava-purple-dark transition">
-            {saved ? 'Saved ✓' : 'Save profile'}
+            {saved ? t('profileSaveButtonSaved') : t('profileSaveButtonDefault')}
           </button>
         </div>
       </div>

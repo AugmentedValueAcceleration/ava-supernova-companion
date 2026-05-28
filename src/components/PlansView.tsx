@@ -9,6 +9,7 @@
 // day from the catalogue — lands in 4a-ii.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
 import type { HealthPlan, HealthPlanSummary, HealthPlanType, HealthPlanStatus } from '@/lib/health-types';
@@ -31,7 +32,17 @@ function durationLabel(days: number): string {
   return w === 1 ? '1 week' : `${w} weeks`;
 }
 
+function statusLabel(s: HealthPlanStatus): string {
+  switch (s) {
+    case 'draft':     return t('plansStatusDraft');
+    case 'active':    return t('plansStatusActive');
+    case 'completed': return t('plansStatusCompleted');
+    case 'archived':  return t('plansStatusArchived');
+  }
+}
+
 export function PlansView({ token }: { token?: string | null }) {
+  useLocale();
   const [plans, setPlans] = useState<HealthPlanSummary[]>(() => listPlans());
   const [tab, setTab] = useState<'programs' | 'calendar'>('programs');
   const [creating, setCreating] = useState(false);
@@ -77,13 +88,13 @@ export function PlansView({ token }: { token?: string | null }) {
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto w-full pb-28">
         <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
-          <h2 className="font-semibold text-white text-lg">Plans</h2>
-          <button onClick={() => setCreating(true)} className="rounded-full bg-ava-purple px-3 py-1.5 text-xs font-semibold text-white hover:bg-ava-purple-dark transition">+ New</button>
+          <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
+          <button onClick={() => setCreating(true)} className="rounded-full bg-ava-purple px-3 py-1.5 text-xs font-semibold text-white hover:bg-ava-purple-dark transition">{t('plansNewButton')}</button>
         </div>
 
         <div className="flex gap-1 border-b border-ava-border px-2">
-          <TabBtn label="Programs" active={tab === 'programs'} onClick={() => setTab('programs')} />
-          <TabBtn label="Calendar" active={tab === 'calendar'} onClick={() => setTab('calendar')} />
+          <TabBtn label={t('plansTabPrograms')} active={tab === 'programs'} onClick={() => setTab('programs')} />
+          <TabBtn label={t('plansTabCalendar')} active={tab === 'calendar'} onClick={() => setTab('calendar')} />
         </div>
 
         {tab === 'programs'
@@ -112,8 +123,8 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onNew, onOpen }: {
   if (plans.length === 0) {
     return (
       <div className="px-4 py-16 text-center">
-        <p className="text-sm text-gray-400">No plans yet.</p>
-        <button onClick={onNew} className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-2 text-sm text-ava-purple-light">Create your first plan</button>
+        <p className="text-sm text-gray-400">{t('plansEmptyState')}</p>
+        <button onClick={onNew} className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-2 text-sm text-ava-purple-light">{t('plansEmptyStateButton')}</button>
       </div>
     );
   }
@@ -124,18 +135,18 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onNew, onOpen }: {
           <button onClick={() => onOpen(p.id)} className="flex items-start justify-between gap-3 w-full text-left">
             <div className="min-w-0">
               <div className="text-white text-sm font-medium truncate">{p.title}</div>
-              <div className="text-[11px] text-gray-500 mt-0.5 capitalize">{p.type} · {durationLabel(p.duration_days)} · tap to build</div>
+              <div className="text-[11px] text-gray-500 mt-0.5 capitalize">{p.type} · {durationLabel(p.duration_days)} · {t('plansProgramsTapToBuild')}</div>
             </div>
-            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] capitalize ${STATUS_CLS[p.status]}`}>{p.status}</span>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] capitalize ${STATUS_CLS[p.status]}`}>{statusLabel(p.status)}</span>
           </button>
           <div className="mt-3 flex gap-2">
             {p.status === 'draft' && (
-              <button onClick={() => onActivate(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">Activate</button>
+              <button onClick={() => onActivate(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">{t('plansActivateButton')}</button>
             )}
             {(p.status === 'completed' || p.status === 'archived') && (
-              <button onClick={() => onRepeat(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">Repeat</button>
+              <button onClick={() => onRepeat(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">{t('plansRepeatButton')}</button>
             )}
-            <button onClick={() => onDelete(p.id)} className="rounded-full border border-ava-border px-3 py-1 text-[11px] text-gray-400 hover:text-red-300 hover:border-red-400/40">Delete</button>
+            <button onClick={() => onDelete(p.id)} className="rounded-full border border-ava-border px-3 py-1 text-[11px] text-gray-400 hover:text-red-300 hover:border-red-400/40">{t('plansDeleteButton')}</button>
           </div>
         </div>
       ))}
@@ -233,12 +244,12 @@ function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay:
       {dated.length > 0
         ? (
           <div className="mt-4 flex gap-4 text-[10px] text-gray-500">
-            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-ava-purple" /> Training</span>
-            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Meals</span>
-            <span className="ml-auto">Tap a day to open its plan</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-ava-purple" /> {t('plansCalendarLegendTraining')}</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> {t('plansCalendarLegendMeals')}</span>
+            <span className="ml-auto">{t('plansCalendarTapDayHint')}</span>
           </div>
         )
-        : <p className="mt-4 text-center text-[11px] text-gray-500">No plans on the calendar yet — create one and activate it to place it here.</p>}
+        : <p className="mt-4 text-center text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>}
     </div>
   );
 }
@@ -258,34 +269,34 @@ function CreateSheet({ onCancel, onCreate }: {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-t border-ava-border bg-ava-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" onClick={e => e.stopPropagation()}>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-ava-border" />
-        <h3 className="text-white font-semibold text-sm mb-4">New plan</h3>
+        <h3 className="text-white font-semibold text-sm mb-4">{t('plansCreateSheetHeading')}</h3>
 
-        <Label>Type</Label>
+        <Label>{t('plansCreateTypeLabel')}</Label>
         <div className="flex gap-2 mb-4">
           {TYPES.map(([v, l]) => (
             <button key={v} onClick={() => setType(v)} className={`flex-1 rounded-lg border py-2 text-xs capitalize ${type === v ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'}`}>{l}</button>
           ))}
         </div>
 
-        <Label>Duration</Label>
+        <Label>{t('plansCreateDurationLabel')}</Label>
         <div className="flex flex-wrap gap-2 mb-4">
           {DURATIONS.map(([v, l]) => (
             <button key={v} onClick={() => setDuration(v)} className={`rounded-full border px-3 py-1.5 text-xs ${duration === v ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'}`}>{l}</button>
           ))}
         </div>
 
-        <Label>Title</Label>
-        <input value={title} onChange={e => setTitle(e.target.value)} placeholder={`e.g. ${type === 'meal' ? '4-week cut' : 'First 5k'}`}
+        <Label>{t('plansCreateTitleLabel')}</Label>
+        <input value={title} onChange={e => setTitle(e.target.value)} placeholder={type === 'meal' ? t('plansCreateMealPlanPlaceholder') : t('plansCreateFitnessPlanPlaceholder')}
           className="w-full bg-ava-bg border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-ava-purple focus:outline-none mb-4" />
 
         <label className="flex items-center gap-2 mb-5 text-sm text-gray-300">
           <input type="checkbox" checked={activate} onChange={e => setActivate(e.target.checked)} className="accent-ava-purple" />
-          Start now (activate) — archives any active {type} plan
+          {t('plansCreateActivateCheckbox')}
         </label>
 
         <button onClick={() => onCreate(type, duration, title, activate ? 'active' : 'draft')}
           className="w-full rounded-full bg-ava-purple py-3 text-sm font-semibold text-white hover:bg-ava-purple-dark transition">
-          Create plan
+          {t('plansCreateButton')}
         </button>
       </div>
     </div>

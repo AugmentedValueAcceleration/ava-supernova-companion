@@ -8,6 +8,7 @@
 // the synced plan store on every edit.
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { getPlan, savePlan } from '@/lib/health-plan-store';
 import { healthCatalogApi } from '@/lib/api';
 import type {
@@ -15,15 +16,31 @@ import type {
 } from '@/lib/health-types';
 
 const MEAL_SLOTS: HealthPlanMeal['slot'][] = ['breakfast', 'lunch', 'dinner', 'snack'];
-const KINDS: { value: HealthPlanDay['kind']; label: string }[] = [
-  { value: 'training', label: 'Training' },
-  { value: 'active_recovery', label: 'Recovery' },
-  { value: 'rest', label: 'Rest' },
-];
+
+function kindLabel(k: HealthPlanDay['kind']): string {
+  switch (k) {
+    case 'training':         return t('planBuilderTrainingKind');
+    case 'active_recovery':  return t('planBuilderRecoveryKind');
+    case 'rest':             return t('planBuilderRestKind');
+  }
+}
+
+function mealSlotLabel(s: HealthPlanMeal['slot']): string {
+  switch (s) {
+    case 'breakfast': return t('planBuilderMealBreakfast');
+    case 'lunch':     return t('planBuilderMealLunch');
+    case 'dinner':    return t('planBuilderMealDinner');
+    case 'snack':     return t('planBuilderMealSnack');
+  }
+}
+
+const KINDS: HealthPlanDay['kind'][] = ['training', 'active_recovery', 'rest'];
 
 function newId(p: string) { return crypto?.randomUUID?.() ?? `${p}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
 
 export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: string; token?: string | null; onBack: () => void; initialDay?: number }) {
+  useLocale();
+  void token;
   const [plan, setPlanState] = useState<HealthPlan | null>(() => getPlan(planId));
   const [dayIndex, setDayIndex] = useState(initialDay ?? 1);
   const [picker, setPicker] = useState<null | 'exercise' | 'recipe'>(null);
@@ -41,8 +58,8 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   if (!plan) {
     return (
       <div className="flex-1 flex flex-col">
-        <BackBar onBack={onBack} title="Plan" />
-        <div className="flex-1 flex items-center justify-center text-sm text-gray-500">Plan not found.</div>
+        <BackBar onBack={onBack} title={t('planBuilderBackTitle')} />
+        <div className="flex-1 flex items-center justify-center text-sm text-gray-500">{t('planBuilderNotFound')}</div>
       </div>
     );
   }
@@ -71,7 +88,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
             <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-2">
               {Array.from({ length: weeks }, (_, w) => {
                 const inWeek = dayIndex > w * 7 && dayIndex <= (w + 1) * 7;
-                return <button key={w} onClick={() => setDayIndex(w * 7 + 1)} className={`shrink-0 rounded-full px-3 py-1 text-[11px] ${inWeek ? 'bg-ava-purple text-white' : 'border border-ava-border text-gray-400'}`}>Week {w + 1}</button>;
+                return <button key={w} onClick={() => setDayIndex(w * 7 + 1)} className={`shrink-0 rounded-full px-3 py-1 text-[11px] ${inWeek ? 'bg-ava-purple text-white' : 'border border-ava-border text-gray-400'}`}>{t('planBuilderWeekLabel')} {w + 1}</button>;
               })}
             </div>
           )}
@@ -94,19 +111,19 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
           <div className="px-4 py-4 space-y-5">
             <div className="flex gap-2">
               {KINDS.map(k => (
-                <button key={k.value} onClick={() => setDay(d => ({ ...d, kind: k.value }))}
-                  className={`flex-1 rounded-lg border py-2 text-xs ${day.kind === k.value ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'}`}>{k.label}</button>
+                <button key={k} onClick={() => setDay(d => ({ ...d, kind: k }))}
+                  className={`flex-1 rounded-lg border py-2 text-xs ${day.kind === k ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'}`}>{kindLabel(k)}</button>
               ))}
             </div>
 
             <input value={day.title ?? ''} onChange={e => setDay(d => ({ ...d, title: e.target.value || null }))}
-              placeholder="Day title — e.g. Upper body, Long run"
+              placeholder={t('planBuilderDayTitlePlaceholder')}
               className="w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-ava-purple focus:outline-none" />
 
             {showsTraining && (
-              <Group title="Training" onAdd={() => setPicker('exercise')}>
+              <Group title={t('planBuilderTrainingSection')} onAdd={() => setPicker('exercise')}>
                 {day.training.length === 0
-                  ? <Empty>No exercises yet.</Empty>
+                  ? <Empty>{t('planBuilderNoExercises')}</Empty>
                   : day.training.map(ex => <ExerciseRow key={ex.id} ex={ex}
                       onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
                       onRemove={() => setDay(d => ({ ...d, training: d.training.filter(x => x.id !== ex.id) }))} />)}
@@ -114,9 +131,9 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
             )}
 
             {showsMeals && (
-              <Group title="Meals" onAdd={() => setPicker('recipe')}>
+              <Group title={t('planBuilderMealsSection')} onAdd={() => setPicker('recipe')}>
                 {day.meals.length === 0
-                  ? <Empty>No meals yet.</Empty>
+                  ? <Empty>{t('planBuilderNoMeals')}</Empty>
                   : day.meals.map(ml => <MealRow key={ml.id} ml={ml}
                       onChange={patch => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? { ...x, ...patch } : x) }))}
                       onRemove={() => setDay(d => ({ ...d, meals: d.meals.filter(x => x.id !== ml.id) }))} />)}
@@ -124,7 +141,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
             )}
 
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Notes</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">{t('planBuilderNotesLabel')}</div>
               <textarea value={day.notes ?? ''} onChange={e => setDay(d => ({ ...d, notes: e.target.value || null }))} rows={2}
                 className="w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-ava-purple focus:outline-none resize-none" />
             </div>
@@ -160,7 +177,7 @@ function Group({ title, onAdd, children }: { title: string; onAdd: () => void; c
     <section>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-[10px] uppercase tracking-wider text-gray-500">{title}</h3>
-        <button onClick={onAdd} className="rounded-full border border-ava-purple/40 bg-ava-purple/10 px-3 py-1 text-[11px] text-ava-purple-light">+ Add</button>
+        <button onClick={onAdd} className="rounded-full border border-ava-purple/40 bg-ava-purple/10 px-3 py-1 text-[11px] text-ava-purple-light">{t('planBuilderGroupAddButton')}</button>
       </div>
       <div className="space-y-2">{children}</div>
     </section>
@@ -182,10 +199,10 @@ function ExerciseRow({ ex, onChange, onRemove }: { ex: HealthPlanExercise; onCha
         <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
       </div>
       <div className="mt-2 grid grid-cols-4 gap-2">
-        <Cell label="sets"><input inputMode="numeric" value={ex.sets ?? ''} onChange={e => onChange({ sets: numOrNull(e.target.value) })} className={cellCls} /></Cell>
-        <Cell label="reps"><input value={ex.reps ?? ''} onChange={e => onChange({ reps: e.target.value || null })} className={cellCls} /></Cell>
-        <Cell label="weight"><input value={ex.weight ?? ''} onChange={e => onChange({ weight: e.target.value || null })} className={cellCls} /></Cell>
-        <Cell label="rest s"><input inputMode="numeric" value={ex.rest_seconds ?? ''} onChange={e => onChange({ rest_seconds: numOrNull(e.target.value) })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderExerciseSetsLabel')}><input inputMode="numeric" value={ex.sets ?? ''} onChange={e => onChange({ sets: numOrNull(e.target.value) })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderExerciseRepsLabel')}><input value={ex.reps ?? ''} onChange={e => onChange({ reps: e.target.value || null })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderExerciseWeightLabel')}><input value={ex.weight ?? ''} onChange={e => onChange({ weight: e.target.value || null })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderExerciseRestLabel')}><input inputMode="numeric" value={ex.rest_seconds ?? ''} onChange={e => onChange({ rest_seconds: numOrNull(e.target.value) })} className={cellCls} /></Cell>
       </div>
     </div>
   );
@@ -201,9 +218,9 @@ function MealRow({ ml, onChange, onRemove }: { ml: HealthPlanMeal; onChange: (p:
       </div>
       <div className="mt-2 flex items-center gap-2">
         <select value={ml.slot} onChange={e => onChange({ slot: e.target.value as HealthPlanMeal['slot'] })} className={`${cellCls} capitalize w-auto`}>
-          {MEAL_SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
+          {MEAL_SLOTS.map(s => <option key={s} value={s}>{mealSlotLabel(s)}</option>)}
         </select>
-        <Cell label="servings"><input inputMode="decimal" value={ml.servings ?? ''} onChange={e => onChange({ servings: numOrNull(e.target.value) })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderMealServingsLabel')}><input inputMode="decimal" value={ml.servings ?? ''} onChange={e => onChange({ servings: numOrNull(e.target.value) })} className={cellCls} /></Cell>
       </div>
     </div>
   );
@@ -240,7 +257,7 @@ function CataloguePicker({ kind, onClose, onPick }: { kind: 'exercise' | 'recipe
     <div className="fixed inset-0 z-[60] flex flex-col bg-ava-bg" >
       <div className="px-4 py-3 border-b border-ava-border flex items-center gap-3">
         <button onClick={onClose} className="text-gray-300 hover:text-white"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-        <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder={`Add a ${kind === 'exercise' ? 'workout' : 'recipe'}…`}
+        <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder={kind === 'exercise' ? t('planBuilderPickerExercisePlaceholder') : t('planBuilderPickerRecipePlaceholder')}
           className="flex-1 bg-ava-surface border border-ava-border rounded-full px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none" />
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-2">

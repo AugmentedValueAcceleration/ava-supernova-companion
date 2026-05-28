@@ -8,12 +8,14 @@
 // generated server-side (1 credit); everything else is local + offline.
 
 import { useState, useCallback, useMemo } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi } from '@/lib/api';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
 
 export function TodayView({ token }: { token?: string | null }) {
+  useLocale();
   const today = todayIso();
   const [profile] = useState<HealthProfile | null>(() => loadProfile());
   const [plan, setPlan] = useState<HealthDailyPlan>(() => loadDay(today));
@@ -52,39 +54,39 @@ export function TodayView({ token }: { token?: string | null }) {
 
         {profileEmpty && (
           <div className="mt-5 rounded-lg border border-ava-purple/30 bg-ava-purple/5 px-4 py-3 text-[12px] text-gray-300">
-            Set up your <strong className="text-white">Profile</strong> (tap ✦ → Profile) so Ava can plan around you.
+            {t('todayProfileSetupHint')}
           </div>
         )}
 
         {/* Morning brief */}
         <section className="mt-6">
-          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">Ava’s brief</h2>
+          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayMorningBriefLabel')}</h2>
           {plan.morning_brief
             ? <p className="text-[15px] leading-relaxed text-white font-light">{plan.morning_brief}</p>
-            : <p className="rounded-lg border border-ava-border px-4 py-4 text-[12px] text-gray-500 italic">No brief yet — Ava can write one from where you’re at today.</p>}
+            : <p className="rounded-lg border border-ava-border px-4 py-4 text-[12px] text-gray-500 italic">{t('todayNoBriefEmpty')}</p>}
           {briefErr && <p className="mt-2 text-[12px] text-red-300">{briefErr}</p>}
           <button
             onClick={generateBrief}
             disabled={briefBusy || profileEmpty}
             className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-1.5 text-[12px] text-ava-purple-light hover:bg-ava-purple/20 transition disabled:opacity-40"
           >
-            {briefBusy ? 'Writing…' : plan.morning_brief ? 'Rewrite brief' : 'Write my brief'}
+            {briefBusy ? t('todayBriefGeneratingButton') : plan.morning_brief ? t('todayBriefRewriteButton') : t('todayBriefCreateButton')}
           </button>
         </section>
 
         {/* Status */}
         <section className="mt-7">
-          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">Where you are</h2>
+          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayStatusLabel')}</h2>
           <div className="grid grid-cols-3 gap-2.5">
-            <Tile label="Readiness" value={readiness.value} hint={readiness.hint} />
-            <Tile label="Nutrition" value={nutrition.value} hint={nutrition.hint} />
-            <Tile label="Training" value={training.value} hint={training.hint} />
+            <Tile label={t('todayReadinessTile')} value={readiness.value} hint={readiness.hint} />
+            <Tile label={t('todayNutritionTile')} value={nutrition.value} hint={nutrition.hint} />
+            <Tile label={t('todayTrainingTile')} value={training.value} hint={training.hint} />
           </div>
         </section>
 
         {/* Quick log */}
         <section className="mt-7">
-          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">Quick log</h2>
+          <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayQuickLogLabel')}</h2>
           <QuickLog log={plan.log} commit={commit} />
         </section>
       </div>
@@ -109,38 +111,38 @@ function Tile({ label, value, hint }: { label: string; value: string; hint: stri
 function computeReadiness(profile: HealthProfile | null, plan: HealthDailyPlan): Figure {
   const sleep = plan.log.sleep_hours;
   const mood = plan.log.mood;
-  if (sleep == null && mood == null) return { value: '—', hint: 'Log sleep + mood' };
+  if (sleep == null && mood == null) return { value: '—', hint: t('todayReadinessEmptyHint') };
   const target = targetSleepHours(profile);
   let score = 0, weight = 0;
   if (sleep != null) { score += Math.min(sleep / target, 1) * 0.6; weight += 0.6; }
   if (mood != null) { score += (mood / 5) * 0.4; weight += 0.4; }
   const pct = Math.round((score / weight) * 100);
-  const word = pct >= 80 ? 'Strong' : pct >= 60 ? 'Good' : pct >= 40 ? 'Fair' : 'Low';
+  const word = pct >= 80 ? t('todayReadinessStrong') : pct >= 60 ? t('todayReadinessGood') : pct >= 40 ? t('todayReadinessFair') : t('todayReadinessLow');
   const bits: string[] = [];
-  if (sleep != null) bits.push(`${fmtH(sleep)}/${fmtH(target)} sleep`);
-  if (mood != null) bits.push(`mood ${mood}/5`);
+  if (sleep != null) bits.push(`${fmtH(sleep)}/${fmtH(target)} ${t('todayReadinessSleepLabel')}`);
+  if (mood != null) bits.push(`${t('todayReadinessMoodLabel')} ${mood}/5`);
   return { value: word, hint: bits.join(' · ') };
 }
 
 function computeNutrition(profile: HealthProfile | null, plan: HealthDailyPlan): Figure {
   const meals = plan.log.meals;
   const water = plan.log.water_ml;
-  if (meals.length === 0 && water === 0) return { value: '—', hint: 'Log a meal' };
+  if (meals.length === 0 && water === 0) return { value: '—', hint: t('todayNutritionEmptyHint') };
   const protein = meals.reduce((a, m) => a + (m.protein_g ?? 0), 0);
   const kcal = meals.reduce((a, m) => a + (m.calories ?? 0), 0);
   const target = proteinTarget(profile);
   const bits: string[] = [];
   if (protein > 0) bits.push(target != null ? `${Math.round(protein)}/${target}g P` : `${Math.round(protein)}g P`);
   if (kcal > 0) bits.push(`${kcal} kcal`);
-  bits.push(`${fmtWater(water)} water`);
-  return { value: meals.length === 0 ? '—' : `${meals.length} meal${meals.length > 1 ? 's' : ''}`, hint: bits.join(' · ') };
+  bits.push(`${fmtWater(water)} ${t('todayNutritionWaterLabel')}`);
+  return { value: meals.length === 0 ? '—' : `${meals.length} ${t('todayNutritionMealsValue')}`, hint: bits.join(' · ') };
 }
 
 function computeTraining(plan: HealthDailyPlan): Figure {
   const training = plan.items.filter(i => i.kind === 'workout' || i.kind === 'mobility');
-  if (training.length === 0) return { value: 'Rest', hint: 'No session planned' };
+  if (training.length === 0) return { value: t('todayTrainingRestValue'), hint: t('todayTrainingNoSessionHint') };
   const done = training.filter(i => i.status === 'done').length;
-  return { value: `${done}/${training.length}`, hint: 'sessions done' };
+  return { value: `${done}/${training.length}`, hint: t('todayTrainingSessionsHint') };
 }
 
 // ── Quick log ────────────────────────────────────────────────────────────────
@@ -154,10 +156,10 @@ function QuickLog({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Health
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <LogBtn label={log.meals.length > 0 ? `${log.meals.length} meals` : 'Add meal'} active={open === 'meal'} onClick={() => toggle('meal')} />
-        <LogBtn label={log.water_ml > 0 ? fmtWater(log.water_ml) : 'Water'} active={open === 'water'} onClick={() => toggle('water')} />
-        <LogBtn label={log.sleep_hours != null ? fmtH(log.sleep_hours) : 'Sleep'} active={open === 'sleep'} onClick={() => toggle('sleep')} />
-        <LogBtn label={log.mood != null ? MOOD_FACE[log.mood] : 'Mood'} active={open === 'mood'} onClick={() => toggle('mood')} />
+        <LogBtn label={log.meals.length > 0 ? `${log.meals.length} ${t('todayLogMealsButton')}` : t('todayLogAddMealButton')} active={open === 'meal'} onClick={() => toggle('meal')} />
+        <LogBtn label={log.water_ml > 0 ? fmtWater(log.water_ml) : t('todayLogWaterButton')} active={open === 'water'} onClick={() => toggle('water')} />
+        <LogBtn label={log.sleep_hours != null ? fmtH(log.sleep_hours) : t('todayLogSleepButton')} active={open === 'sleep'} onClick={() => toggle('sleep')} />
+        <LogBtn label={log.mood != null ? MOOD_FACE[log.mood] : t('todayLogMoodButton')} active={open === 'mood'} onClick={() => toggle('mood')} />
       </div>
       {open && (
         <div className="mt-2 rounded-lg border border-ava-purple/30 bg-ava-purple/5 px-4 py-3">
@@ -166,7 +168,7 @@ function QuickLog({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Health
             <Chips>
               {[250, 500].map(ml => <Chip key={ml} onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml + ml) }))}>+{ml}ml</Chip>)}
               <Chip onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml - 250) }))} disabled={log.water_ml <= 0}>−250ml</Chip>
-              <Chip onClick={() => commit(l => ({ ...l, water_ml: 0 }))} disabled={log.water_ml <= 0}>reset</Chip>
+              <Chip onClick={() => commit(l => ({ ...l, water_ml: 0 }))} disabled={log.water_ml <= 0}>{t('todayLogWaterReset')}</Chip>
             </Chips>
           )}
           {open === 'sleep' && (
@@ -174,7 +176,7 @@ function QuickLog({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Health
               <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.max(0, round1((l.sleep_hours ?? 7.5) - 0.5)) }))}>−30m</Chip>
               <span className="min-w-[3.5rem] text-center text-[13px] text-white">{fmtH(log.sleep_hours ?? 7.5)}</span>
               <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.min(14, round1((l.sleep_hours ?? 7.5) + 0.5)) }))}>+30m</Chip>
-              {log.sleep_hours != null && <Chip onClick={() => commit(l => ({ ...l, sleep_hours: null }))}>clear</Chip>}
+              {log.sleep_hours != null && <Chip onClick={() => commit(l => ({ ...l, sleep_hours: null }))}>{t('todayLogSleepClear')}</Chip>}
             </Chips>
           )}
           {open === 'mood' && (
@@ -231,11 +233,11 @@ function MealEditor({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Heal
           ))}
         </ul>
       )}
-      <input value={desc} onChange={e => setDesc(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()} placeholder="What did you eat?" className={`w-full ${fc}`} />
+      <input value={desc} onChange={e => setDesc(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()} placeholder={t('todayLogMealPlaceholder')} className={`w-full ${fc}`} />
       <div className="mt-2 flex gap-2">
-        <input value={kcal} onChange={e => setKcal(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" placeholder="kcal" className={`min-w-0 flex-1 ${fc}`} />
-        <input value={protein} onChange={e => setProtein(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" placeholder="protein g" className={`min-w-0 flex-1 ${fc}`} />
-        <button onClick={add} disabled={!desc.trim()} className="shrink-0 rounded-md border border-ava-purple/40 bg-ava-purple/10 px-4 py-1.5 text-[12px] text-ava-purple-light disabled:opacity-40">Add</button>
+        <input value={kcal} onChange={e => setKcal(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" placeholder={t('todayLogMealKcalPlaceholder')} className={`min-w-0 flex-1 ${fc}`} />
+        <input value={protein} onChange={e => setProtein(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" placeholder={t('todayLogMealProteinPlaceholder')} className={`min-w-0 flex-1 ${fc}`} />
+        <button onClick={add} disabled={!desc.trim()} className="shrink-0 rounded-md border border-ava-purple/40 bg-ava-purple/10 px-4 py-1.5 text-[12px] text-ava-purple-light disabled:opacity-40">{t('todayLogMealAddButton')}</button>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@
 // `total`, so we keep loading 24 at a time until we've got them all.
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import { healthCatalogApi } from '@/lib/api';
 import type { ExerciseCard, RecipeCard } from '@/lib/health-types';
 import { ExerciseDetailView, RecipeDetailView } from './CatalogDetail';
@@ -24,17 +25,20 @@ interface PageResult<T> { items: T[]; total: number }
 
 function CatalogBrowse<T extends { id: string }>({
   title,
+  searchPlaceholder,
   categories,
   fetchPage,
   renderCard,
   onSelect,
 }: {
   title: string;
+  searchPlaceholder: string;
   categories: string[];
   fetchPage: (o: { offset: number; q: string; category: string | null }) => Promise<PageResult<T>>;
   renderCard: (item: T) => React.ReactNode;
   onSelect: (item: T) => void;
 }) {
+  useLocale();
   const [items, setItems] = useState<T[]>([]);
   const [total, setTotal] = useState(0);
   const [q, setQ] = useState('');
@@ -53,7 +57,7 @@ function CatalogBrowse<T extends { id: string }>({
       setTotal(t);
       setItems(prev => (replace ? page : [...prev, ...page]));
     } catch {
-      if (id === reqId.current) setError('Couldn’t load — tap to retry.');
+      if (id === reqId.current) setError(t('catalogBrowseLoadError'));
     } finally {
       if (id === reqId.current) setLoading(false);
     }
@@ -77,12 +81,12 @@ function CatalogBrowse<T extends { id: string }>({
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
-            placeholder={`Search ${title.toLowerCase()}…`}
+            placeholder={searchPlaceholder}
             className="w-full bg-ava-surface border border-ava-border rounded-full px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
           />
           {/* Filter chips */}
           <div className="flex gap-2 overflow-x-auto mt-3 -mx-1 px-1 pb-1 no-scrollbar">
-            <Chip label="All" active={category === null} onClick={() => setCategory(null)} />
+            <Chip label={t('catalogFilterAll')} active={category === null} onClick={() => setCategory(null)} />
             {categories.map(c => (
               <Chip key={c} label={c} active={category === c} onClick={() => setCategory(c)} />
             ))}
@@ -93,7 +97,7 @@ function CatalogBrowse<T extends { id: string }>({
           {error && items.length === 0 ? (
             <button onClick={() => load(0, true)} className="w-full text-center text-sm text-red-300 py-10">{error}</button>
           ) : items.length === 0 && !loading ? (
-            <p className="text-center text-sm text-gray-500 py-10">Nothing here yet.</p>
+            <p className="text-center text-sm text-gray-500 py-10">{t('catalogBrowseEmptyState')}</p>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {items.map(item => (
@@ -115,7 +119,7 @@ function CatalogBrowse<T extends { id: string }>({
               onClick={() => load(items.length, false)}
               className="mt-4 w-full rounded-full border border-ava-border bg-ava-surface py-2.5 text-sm text-gray-300 hover:border-ava-purple/50 transition"
             >
-              Load more · {items.length} of {total}
+              {t('catalogBrowseLoadMore')} · {items.length} / {total}
             </button>
           )}
         </div>
@@ -168,7 +172,8 @@ export function WorkoutsBrowse() {
   if (openSlug) return <ExerciseDetailView slug={openSlug} onBack={() => setOpenSlug(null)} />;
   return (
     <CatalogBrowse<ExerciseCard>
-      title="Workouts"
+      title={t('catalogWorkoutsTitle')}
+      searchPlaceholder={t('catalogWorkoutsSearchPlaceholder')}
       categories={WORKOUT_TYPES}
       fetchPage={fetchPage}
       onSelect={(e) => setOpenSlug(e.slug)}
@@ -195,7 +200,8 @@ export function RecipesBrowse() {
   if (openSlug) return <RecipeDetailView slug={openSlug} onBack={() => setOpenSlug(null)} />;
   return (
     <CatalogBrowse<RecipeCard>
-      title="Recipes"
+      title={t('catalogRecipesTitle')}
+      searchPlaceholder={t('catalogRecipesSearchPlaceholder')}
       categories={RECIPE_COURSES}
       fetchPage={fetchPage}
       onSelect={(r) => setOpenSlug(r.slug)}

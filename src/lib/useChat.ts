@@ -34,10 +34,10 @@ function getFriendlyError(message?: string): string {
     return "Your session expired. Try signing in again from Settings.";
 
   if (msg.includes('403') || msg.includes('not available on your plan') || msg.includes('no api key'))
-    return "No API key or account detected. Sign up for 3M free Qwen tokens, or add your own API key in Settings.";
+    return "No API key or account detected. Sign up for 300 free credits a month, or add your own API key in Settings.";
 
   if (msg.includes('token limit') || msg.includes('limit reached'))
-    return "You've used your token allowance. Top up at ava-supernova.com/pricing, or add your own API key in Settings.";
+    return "You've used your credit allowance. Top up at ava-supernova.com/pricing, or add your own API key in Settings.";
 
   if (msg.includes('502') || msg.includes('503') || msg.includes('provider'))
     return "The AI provider is having a rough moment. Try switching models or wait a minute.";
@@ -81,7 +81,7 @@ export function useChat({
   const greeting: Message = {
     id: '1', role: 'assistant', timestamp: new Date(),
     content: isGuest
-      ? "Hey! I'm Ava. To start chatting, either sign in for the free tier (3M Qwen tokens a month) or drop your own API key into Settings — Kimi, DeepSeek, Claude, GLM, Mistral all work.\n\nTell me what you're up to."
+      ? "Hey! I'm Ava. To start chatting, either sign in for the free tier (300 credits a month) or drop your own API key into Settings — Kimi, DeepSeek, Claude, GLM, Mistral all work.\n\nTell me what you're up to."
       : `Hey ${userName}! I'm Ava — your companion on the go. I can manage your tasks, write journal entries, and chat about anything.\n\nWhat's on your mind?`,
   };
 
