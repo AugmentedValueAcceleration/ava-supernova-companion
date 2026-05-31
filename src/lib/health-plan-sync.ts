@@ -32,7 +32,7 @@ export async function syncPlans(token?: string | null): Promise<number> {
   if (!shouldSync(token)) return 0;
 
   // 1. Pull
-  let cloud: HealthPlan[] = [];
+  let cloud: HealthPlan[];
   try {
     const res = await plansApi.list(token!);
     cloud = Array.isArray(res?.plans) ? (res.plans as HealthPlan[]) : [];

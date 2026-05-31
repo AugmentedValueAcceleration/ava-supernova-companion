@@ -153,7 +153,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
         <CataloguePicker
           kind={picker}
           onClose={() => setPicker(null)}
-          onPick={(item) => { picker === 'exercise' ? addExercise(item as ExerciseCard) : addMeal(item as RecipeCard); setPicker(null); }}
+          onPick={(item) => { if (picker === 'exercise') addExercise(item as ExerciseCard); else addMeal(item as RecipeCard); setPicker(null); }}
         />
       )}
     </div>

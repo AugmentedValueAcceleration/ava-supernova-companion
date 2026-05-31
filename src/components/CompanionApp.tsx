@@ -249,7 +249,6 @@ export default function CompanionApp({
       }
     }
     // Only react to login-state changes, not every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGuest]);
 
   // ── OAuth callback handler — runs on every page load ──────────────────

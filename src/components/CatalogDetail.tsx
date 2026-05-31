@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { healthCatalogApi } from '@/lib/api';
-import type { ExerciseDetail, RecipeDetail, RecipeStep } from '@/lib/health-types';
+import type { ExerciseDetail, RecipeDetail } from '@/lib/health-types';
 
 function useDetail<T>(load: () => Promise<T>, deps: unknown[]) {
   const [data, setData] = useState<T | null>(null);
@@ -22,7 +22,6 @@ function useDetail<T>(load: () => Promise<T>, deps: unknown[]) {
     load().then(d => { if (live) { setData(d); setLoading(false); } })
           .catch(() => { if (live) { setError(true); setLoading(false); } });
     return () => { live = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return { data, error, loading };
 }
@@ -39,7 +38,6 @@ function DetailShell({ onBack, image, title, subtitle, children }: {
         </button>
         <div className="aspect-video bg-black/30 flex items-center justify-center">
           {image
-            // eslint-disable-next-line @next/next/no-img-element
             ? <img src={image} alt={title} className="w-full h-full object-cover" />
             : <span className="text-ava-purple-light/40 text-4xl">✦</span>}
         </div>

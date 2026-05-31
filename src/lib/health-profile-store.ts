@@ -48,7 +48,7 @@ export async function syncProfile(token?: string | null): Promise<HealthProfile 
   const local = loadProfile();
   if (!token || !healthSyncEnabled()) return local;
 
-  let remote: HealthProfile | null = null;
+  let remote: HealthProfile | null;
   try {
     const res = await profileApi.get(token);
     remote = (res?.profile as HealthProfile | null) ?? null;

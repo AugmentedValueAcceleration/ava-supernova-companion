@@ -148,7 +148,6 @@ function CardShell({ image, title, meta }: { image: string | null; title: string
     <div className="rounded-2xl border border-ava-border bg-ava-surface overflow-hidden h-full">
       <div className="aspect-[4/3] bg-black/30 flex items-center justify-center">
         {image
-          // eslint-disable-next-line @next/next/no-img-element
           ? <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
           : <span className="text-ava-purple-light/40 text-2xl">✦</span>}
       </div>

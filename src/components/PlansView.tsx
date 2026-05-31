@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
-import type { HealthPlan, HealthPlanSummary, HealthPlanType, HealthPlanStatus } from '@/lib/health-types';
+import type { HealthPlanSummary, HealthPlanType, HealthPlanStatus } from '@/lib/health-types';
 import { PlanBuilder } from './PlanBuilder';
 import { todayIso } from '@/lib/health-day-store';
 

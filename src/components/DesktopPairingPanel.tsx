@@ -179,7 +179,11 @@ export default function DesktopPairingPanel({ userId, deviceName }: Props) {
   }, [steps, approval]);
 
   // ── Actions ──────────────────────────────────────────────────────
-  async function pair(sessionId: string): Promise<void> {
+  // NOTE: sessionId is accepted from the caller (pair(s.sessionId)) but the
+  // pair.request broadcast below doesn't carry it — the desktop isn't told
+  // which session to pair to. Left as-is (renamed to satisfy lint) pending a
+  // protocol review; pairing currently keys on userId + device fingerprint.
+  async function pair(_sessionId: string): Promise<void> {
     const channel = createDesktopChannel(userId);
     await channel.broadcast({
       type: 'pair.request',
