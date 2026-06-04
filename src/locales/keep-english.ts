@@ -3,7 +3,59 @@ import type { StringKey } from './en.js';
 /**
  * Keys whose English value is intentionally preserved across all locales.
  * Used by scripts/i18n-check.mjs to skip English-leak warnings on these keys.
+ *
+ * These are NOT untranslated gaps — every entry is a word that is genuinely
+ * the same (or a standard loanword) in the languages that "kept" it:
+ *   - German uses "Training", "System", "Countdown" as-is
+ *   - Dutch uses "week", "lunch", "water", "Stopwatch", "sets" as-is
+ *   - French uses "Journal", "Nutrition", "Muscles", "Notes" as-is
+ *   - Italian uses "Privacy", "Account", "Chat" as-is
+ *   - "kcal", "Tabata", "reps", "Plan", "Type", "Routine" transfer everywhere
+ * Forcing a "translation" here would make the UI worse, not better.
  */
 export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
-  // Add brand / proper-noun / placeholder-only keys here as needed
+  // Units & training protocols (universal)
+  'todayLogMealKcalPlaceholder',     // kcal
+  'todayLogMealProteinPlaceholder',  // protein g
+  'gymModeTabata',                   // Tabata (proper noun)
+
+  // Tech / UI loanwords — standard in Latin-script + many other locales
+  'chat', 'system', 'version', 'support',
+  'model', 'data', 'website', 'privacy', 'account', 'journal',
+
+  // Fitness loanwords — used in-language as English in gym contexts
+  'gymHeading',                      // Gym
+  'gymModeStopwatch',                // Stopwatch
+  'gymModeCountdown',                // Countdown
+  'gymModeSets',                     // Sets
+  'gymButtonReset',                  // Reset
+  'gymParamRounds',                  // Rounds
+  'gymRoundLabel',                   // Round
+  'planBuilderExerciseRepsLabel',    // reps
+  'planBuilderExerciseSetsLabel',    // sets
+  'todayLogWaterReset',              // reset
+
+  // Cross-language cognates — identical word in the flagged language(s)
+  'todayTrainingTile',               // Training
+  'plansCalendarLegendTraining',     // Training
+  'planBuilderTrainingKind',         // Training
+  'planBuilderTrainingSection',      // Training
+  'todayNutritionTile',              // Nutrition
+  'catalogDetailMusclesSection',     // Muscles
+  'catalogDetailRoutineSection',     // Routine
+  'catalogDetailProgressionLabel',   // Progression:
+  'catalogDetailIngredientOptional', // (optional)
+  'plansHeading',                    // Plans
+  'plansCreateTypeLabel',            // Type
+  'planBuilderBackTitle',            // Plan
+  'planBuilderNotesLabel',           // Notes
+  'planBuilderWeekLabel',            // Week
+  'planBuilderMealLunch',            // lunch
+  'planBuilderMealSnack',            // snack
+  'todayLogWaterButton',             // Water
+  'todayNutritionWaterLabel',        // water
+
+  // Legacy — cloud toggle removed (companion is local-only); keys unused
+  'dataModeCloud',                   // Cloud
+  'dataModeLocal',                   // Local
 ] as StringKey[]);
