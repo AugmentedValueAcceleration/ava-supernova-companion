@@ -5,8 +5,6 @@ import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
-import { getDataMode, setDataMode, type DataMode } from '@/lib/data-mode';
-import { loadPersonality } from '@/lib/personality';
 import ConfirmDialog from './ConfirmDialog';
 import ReleaseNotes from './ReleaseNotes';
 
@@ -75,7 +73,6 @@ export default function SettingsView({
 }: Props) {
   const [textSize, setTextSize] = useState<TextSize>('default');
   const [theme, setTheme] = useState<Theme>('dark');
-  const [dataMode, setDataModeState] = useState<DataMode>(() => getDataMode());
   // Future: notification preferences (Capacitor)
   // const [taskReminders, setTaskReminders] = useState(true);
   // const [journalPrompt, setJournalPrompt] = useState(true);
@@ -103,10 +100,6 @@ export default function SettingsView({
     plan: string;
   } | null>(null);
   const [usageLoading, setUsageLoading] = useState(false);
-
-  // Sync state
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
-  const [personalitySyncStatus, setPersonalitySyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
 
   // Release notes view
   const [showReleaseNotes, setShowReleaseNotes] = useState(false);
@@ -155,41 +148,6 @@ export default function SettingsView({
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [session?.access_token]);
-
-  const handleSyncConversations = async () => {
-    if (!session?.access_token) return;
-    setSyncStatus('syncing');
-    try {
-      const stored = localStorage.getItem('ava-companion-conversations');
-      const conversations = stored ? JSON.parse(stored) : [];
-      await apiFetch('/history/sync', {
-        method: 'POST',
-        body: JSON.stringify({ conversations }),
-      }, session.access_token);
-      setSyncStatus('success');
-      setTimeout(() => setSyncStatus('idle'), 3000);
-    } catch {
-      setSyncStatus('error');
-      setTimeout(() => setSyncStatus('idle'), 3000);
-    }
-  };
-
-  const handleSyncPersonality = async () => {
-    if (!session?.access_token) return;
-    setPersonalitySyncStatus('syncing');
-    try {
-      const personality = loadPersonality();
-      await apiFetch('/settings/sync', {
-        method: 'POST',
-        body: JSON.stringify({ personality }),
-      }, session.access_token);
-      setPersonalitySyncStatus('success');
-      setTimeout(() => setPersonalitySyncStatus('idle'), 3000);
-    } catch {
-      setPersonalitySyncStatus('error');
-      setTimeout(() => setPersonalitySyncStatus('idle'), 3000);
-    }
-  };
 
   const saveProviderKey = (key: keyof ProviderKeys, value: string) => {
     const updated = { ...providerKeys, [key]: value.trim() || undefined };
@@ -316,7 +274,7 @@ export default function SettingsView({
                 <Row label={t('journal')} value={<span className="text-xs text-emerald-400">Connected</span>} />
               </div>
 
-              {/* Billing — plan, tokens, storage. Lives inside Account since the
+              {/* Billing — plan + credits. Lives inside Account since the
                   companion is mobile-first and doesn't justify a whole billing page. */}
               <BillingSection apiKey={apiKey} session={session} />
 
@@ -405,33 +363,6 @@ export default function SettingsView({
               ) : (
                 <p className="text-xs text-gray-500 text-center">Usage data unavailable</p>
               )}
-            </div>
-          </Section>
-        )}
-
-        {/* Sync — connected users only */}
-        {session && (
-          <Section title="SYNC">
-            <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
-              <button
-                onClick={handleSyncConversations}
-                disabled={syncStatus === 'syncing'}
-                className="w-full bg-ava-purple hover:bg-ava-purple-dark disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition text-sm"
-              >
-                {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? 'Synced!' : syncStatus === 'error' ? 'Sync failed — try again' : t('syncConversations')}
-              </button>
-              <p className="text-[11px] text-gray-500 mt-2 text-center">Upload your local chat history to the cloud</p>
-
-              <div className="mt-3 pt-3 border-t border-ava-border">
-                <button
-                  onClick={handleSyncPersonality}
-                  disabled={personalitySyncStatus === 'syncing'}
-                  className="w-full bg-ava-surface border border-ava-border hover:border-ava-purple disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition text-sm"
-                >
-                  {personalitySyncStatus === 'syncing' ? 'Syncing...' : personalitySyncStatus === 'success' ? 'Personality Synced!' : personalitySyncStatus === 'error' ? 'Sync failed — try again' : 'Sync Personality'}
-                </button>
-                <p className="text-[11px] text-gray-500 mt-2 text-center">Push your personality settings to the cloud</p>
-              </div>
             </div>
           </Section>
         )}
@@ -553,36 +484,14 @@ export default function SettingsView({
 
         {/* Notifications — only shown in native app (Capacitor) */}
 
-        {/* Privacy — Data Mode controls whether chats, memories, tasks and
-            journal entries created from this device sync to the cloud.
-            Local keeps everything on-device (the default — local-first is
-            sacred); Cloud is local-first PLUS a cloud mirror so the same
-            data shows up on every Ava surface. The server honours the
-            choice on every request — changing it here takes effect on
-            the very next chat turn. */}
+        {/* Privacy — the companion is fully local-first now: everything stays
+            on this device, nothing syncs to the cloud. No toggle to make. */}
         <Section title={t('privacy')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
             <Row
               label={t('dataMode')}
-              subtitle={
-                dataMode === 'local'
-                  ? t('dataModeLocalDesc')
-                  : t('dataModeCloudDesc')
-              }
-              value={
-                <TogglePills
-                  options={[
-                    { value: 'local', label: t('dataModeLocal') },
-                    { value: 'cloud', label: t('dataModeCloud') },
-                  ]}
-                  selected={dataMode}
-                  onChange={v => {
-                    const next = v as DataMode;
-                    setDataModeState(next);
-                    setDataMode(next);
-                  }}
-                />
-              }
+              subtitle={t('dataModeLocalDesc')}
+              value={<span className="text-xs text-emerald-400">{t('dataModeLocal')}</span>}
             />
           </div>
         </Section>
@@ -684,13 +593,6 @@ interface BillingInfo {
     free_credits_used: number;
     free_credits_limit: number;
   } | null;
-  storage?: {
-    used_gb: number;
-    base_gb: number;
-    addon_gb: number;
-    total_gb: number;
-    percent_used: number;
-  };
   /**
    * Active subscription for paid tiers. Drives the "Renews X" line —
    * usage.period_end tracks the monthly usage window (calendar for free,
@@ -745,13 +647,11 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
   const totalUsed = freeUsed + planUsed;
   const totalLimit = freeLimit + planLimit;
   const totalPct = totalLimit > 0 ? Math.min(100, Math.round((totalUsed / totalLimit) * 100)) : 0;
-  const storage = info.storage;
   const renewsAt = info.subscription?.current_period_end;
 
   // Credits are small numbers — "15K" reads fine, "1.5K" for 1,500 is
   // ambiguous. Use comma separators so the exact value is always visible.
   const fmtCredits = (n: number) => n.toLocaleString('en-US');
-  const fmtStorage = (gb: number) => gb >= 1000 ? `${(gb / 1024).toFixed(2)} TB` : gb >= 10 ? `${Math.round(gb)} GB` : gb >= 1 ? `${gb.toFixed(1)} GB` : `${Math.round(gb * 1024)} MB`;
 
   return (
     <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
@@ -783,28 +683,6 @@ function BillingSection({ apiKey, session }: { apiKey: string | null; session: S
         </div>
       </div>
 
-      {/* Storage */}
-      {storage && (
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] text-gray-400">Cloud storage</span>
-            <span className="text-[11px] text-gray-500">
-              {fmtStorage(storage.used_gb)} / {fmtStorage(storage.total_gb)}
-            </span>
-          </div>
-          <div className="h-1.5 bg-ava-border rounded-full overflow-hidden">
-            <div
-              className="h-full bg-purple-500 transition-all"
-              style={{ width: `${storage.percent_used}%` }}
-            />
-          </div>
-          {storage.addon_gb > 0 && (
-            <p className="text-[10px] text-gray-500 mt-1">
-              {fmtStorage(storage.base_gb)} plan + {fmtStorage(storage.addon_gb)} add-ons
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

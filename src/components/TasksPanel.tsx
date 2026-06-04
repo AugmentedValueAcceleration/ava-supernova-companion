@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
-import { StorageBadge } from './StorageBadge';
 
 interface Task {
   id: string;
@@ -148,11 +147,6 @@ export default function TasksPanel({ token }: { token: string | null }) {
 
   return (
     <div className="p-4 space-y-3">
-      {/* Filter */}
-      <div className="flex items-center gap-2">
-        <StorageBadge token={token} />
-        <div className="flex-1" />
-      </div>
       <div className="flex gap-2">
         <button
           onClick={() => setFilter('today')}

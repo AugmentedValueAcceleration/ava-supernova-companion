@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { journalApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
-import { StorageBadge } from './StorageBadge';
 
 const moodEmojis = ['😔', '😕', '😐', '🙂', '😊'];
 
@@ -120,9 +119,6 @@ export default function JournalPanel({ token }: { token: string | null }) {
 
   return (
     <div className="p-4 space-y-3">
-      <div className="flex items-center">
-        <StorageBadge token={token} />
-      </div>
       {/* Date nav */}
       <div className="flex items-center justify-between">
         <button onClick={() => changeDate(-1)} className="text-gray-400 hover:text-white transition p-1">

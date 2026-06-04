@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { memoriesApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
-import { StorageBadge } from './StorageBadge';
 
 const PAGE_SIZE = 100;
 
@@ -263,9 +262,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
 
   return (
     <div className="p-4 space-y-3">
-      <div className="flex items-center">
-        <StorageBadge token={token} />
-      </div>
       {/* Search + Add */}
       <div className="flex gap-2">
         <div className="relative flex-1">
