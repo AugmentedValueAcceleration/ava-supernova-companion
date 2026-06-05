@@ -283,6 +283,29 @@ export const enStrings = {
   'catalogDetailMethodSection': 'Method',
   'catalogDetailTrickyFlag': 'tricky',
   'catalogDetailSourceLabel': 'Source:',
+
+  // ── Backup & Transfer (.ava-backup export/import) ─────────────────────
+  'backupSection': 'Backup & Transfer',
+  'backupIntro': "Make a backup file, or move your data here from the desktop app. It's the same file the IDE and extension use — tasks, journal, health and personality load straight in; anything else is carried along untouched.",
+  'backupExportEnc': 'Export encrypted backup',
+  'backupExportReadable': 'Export readable copy',
+  'backupImport': 'Import a backup file',
+  'backupImportHint': "Existing data is kept — importing only adds what's new.",
+  'backupSavedEnc': "Encrypted backup saved. Keep your passphrase safe — without it the file can't be opened.",
+  'backupSavedReadable': 'Readable export saved. Anyone with this file can read it — keep it private.',
+  'backupImported': 'Import complete — {n} items carried over.',
+  'backupImportedSkipped': ' {n} were already here and left unchanged.',
+  'backupImportedEmpty': 'Nothing new to import.',
+  'backupErrExport': 'Could not create the backup.',
+  'backupErrImport': 'Could not import that file.',
+  'backupChoosePass': 'Choose a passphrase',
+  'backupEnterPass': 'Enter the passphrase',
+  'backupChoosePassDesc': "This locks the backup file. You'll need the exact passphrase to open it on any device — there's no recovery.",
+  'backupEnterPassDesc': 'This file is encrypted. Enter the passphrase it was created with.',
+  'backupPassphrase': 'Passphrase',
+  'backupCreate': 'Create backup',
+  'backupImportAction': 'Import',
+  'backupWorking': 'Working…',
 };
 
 export type StringKey = keyof typeof enStrings;

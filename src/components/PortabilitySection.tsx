@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { t, useLocale } from '@/lib/i18n';
 import {
   exportEncryptedBackup,
   exportReadableBundle,
@@ -10,8 +11,9 @@ import {
 
 // Backup & Transfer — the companion's side of the shared .ava-backup format.
 // Same file the IDE and extension make, so data moves between your devices
-// without the cloud. (Strings are English-only for now — i18n is a follow-up.)
+// without the cloud.
 export default function PortabilitySection() {
+  useLocale(); // re-render on locale change
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
@@ -44,9 +46,9 @@ export default function PortabilitySection() {
     try {
       const envelope = await exportEncryptedBackup(passphrase);
       download(`ava-backup-${today()}.ava-backup`, envelope, 'application/octet-stream');
-      flash('ok', 'Encrypted backup saved. Keep your passphrase safe — without it the file can’t be opened.');
+      flash('ok', t('backupSavedEnc'));
     } catch (e) {
-      flash('err', e instanceof Error ? e.message : 'Could not create the backup.');
+      flash('err', e instanceof Error ? e.message : t('backupErrExport'));
     } finally {
       setBusy(false);
       setPassModal(null);
@@ -58,9 +60,9 @@ export default function PortabilitySection() {
     setBusy(true);
     try {
       download(`ava-data-${today()}.json`, exportReadableBundle(), 'application/json');
-      flash('ok', 'Readable export saved. Anyone with this file can read it — keep it private.');
+      flash('ok', t('backupSavedReadable'));
     } catch (e) {
-      flash('err', e instanceof Error ? e.message : 'Could not create the export.');
+      flash('err', e instanceof Error ? e.message : t('backupErrExport'));
     } finally {
       setBusy(false);
     }
@@ -70,11 +72,13 @@ export default function PortabilitySection() {
     setBusy(true);
     try {
       const { result } = await importBackup(content, { passphrase });
-      const added = result.projected.length ? `Added ${result.projected.join(', ')}.` : 'Nothing new to add.';
-      const skipped = result.skipped > 0 ? ` ${result.skipped} already existed, left as-is.` : '';
-      flash('ok', `${added} ${result.carried} items carried over.${skipped}`);
+      let msg = result.projected.length
+        ? t('backupImported').replace('{n}', String(result.carried))
+        : t('backupImportedEmpty');
+      if (result.skipped > 0) msg += t('backupImportedSkipped').replace('{n}', String(result.skipped));
+      flash('ok', msg);
     } catch (e) {
-      flash('err', e instanceof Error ? e.message : 'Could not import that file.');
+      flash('err', e instanceof Error ? e.message : t('backupErrImport'));
     } finally {
       setBusy(false);
       setPassModal(null);
@@ -98,20 +102,16 @@ export default function PortabilitySection() {
 
   return (
     <div>
-      <h3 className="text-[11px] font-bold text-gray-500 tracking-wider mb-2">BACKUP &amp; TRANSFER</h3>
+      <h3 className="text-[11px] font-bold text-gray-500 tracking-wider mb-2 uppercase">{t('backupSection')}</h3>
       <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
-        <p className="text-[11px] text-gray-500 leading-relaxed">
-          Make a backup file, or move your data here from the desktop app. It&apos;s the same
-          file the IDE and extension use &mdash; tasks, journal, health and personality load
-          straight in; anything else is carried along untouched.
-        </p>
+        <p className="text-[11px] text-gray-500 leading-relaxed">{t('backupIntro')}</p>
 
         <button
           onClick={() => setPassModal({ mode: 'export' })}
           disabled={busy}
           className={`${btn} bg-ava-purple hover:bg-ava-purple-dark text-white`}
         >
-          {'\u{1F512}'} Export encrypted backup (.ava-backup)
+          {'\u{1F512}'} {t('backupExportEnc')} (.ava-backup)
         </button>
 
         <button
@@ -119,7 +119,7 @@ export default function PortabilitySection() {
           disabled={busy}
           className={`${btn} bg-ava-surface border border-ava-border hover:border-ava-purple text-white`}
         >
-          Export readable copy (.json)
+          {t('backupExportReadable')} (.json)
         </button>
 
         <div className="pt-1 border-t border-ava-border">
@@ -128,11 +128,9 @@ export default function PortabilitySection() {
             disabled={busy}
             className={`${btn} mt-3 bg-ava-surface border border-ava-border hover:border-ava-purple text-white`}
           >
-            {'↑'} Import a backup file
+            {'↑'} {t('backupImport')}
           </button>
-          <p className="text-[11px] text-gray-500 mt-2 text-center">
-            Existing data is kept &mdash; importing only adds what&apos;s new.
-          </p>
+          <p className="text-[11px] text-gray-500 mt-2 text-center">{t('backupImportHint')}</p>
         </div>
 
         <input ref={fileRef} type="file" accept=".ava-backup,.json,application/json" onChange={onFilePicked} className="hidden" />
@@ -148,19 +146,17 @@ export default function PortabilitySection() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => { if (!busy) { setPassModal(null); setPass(''); } }}>
           <div className="bg-ava-surface border border-ava-border rounded-2xl p-5 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
             <h4 className="text-sm font-semibold text-white mb-1">
-              {passModal.mode === 'export' ? 'Choose a passphrase' : 'Enter the passphrase'}
+              {passModal.mode === 'export' ? t('backupChoosePass') : t('backupEnterPass')}
             </h4>
             <p className="text-[11px] text-gray-500 mb-3">
-              {passModal.mode === 'export'
-                ? 'This locks the backup file. You’ll need the exact passphrase to open it on any device — there’s no recovery.'
-                : 'This file is encrypted. Enter the passphrase it was created with.'}
+              {passModal.mode === 'export' ? t('backupChoosePassDesc') : t('backupEnterPassDesc')}
             </p>
             <input
               type="password"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
               autoFocus
-              placeholder="Passphrase"
+              placeholder={t('backupPassphrase')}
               className="w-full bg-ava-bg border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && pass) {
@@ -175,14 +171,14 @@ export default function PortabilitySection() {
                 disabled={busy}
                 className="flex-1 bg-ava-surface border border-ava-border text-gray-300 font-medium py-2 rounded-xl text-sm disabled:opacity-50"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={() => passModal.mode === 'export' ? doExportEncrypted(pass) : runImport(passModal.content!, pass)}
                 disabled={busy || !pass}
                 className="flex-1 bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2 rounded-xl text-sm disabled:opacity-50"
               >
-                {busy ? 'Working…' : passModal.mode === 'export' ? 'Create backup' : 'Import'}
+                {busy ? t('backupWorking') : passModal.mode === 'export' ? t('backupCreate') : t('backupImportAction')}
               </button>
             </div>
           </div>

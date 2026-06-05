@@ -55,6 +55,10 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'todayLogWaterButton',             // Water
   'todayNutritionWaterLabel',        // water
 
+  // Cross-language cognate — "passphrase" is a standard loanword in German
+  // and Italian (and others); they keep it as-is.
+  'backupPassphrase',                // Passphrase
+
   // Legacy — cloud toggle removed (companion is local-only); keys unused
   'dataModeCloud',                   // Cloud
   'dataModeLocal',                   // Local
