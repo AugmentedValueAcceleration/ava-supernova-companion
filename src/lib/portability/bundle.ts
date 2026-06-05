@@ -62,9 +62,14 @@ const K = {
   tasks: 'ava-companion-tasks',
   personality: 'ava-personality',
   healthProfile: 'ava-companion-health-profile',
+  memories: 'ava-companion-memories',
+  conversations: 'ava-companion-conversations',
   journalPrefix: 'ava-journal-',          // ava-journal-YYYY-MM-DD
   planPrefix: 'ava-companion-plan-',       // ava-companion-plan-{id}
 } as const;
+
+// Companion keeps at most this many conversations (mirrors chat-history.ts).
+const MAX_CONVERSATIONS = 50;
 
 function parse<T>(raw: string | null, fallback: T): T {
   if (raw == null) return fallback;
@@ -143,6 +148,80 @@ function journalFromFile(content: string): { user_content: string; user_mood: nu
 // Health profile, health plans, personality are byte-identical shapes across
 // surfaces — copy raw, no field translation.
 
+// Memory: desktop graph (memory/graph.json, nodes + edges) -> companion flat
+// memory list (for DISPLAY). The companion can't model the graph, so edges +
+// rich node metadata stay in the shadow; here we project the nodes so imported
+// memories show up in the Memory panel. (Companion-origin memories aren't yet
+// folded back into the graph on export — that's the planned follow-up.)
+interface CompanionMemory {
+  id: string; key: string; content: string; category: string;
+  created_at: string; updated_at: string; synced?: boolean;
+}
+function deriveMemoryKey(content: string): string {
+  const firstLine = (content.split('\n')[0] || '').trim();
+  if (!firstLine) return 'memory';
+  return firstLine.length > 60 ? firstLine.slice(0, 57) + '…' : firstLine;
+}
+function memoriesFromGraph(content: string): CompanionMemory[] {
+  const g = parse<{ nodes?: Record<string, unknown>[] }>(content, {});
+  const nodes = Array.isArray(g.nodes) ? g.nodes : [];
+  return nodes
+    .filter((n) => !n.archived)
+    .map((n) => {
+      const body = String(n.content ?? '');
+      const created = String(n.createdAt ?? new Date().toISOString());
+      return {
+        id: String(n.id ?? ''),
+        key: deriveMemoryKey(body),
+        content: body,
+        category: String(n.category ?? 'general'),
+        created_at: created,
+        updated_at: String(n.updatedAt ?? created),
+        synced: true,
+      };
+    })
+    .filter((m) => m.id && m.content);
+}
+
+// Conversations: desktop transcript (history/{id}.json, full agentic messages)
+// -> companion chat (user/assistant text only, for DISPLAY). Tool/system/
+// multimodal messages stay in the shadow.
+interface CompanionConversation {
+  id: string; title: string;
+  messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: string }>;
+  model: string; createdAt: string; updatedAt: string;
+}
+function conversationFromHistory(content: string): CompanionConversation | null {
+  const h = parse<Record<string, unknown>>(content, {});
+  if (!h?.id) return null;
+  const raw = Array.isArray(h.messages) ? (h.messages as Record<string, unknown>[]) : [];
+  const createdAt = String(h.createdAt ?? new Date().toISOString());
+  const messages = raw
+    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .map((m, i) => {
+      let text = '';
+      if (typeof m.content === 'string') text = m.content;
+      else if (Array.isArray(m.content)) {
+        text = (m.content as Record<string, unknown>[])
+          .filter((p) => p?.type === 'text')
+          .map((p) => String(p.text ?? ''))
+          .join('\n');
+      }
+      return text
+        ? { id: `${String(h.id)}-${i}`, role: m.role as 'user' | 'assistant', content: text, timestamp: createdAt }
+        : null;
+    })
+    .filter((m): m is CompanionConversation['messages'][number] => m != null);
+  return {
+    id: String(h.id),
+    title: String(h.title ?? 'Conversation'),
+    messages,
+    model: '',
+    createdAt,
+    updatedAt: String(h.updatedAt ?? createdAt),
+  };
+}
+
 function dateFromJournalKey(k: string): string { return k.slice(K.journalPrefix.length); }
 function idFromPlanKey(k: string): string { return k.slice(K.planPrefix.length); }
 
@@ -201,24 +280,42 @@ export function restoreBundle(kv: KV, bundle: DataBundle, opts?: { overwrite?: b
     return true;
   };
 
+  // Merge a fresh list into an existing by-id list (safe-merge keeps existing).
+  const mergeById = (key: string, incoming: Record<string, unknown>[], cap?: number) => {
+    const existing = parse<Record<string, unknown>[]>(kv.get(key), []);
+    let next: Record<string, unknown>[];
+    if (overwrite) {
+      next = incoming;
+    } else {
+      const have = new Set(existing.map((e) => String(e.id)));
+      const fresh = incoming.filter((e) => !have.has(String(e.id)));
+      skipped += incoming.length - fresh.length;
+      next = [...existing, ...fresh];
+    }
+    if (cap && next.length > cap) {
+      next = next
+        .sort((a, b) => String(b.updatedAt ?? '').localeCompare(String(a.updatedAt ?? '')))
+        .slice(0, cap);
+    }
+    kv.set(key, JSON.stringify(next));
+  };
+
+  const importedConvs: Record<string, unknown>[] = [];
+
   for (const [path, content] of Object.entries(bundle.files)) {
     if (path === 'tasks.json') {
-      // Merge by id (safe-merge keeps existing companion tasks).
-      const incoming = tasksFromFile(content);
-      const existing = parse<Record<string, unknown>[]>(kv.get(K.tasks), []);
-      if (overwrite) {
-        kv.set(K.tasks, JSON.stringify(incoming));
-      } else {
-        const haveIds = new Set(existing.map((t) => String(t.id)));
-        const merged = [...existing, ...incoming.filter((t) => !haveIds.has(String(t.id)))];
-        skipped += incoming.length - (merged.length - existing.length);
-        kv.set(K.tasks, JSON.stringify(merged));
-      }
+      mergeById(K.tasks, tasksFromFile(content));
       projected.add('tasks');
     } else if (path === 'personality.json') {
       if (setMerge(K.personality, content)) projected.add('personality');
     } else if (path === 'health/profile.json') {
       if (setMerge(K.healthProfile, content)) projected.add('health profile');
+    } else if (path === 'memory/graph.json') {
+      mergeById(K.memories, memoriesFromGraph(content) as unknown as Record<string, unknown>[]);
+      projected.add('memory');
+    } else if (path.startsWith('history/') && path.endsWith('.json')) {
+      const c = conversationFromHistory(content);
+      if (c) importedConvs.push(c as unknown as Record<string, unknown>);
     } else if (path.startsWith('journal/') && path.endsWith('.json')) {
       const date = path.slice('journal/'.length, -'.json'.length);
       if (setMerge(`${K.journalPrefix}${date}`, JSON.stringify(journalFromFile(content)))) projected.add('journal');
@@ -226,7 +323,12 @@ export function restoreBundle(kv: KV, bundle: DataBundle, opts?: { overwrite?: b
       const id = path.slice('health/plans/'.length, -'.json'.length);
       if (setMerge(`${K.planPrefix}${id}`, content)) projected.add('health plans');
     }
-    // else: carried in the shadow only (memory/, history/, learning.json, …).
+    // else: carried in the shadow only (learning.json, projects.json, …).
+  }
+
+  if (importedConvs.length) {
+    mergeById(K.conversations, importedConvs, MAX_CONVERSATIONS);
+    projected.add('conversations');
   }
 
   return { projected: [...projected], carried: Object.keys(bundle.files).length, skipped };
