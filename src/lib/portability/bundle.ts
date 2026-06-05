@@ -222,6 +222,60 @@ function conversationFromHistory(content: string): CompanionConversation | null 
   };
 }
 
+// Reverse: companion memories -> desktop graph.json. Folds phone state into
+// the (preserved) shadow graph so nothing in it is lost:
+//   • a memory whose id is already a node = imported → update its content /
+//     category / updatedAt only (keep edges + all other node metadata)
+//   • a memory with a new id = phone-native → add a minimal valid node
+//   • nodes with no matching memory (e.g. deleted on the phone) are KEPT —
+//     deletions don't propagate in v1 (safer; delete on the desktop instead)
+function memoriesToGraph(memories: CompanionMemory[], currentGraphJson?: string): string {
+  const base = parse<{ nodes?: Record<string, unknown>[]; edges?: unknown[]; lastDecayRun?: unknown; lastForgetRun?: unknown }>(
+    currentGraphJson ?? null, {},
+  );
+  const nodes = Array.isArray(base.nodes) ? [...base.nodes] : [];
+  const indexById = new Map(nodes.map((n, i) => [String(n.id), i]));
+  const now = new Date().toISOString();
+  for (const m of memories) {
+    const id = String(m.id);
+    const at = indexById.get(id);
+    if (at != null) {
+      nodes[at] = { ...nodes[at], content: m.content, category: m.category, updatedAt: m.updated_at || (nodes[at].updatedAt as string) };
+    } else {
+      nodes.push({
+        id,
+        category: m.category || 'general',
+        content: m.content,
+        createdAt: m.created_at || now,
+        updatedAt: m.updated_at || m.created_at || now,
+        lastRecalledAt: null,
+        recallCount: 0,
+      });
+    }
+  }
+  return JSON.stringify({
+    version: 4,
+    nodes,
+    edges: Array.isArray(base.edges) ? base.edges : [],
+    lastModified: now,
+    lastDecayRun: base.lastDecayRun ?? null,
+    lastForgetRun: base.lastForgetRun ?? null,
+  });
+}
+
+// Reverse: companion conversation -> desktop history/{id}.json transcript.
+// Only used for phone-native chats; imported transcripts keep their richer
+// shadow file verbatim (so tool/system messages aren't lost).
+function conversationToHistory(conv: CompanionConversation): string {
+  return JSON.stringify({
+    id: conv.id,
+    title: conv.title,
+    createdAt: conv.createdAt,
+    updatedAt: conv.updatedAt,
+    messages: (conv.messages || []).map((m) => ({ role: m.role, content: m.content })),
+  });
+}
+
 function dateFromJournalKey(k: string): string { return k.slice(K.journalPrefix.length); }
 function idFromPlanKey(k: string): string { return k.slice(K.planPrefix.length); }
 
@@ -255,6 +309,21 @@ export function gatherBundle(kv: KV, source = 'companion'): DataBundle {
       const raw = kv.get(key);
       if (raw) files[`health/plans/${id}.json`] = raw; // identical shape
     }
+  }
+
+  // Memory — fold companion memories into the (preserved) shadow graph, or
+  // create a graph if this device has only ever held phone-native memories.
+  const mems = parse<CompanionMemory[]>(kv.get(K.memories), []);
+  if (mems.length || files['memory/graph.json']) {
+    files['memory/graph.json'] = memoriesToGraph(mems, files['memory/graph.json']);
+  }
+
+  // Conversations — keep imported transcripts verbatim (richer), add any
+  // phone-native chats as new history files.
+  const convs = parse<CompanionConversation[]>(kv.get(K.conversations), []);
+  for (const c of convs) {
+    const path = `history/${c.id}.json`;
+    if (!files[path]) files[path] = conversationToHistory(c);
   }
 
   return { v: BUNDLE_VERSION, createdAt: new Date().toISOString(), source, files };
