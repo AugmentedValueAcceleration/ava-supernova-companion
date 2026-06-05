@@ -7,6 +7,7 @@ import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 import ConfirmDialog from './ConfirmDialog';
 import ReleaseNotes from './ReleaseNotes';
+import PortabilitySection from './PortabilitySection';
 
 interface ProviderKeys {
   deepseek?: string;
@@ -495,6 +496,9 @@ export default function SettingsView({
             />
           </div>
         </Section>
+
+        {/* Backup & Transfer — move data to/from the desktop apps (same .ava-backup) */}
+        <PortabilitySection />
 
         {/* Data */}
         <Section title={t('data')}>
