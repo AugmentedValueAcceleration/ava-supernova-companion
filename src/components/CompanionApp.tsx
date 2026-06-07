@@ -956,7 +956,7 @@ export default function CompanionApp({
               onBack={() => setMobileView('settings')}
             />
           ) : mobileView === 'docs' ? (
-            <CompanionDocs onBack={() => setMobileView('settings')} />
+            <CompanionDocs onBack={() => setMobileView('settings')} onAsk={(q) => { chat.setInput(q); setMobileView('chat'); }} />
           ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts') ? (
             <WellbeingSection view={mobileView} token={token} />
           ) : null}

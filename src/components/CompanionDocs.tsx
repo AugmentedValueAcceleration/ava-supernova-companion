@@ -102,9 +102,11 @@ function makeAdapter(): RendererAdapter<ReactNode> {
   };
 }
 
-export default function CompanionDocs({ onBack }: { onBack: () => void }) {
+export default function CompanionDocs({ onBack, onAsk }: { onBack: () => void; onAsk: (q: string) => void }) {
   const [search, setSearch] = useState('');
+  const [ask, setAsk] = useState('');
   const locale = useLocale();
+  const submitAsk = () => { const q = ask.trim(); if (q) { onAsk(q); setAsk(''); } };
 
   const { sections, pagesById } = useMemo(() => {
     const all = filterForSurface(getPages(locale), 'companion');
@@ -126,12 +128,23 @@ export default function CompanionDocs({ onBack }: { onBack: () => void }) {
         </button>
         <h1 className="text-lg font-semibold text-white">Help &amp; Docs</h1>
       </div>
-      <div className="px-4 pt-3 shrink-0">
+      <div className="px-4 pt-3 shrink-0 space-y-2">
+        {/* Ask Ava — type a question, get a surface-aware answer in chat. */}
+        <form onSubmit={(e) => { e.preventDefault(); submitAsk(); }} className="flex gap-2">
+          <input
+            type="text"
+            value={ask}
+            onChange={(e) => setAsk(e.target.value)}
+            placeholder="Ask Ava anything…"
+            className="flex-1 rounded-lg border border-ava-border bg-ava-surface px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-ava-purple"
+          />
+          <button type="submit" className="shrink-0 rounded-lg bg-ava-purple px-4 py-2 text-sm font-medium text-white">Ask</button>
+        </form>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search the docs…"
+          placeholder="Or search the docs…"
           className="w-full rounded-lg border border-ava-border bg-ava-surface px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-ava-purple"
         />
       </div>
