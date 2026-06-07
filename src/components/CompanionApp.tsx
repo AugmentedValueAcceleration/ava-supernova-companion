@@ -15,13 +15,14 @@ import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
 import SettingsView, { getActiveProviderKey } from './SettingsView';
 import { SupportChat } from './SupportChat';
+import CompanionDocs from './CompanionDocs';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
 import { WellbeingSection, type WellbeingView } from './Wellbeing';
 import { syncPlans } from '@/lib/health-plan-sync';
 // personality lib used by PersonalityDesigner component
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | WellbeingView;
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | 'docs' | WellbeingView;
 
 export default function CompanionApp({
   session,
@@ -954,6 +955,8 @@ export default function CompanionApp({
               token={session?.access_token || apiKey || ''}
               onBack={() => setMobileView('settings')}
             />
+          ) : mobileView === 'docs' ? (
+            <CompanionDocs onBack={() => setMobileView('settings')} />
           ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts') ? (
             <WellbeingSection view={mobileView} token={token} />
           ) : null}
@@ -992,7 +995,7 @@ export default function CompanionApp({
         <ThumbButton
           icon={<MoreIcon />}
           label="More"
-          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings'].includes(mobileView)}
+          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings', 'docs'].includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'more' ? null : 'more')}
         />
       </nav>
@@ -1037,6 +1040,18 @@ export default function CompanionApp({
                   <span className="text-sm text-gray-200">{t(item.labelKey)}</span>
                 </button>
               ))}
+              {/* Help & Docs — literal label for now (corpus content is localized;
+                  the menu word can be keyed into the strict i18n set later). */}
+              <button
+                onClick={() => { setMobileView('docs'); setNavSheet(null); }}
+                style={{ transitionDelay: sheetIn ? `${MORE_ITEMS.length * 40}ms` : '0ms' }}
+                className={`flex items-center gap-3 rounded-full border border-ava-border bg-ava-surface shadow-xl shadow-black/50 px-4 py-3 text-left hover:border-ava-purple/50 origin-bottom-right transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-6'}`}
+              >
+                <span className="text-gray-400">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 17.25h.008v.008H12v-.008z" /></svg>
+                </span>
+                <span className="text-sm text-gray-200">Help &amp; Docs</span>
+              </button>
             </div>
           )}
         </div>

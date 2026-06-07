@@ -1,0 +1,215 @@
+// -----------------------------------------------------------------------------
+// GENERATED FILE — do not edit directly.
+// Source of truth: packages/core/src/docs/
+// Run  pnpm docs:sync  from the repo root to regenerate.
+// -----------------------------------------------------------------------------
+
+import type { DocPage } from '../types';
+
+// Section 1 — Start here. Newcomer-focused. Read in order.
+
+export const START_PAGES: DocPage[] = [
+  {
+    id: 'start.what',
+    title: 'What is Ava?',
+    audience: ['newcomer', 'both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 10,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: 'Ava is an AI that actually does things — not just talks. She\'ll build you an app, write you a document, teach you something from scratch, design you a logo, or take care of the admin you keep putting off. And she remembers you: what you\'re working on, how you like things, what you asked for last week.' },
+      { type: 'paragraph', text: 'There\'s one Ava, and she works wherever you do — in your code editor, as a desktop app, on your phone, or in a terminal. Same memory, same personality, everywhere.' },
+      { type: 'heading', level: 3, text: 'What makes her different' },
+      { type: 'list', ordered: false, items: [
+        'Yours by default. Your work stays on your own machine. No tracking, no telemetry — ever.',
+        'Open for anyone to see. Every line of Ava is public. Nothing to take on trust.',
+        'Free to start. 300 credits every month, no card, no catch — or plug in your own AI keys and pay us nothing at all.',
+        'Teaching is free, forever. Learning shouldn\'t have a price tag.',
+      ]},
+      { type: 'paragraph', text: 'Never written code? The next page is written just for you. Already technical? Skip ahead — she\'ll keep up.' },
+    ],
+    deeper: [
+      { type: 'heading', level: 3, text: 'Where Ava lives' },
+      { type: 'list', ordered: false, items: [
+        'VS Code extension — Ava next to your editor: a chat panel, a dashboard, and changes shown inline before they happen.',
+        'Desktop IDE — a standalone app with the whole thing in one window. Adds desktop control (opening apps, clicking, typing for you).',
+        'Companion — a mobile app for when you\'re away from your desk: tasks, journal, memory, quick chats.',
+        'CLI — Ava in your terminal, for people who live there.',
+      ]},
+      { type: 'heading', level: 3, text: 'How she works, in brief' },
+      { type: 'paragraph', text: 'Ava switches mindsets (called modes) to match the job, quietly runs a small team of specialist helpers on harder work, and picks the best AI model for each step automatically. You never manage any of it. The Core concepts section has the full tour whenever you\'re curious.' },
+    ],
+  },
+  {
+    id: 'start.for-non-coders',
+    title: "Never written code? Start here",
+    audience: ['newcomer'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 15,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: "If you have never written a line of code, you are exactly who Ava is for. You do not need to learn any jargon to start — you talk to her in plain English, the way you would ask a knowledgeable friend. This page is your whole on-ramp." },
+      { type: 'heading', level: 3, text: 'What you can do today, with no experience' },
+      { type: 'list', ordered: false, items: [
+        'Ask her anything, in normal words — "what does this file do?", "why is my page blank?", "what even is a database?" She answers in plain language and remembers the conversation.',
+        'Learn something from scratch — say "teach me Python from zero" and she builds you a proper course with lessons and quizzes. This is always free.',
+        'Get something built — describe what you want ("a button that downloads my notes") and she writes it, showing you every change before it happens.',
+      ]},
+      { type: 'heading', level: 3, text: "You don't need to understand everything" },
+      { type: 'paragraph', text: "Ava has a lot of machinery under the hood — modes, models, specialists, routing. You will see those words around the app and in these docs. Here is the secret: you can ignore almost all of it. Ava picks the right tools and the right helpers for you automatically. The technical pages are there for when you get curious, not because you need them to start." },
+      { type: 'heading', level: 3, text: 'A gentle first path' },
+      { type: 'list', ordered: true, items: [
+        'Install Ava (next page) and open the chat.',
+        'Type a real question you have. Anything. See how she answers.',
+        'Try learning mode: type "teach me" and a topic. Follow along.',
+        'When you want her to actually make or change something, just ask — she will always show you what she is about to do and wait for your "yes".',
+      ]},
+      { type: 'callout', variant: 'tip', text: 'Hit a word you do not recognise? The Plain-English glossary (further down this section) explains every term with no assumed knowledge.' },
+    ],
+  },
+  {
+    id: 'start.install',
+    title: 'Install',
+    audience: ['newcomer'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 20,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: 'Pick the surface that matches how you work. You can use more than one — Ava syncs her memory across them when you sign in.' },
+
+      { type: 'heading', level: 3, text: 'VS Code extension' },
+      { type: 'list', ordered: true, items: [
+        'Open the Extensions panel in VS Code (Ctrl+Shift+X / Cmd+Shift+X).',
+        'Search for "Ava Supernova" and click Install.',
+        'Press Ctrl+Shift+A (Cmd+Shift+A on macOS) to open the chat panel.',
+        'Follow the setup wizard — pick a model, set your permission mode, done.',
+      ]},
+
+      { type: 'heading', level: 3, text: 'Desktop IDE' },
+      { type: 'list', ordered: true, items: [
+        'Download the installer for your platform from the releases page.',
+        'Run it. The IDE launches with a welcome flow the first time.',
+        'Sign in for the free platform tokens, or paste your own API key to run fully local.',
+      ]},
+
+      { type: 'heading', level: 3, text: 'CLI' },
+      { type: 'list', ordered: true, items: [
+        'npm install -g @ava/cli  (or pnpm / yarn — your choice).',
+        'Run  ava  in any project directory.',
+        'First run prompts you for a provider and a model. Pick and go.',
+      ]},
+
+      { type: 'callout', variant: 'tip', text: 'No account, no problem. With your own API key (BYOK) you never need to sign in. The free tier is for the platform-managed models.' },
+    ],
+  },
+  {
+    id: 'start.first-five',
+    title: 'Your first thing with Ava',
+    audience: ['newcomer', 'both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 30,
+    section: 'start',
+    task: 'build',
+    body: [
+      { type: 'paragraph', text: 'The fastest way to get Ava is to ask her for something real and watch her do it. No setup to read, nothing to learn first — just tell her what you want, in plain words.' },
+      { type: 'heading', level: 3, text: 'Try this now' },
+      { type: 'list', ordered: true, items: [
+        'Open the chat.',
+        'Type something you actually want. Try "explain what this project does", or "add a button that clears the form".',
+        'Ava shows you what she\'s about to do — and waits.',
+        'Happy with it? Say yes. Watch her do it.',
+      ]},
+      { type: 'paragraph', text: 'That\'s the whole rhythm: you ask, she shows you the plan, you approve, she does it. She never changes anything without showing you first — so you can\'t break anything by trying.' },
+      { type: 'heading', level: 3, text: 'A few things worth asking for' },
+      { type: 'list', ordered: false, items: [
+        'A question — "why is my page blank?", "what does this file do?"',
+        'Something built — "make me a simple to-do list page".',
+        'To learn something — "teach me Python from scratch". (Always free.)',
+        'A document — "write me a one-page project proposal". She\'ll hand you a Word file or PDF.',
+      ]},
+      { type: 'callout', variant: 'tip', text: 'Not sure what to type? Talk to her like a knowledgeable friend. Plain words are exactly right — you never need the technical terms to get going.' },
+    ],
+    deeper: [
+      { type: 'paragraph', text: 'That simple loop is doing a fair amount behind the scenes. You don\'t need any of this to use Ava — but here\'s what\'s actually happening if you\'re curious.' },
+      { type: 'heading', level: 3, text: 'Tools and approval' },
+      { type: 'paragraph', text: 'When Ava reads a file, runs a command, or edits code, each of those is a "tool call". She asks before anything that touches your files or system — how often she asks is set by your permission mode (ask every time, ask only for risky things, or just go).' },
+      { type: 'heading', level: 3, text: 'Modes — her states of mind' },
+      { type: 'paragraph', text: 'Ava works in modes: a mindset plus the right toolkit for the job. Switch any time from the picker, or type a prefix at the start of your message. There are seven.' },
+      { type: 'facts', kind: 'modes' },
+      { type: 'heading', level: 3, text: 'Specialists and routing' },
+      { type: 'paragraph', text: 'On harder jobs Ava runs a small team of specialist helpers behind the scenes (a planner, a checker, a builder) and routes each step to the model that\'s best at it. You never manage any of this — she coordinates it for you.' },
+    ],
+  },
+  {
+    id: 'start.local-vs-cloud',
+    title: 'Local vs cloud, in one paragraph',
+    audience: ['newcomer', 'both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 40,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: 'Everything Ava does is local unless you explicitly opt in. Memory, tasks, journal, personality, settings — all stored on your machine in ~/.ava/ and .ava/ (per project). She talks to model providers over HTTPS to run your request, then returns home. She does not phone home. She does not collect telemetry. She does not train on your code.' },
+      { type: 'paragraph', text: 'If you sign in, you get 300 free credits a month on platform-managed models (Qwen, MiniMax) and optional cloud sync for memory and settings across machines. Sync is per-feature, revocable anytime. Bring your own API key and Ava works fully without an account.' },
+      { type: 'callout', variant: 'tip', text: 'The rule: local is sacred. Cloud is additive.' },
+    ],
+  },
+  {
+    id: 'start.first-model',
+    title: 'Do I need to choose an AI?',
+    audience: ['newcomer', 'both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 50,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: 'Here\'s a relief: you don\'t pick the AI. Ava chooses the right one for each step automatically, so you get good results without having to think about it.' },
+      { type: 'paragraph', text: 'The one thing you can choose is a routing style — and the default suits almost everyone. You only need the others for a specific reason.' },
+      { type: 'heading', level: 3, text: 'The three styles' },
+      { type: 'list', ordered: false, items: [
+        'Maestro — the default. Steady, reliable, predictable. Not sure? This is the one.',
+        'Supernova — for heavy, multi-step work, where it pays to put a different specialist on each part of the job.',
+        'Aurora — for when your data must stay in the EU (public sector, healthcare, strict privacy). Runs entirely on European, open-weight AI.',
+      ]},
+      { type: 'paragraph', text: 'Switch any time from the model picker at the top of the chat. Nothing\'s locked in.' },
+      { type: 'callout', variant: 'tip', text: 'Want to drive one specific model yourself? You can — open "Show me the details".' },
+    ],
+    deeper: [
+      { type: 'heading', level: 3, text: 'What\'s actually in each style' },
+      { type: 'paragraph', text: 'Maestro — one conductor (Qwen 3.6 Plus) handles every step. Production-tuned, proven, predictable cost.' },
+      { type: 'paragraph', text: 'Supernova — a frontier coordinator (DeepSeek V4 Pro, 1.6T parameters / 49B active, 1M context) hands each subtask to a specialist: V4 Flash for high-volume builds, Qwen 3.6 Plus as fallback, Qwen Omni for vision.' },
+      { type: 'paragraph', text: 'Aurora — Mistral only, in three tiers: Mistral Large 3 (coordinator + heavy specialists), Mistral Medium 3.5 (128B dense, 256K context, native vision, modified-MIT open weights, 77.6% SWE-Bench Verified) for Builder + mid-tier + vision + long-form, and Mistral Small 4 at the intent gate. Open weights end to end, never leaves EU infrastructure.' },
+      { type: 'heading', level: 3, text: 'Bring your own model (BYOK)' },
+      { type: 'paragraph', text: 'Prefer to use your own AI account? Paste your provider key in settings and you get both — the three routing styles, plus the option to pick a single model and skip routing entirely. Useful for a strong preference, a strict budget, or testing a specific model. The full provider list is in the Reference section.' },
+      { type: 'facts', kind: 'providers', filter: { kind: 'managed' } },
+    ],
+  },
+  {
+    id: 'start.glossary',
+    title: 'Plain-English glossary',
+    audience: ['newcomer', 'both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 60,
+    section: 'start',
+    body: [
+      { type: 'paragraph', text: 'Every word you might bump into around Ava, explained with no assumed knowledge. You do not need to memorise any of this — flip back whenever a term trips you up.' },
+      { type: 'table', headers: ['Word', 'What it actually means'], rows: [
+        ['Agent', 'An AI that can take actions for you — read a file, run a command, search the web — not just chat. Ava is an agent: she does things, with your say-so.'],
+        ['Model', 'The actual AI brain doing the thinking (Qwen, DeepSeek, Mistral, and others). Different models have different strengths. You normally never pick one — Ava does.'],
+        ['Mode', 'The mindset Ava is in. Like a colleague switching hats: builder, writer, teacher, planner, friend. You pick the mode; it changes how she behaves. There are seven.'],
+        ['Persona / specialist', 'Helper roles Ava runs behind the scenes for harder jobs — an explorer, a planner, a fact-checker. Think of a small expert team. You never talk to them directly; Ava coordinates them.'],
+        ['Routing', "Ava deciding which model to use for each step so you get good answers without overpaying. It happens automatically — \"routing mode\" just picks the overall strategy."],
+        ['Tool', 'A specific action Ava can take — read a file, run a search, send an email. A "tool call" is her using one. She asks permission before anything risky.'],
+        ['Token', 'How AI measures text — roughly ¾ of a word. Models are priced per million tokens. Mostly something you can ignore.'],
+        ['Credit', "Ava's simpler unit for what an action costs, so you are not doing token maths. Plans come with a monthly bundle."],
+        ['API key', 'A private password that lets software use a paid service (like an AI model) on your account. You only need one if you want to bring your own.'],
+        ['BYOK', "\"Bring Your Own Key.\" Using your own API key instead of Ava's managed access. Optional — for people who already pay a provider directly."],
+        ['Local-first', "Your data lives on your own computer by default. Nothing is uploaded unless you switch on sync. \"Local is sacred.\""],
+        ['Permission mode', 'How cautious Ava is before doing things — ask every time, ask for risky things only, or just go. You set the level.'],
+        ['Context window', "How much text a model can hold in mind at once — its short-term memory. \"1M context\" means about a million words. Bigger = it can read more before forgetting."],
+        ['Diff', 'A side-by-side view of exactly what will change in a file — old on one side, new on the other — shown before Ava changes anything so you can approve it.'],
+        ['Repository (repo)', 'A project folder tracked for changes, usually with Git. If that means nothing to you yet, it is just "the folder my project lives in."'],
+        ['Prompt', 'What you type to the AI — your question or instruction.'],
+      ]},
+      { type: 'callout', variant: 'note', text: 'Still stuck on a word? Ask Ava in Chat mode — "what does X mean?" — and she will explain it for your level.' },
+    ],
+  },
+];

@@ -1,0 +1,186 @@
+// -----------------------------------------------------------------------------
+// GENERATED FILE — do not edit directly.
+// Source of truth: packages/core/src/docs/
+// Run  pnpm docs:sync  from the repo root to regenerate.
+// -----------------------------------------------------------------------------
+
+import type { DocPage } from '../types';
+
+// Section 4 — Features. Chunkable. Each page is a self-contained feature description.
+
+export const FEATURE_PAGES: DocPage[] = [
+  {
+    id: 'features.unified-panel',
+    title: 'Unified panel',
+    audience: ['both'],
+    surfaces: ['ext', 'ide'],
+    order: 10,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: everything Ava does lives in one window, so you never go hunting through tabs to find it.' },
+      { type: 'paragraph', text: 'One panel for chat, dashboard, memory, tasks, and journal. No context switching between windows. The sidebar picks what you are looking at; the main area swaps to match.' },
+      { type: 'paragraph', text: 'Conversation state persists when you navigate away — open memory, check a task, then come back. The chat is still there, still streaming if Ava is still running.' },
+      { type: 'callout', variant: 'note', text: 'Unified panel is an extension and IDE concept. The web surface uses browser tabs.' },
+    ],
+  },
+  {
+    id: 'features.knowledge-packs',
+    title: 'Knowledge packs',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 20,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: hand Ava a folder of your own documents, and she can read from them to answer your questions. A "knowledge pack" is just that bundle of files — your reference material she is allowed to draw on.' },
+      { type: 'paragraph', text: 'Drop a directory of reference material (specs, RFCs, meeting notes, API docs) into a knowledge pack. Ava can pull the relevant pieces into context when a conversation touches the topic.' },
+      { type: 'paragraph', text: 'Packs are indexed locally. Retrieval is semantic — Ava finds the right document by meaning, not filename. ("Semantic" means she matches on what a document is about, so you do not need to remember the exact words or the file name.) Packs can be shared with a team or kept private.' },
+    ],
+  },
+  {
+    id: 'features.creative-studio',
+    title: 'Creative Studio',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 30,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'Want to make an image, a short video, a song, or a spoken voiceover? Just describe it and Ava makes it for you — no design or audio software needed.' },
+      { type: 'paragraph', text: 'Image, video, music, and voice generation — built into the same workflow as your code. Generate an icon, a product mockup, a demo video, a voiceover for a tutorial. Powered by MiniMax.' },
+      { type: 'heading', level: 3, text: 'What you can make' },
+      { type: 'list', ordered: false, items: [
+        'Images — prompt to PNG/JPG. Background removal one call away.',
+        'Video — short AI videos from a text prompt (MiniMax Hailuo).',
+        'Music — instrumental or vocal tracks with lyrics.',
+        'Voice — text-to-speech with selectable voices.',
+      ]},
+      { type: 'paragraph', text: 'Creative Studio costs come out of the same credit pool as everything else — one pool, one number. BYOK your own MiniMax key and it is free to your plan.' },
+      { type: 'callout', variant: 'tip', text: 'Creative Studio is free-tier eligible. Not a paid add-on.' },
+    ],
+  },
+  {
+    id: 'features.office-suite',
+    title: 'Office Suite',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 40,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'Need a report, an email, or a document written up? Ava can draft it and hand you a real Word, Excel, or PDF file you can open and edit like any other.' },
+      { type: 'paragraph', text: 'Reports, emails, and documents — drafted, formatted, and exported to native formats (.docx is Word, .xlsx is Excel, .pdf is a PDF).' },
+      { type: 'list', ordered: false, items: [
+        'report_generate — a structured .docx pulling from tasks, journal, memory, and project state.',
+        'email_draft — tone-controlled email to a .docx file.',
+        'document_manage — create, read, edit, export across Word, Excel, PDF, CSV, Markdown.',
+      ]},
+      { type: 'paragraph', text: 'Useful when Ava is writing on your behalf — status reports, kickoff decks, client updates. The .docx lands in your project where you can polish it.' },
+    ],
+  },
+  {
+    id: 'features.dashboard-library',
+    title: 'Dashboard library',
+    audience: ['both'],
+    surfaces: ['ext', 'ide'],
+    order: 50,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: one shelf holding everything you and Ava have made and talked about, so nothing gets lost.' },
+      { type: 'paragraph', text: 'A browsable view of everything Ava has produced with you — generated images, videos, audio, documents — alongside your conversations, memories, and tasks. One place to find a thing you made last week.' },
+    ],
+  },
+  {
+    id: 'features.document-preview',
+    title: 'Document preview',
+    audience: ['both'],
+    surfaces: ['ext', 'ide'],
+    requires: ['live_doc_preview'],
+    order: 60,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: peek inside a document right where you are, without opening a separate program to read it.' },
+      { type: 'paragraph', text: 'Right-click a Word doc, Excel sheet, PDF, CSV, HTML, or Markdown file in your project — preview it inline without leaving the editor. Useful for reading reference material Ava has generated or files a collaborator dropped in.' },
+    ],
+  },
+  {
+    id: 'features.daily-briefing',
+    title: 'Daily briefing',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 70,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: a short "here is where you left off" note each morning, so you can pick up without rereading everything.' },
+      { type: 'paragraph', text: 'Morning summary: yesterday journal, open tasks, project state, and any reminders Ava has set. Optional — turn it on in settings.' },
+      { type: 'paragraph', text: 'The briefing uses memory to surface relevant context ("last time you worked on the auth flow, you noted you wanted to revisit the refresh token strategy"). Not a news feed — a focused catch-up.' },
+    ],
+  },
+  {
+    id: 'features.workflows',
+    title: 'Workflows',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 80,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: teach Ava a routine you do over and over, give it a name, and she can run the whole thing again on demand. A "workflow" is just that saved routine — a set of steps Ava repeats for you.' },
+      { type: 'paragraph', text: 'Save a sequence of steps you find yourself repeating — review PR → run tests → write release notes → draft the email. A workflow is a reusable plan Ava can replay with different inputs.' },
+      { type: 'paragraph', text: 'Workflows are stored per project in a folder named .ava/workflows/ inside your project. Share them with your team by committing the directory (saving it into your shared project so teammates get it too).' },
+    ],
+  },
+  {
+    id: 'features.events',
+    title: 'Events and notifications',
+    audience: ['power'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 90,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: while Ava works you get a tidy step-by-step list of what she is doing, and a ping when a long job finishes so you can step away.' },
+      { type: 'paragraph', text: 'While Ava is running you see structured updates, not a wall of text. Each tool call, each persona handoff, each streamed delta is a discrete event in the UI — expandable for detail, collapsible for overview.' },
+      { type: 'paragraph', text: 'Background runs emit OS-level notifications when they complete. You can walk away from a long build and Ava will tell you when it is done.' },
+    ],
+  },
+  {
+    id: 'features.personality',
+    title: 'Personality Designer',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    order: 100,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: dial in how Ava talks to you — chatty or brief, formal or casual, more jokes or fewer — so she sounds the way you like.' },
+      { type: 'paragraph', text: 'Shape how Ava talks to you. Tone, energy, verbosity (how much she says), formality, humour. Sliders and presets — terse engineer, warm mentor, dry colleague, or your own blend.' },
+      { type: 'paragraph', text: 'Personality affects phrasing, not competence. She still runs the same tools and follows the same permission rules. Her name is locked to Ava — that is non-negotiable.' },
+    ],
+  },
+  {
+    id: 'features.release-notes',
+    title: 'Release notes',
+    audience: ['both'],
+    surfaces: ['ext', 'ide'],
+    order: 110,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: a running list of what is new and what got fixed in each update, so you can see what changed.' },
+      { type: 'paragraph', text: 'In-app changelog (a changelog is the history of changes). Every shipped version with its highlights, bug fixes, and breaking changes (changes that may require you to adjust how you use something). The web surface maintains the public version at ava-supernova.com/releases.' },
+    ],
+  },
+  {
+    id: 'features.desktop-automation',
+    title: 'Desktop Automation',
+    audience: ['both'],
+    surfaces: ['web', 'ext', 'ide', 'companion'],
+    requires: ['desktop_automation'],
+    order: 120,
+    section: 'features',
+    body: [
+      { type: 'paragraph', text: 'In plain terms: Ava can take over your mouse and keyboard to do tasks for you — open an app, click buttons, fill in a form — while you watch and approve anything important.' },
+      { type: 'paragraph', text: 'A new mode for Ava, prefix @@. She observes the desktop, decides what to do, and drives UI automation (controlling the apps on your screen for you) to get it done. Runs on your actual machine with your actual credentials — not a cloud browser. Available on every tier once shipped.' },
+      { type: 'heading', level: 3, text: 'Why another one' },
+      { type: 'paragraph', text: 'Every other desktop-automation product is something you start when you\'re at your desk. Ava is the one that\'s still there when your error tracker fires at 2am — IDE keeps running, your phone pairs over a secure channel, you approve irreversibles with a tap.' },
+      { type: 'paragraph', text: 'She also remembers how to navigate your apps across sessions. Every other agent relearns them every time. The memory differentiator compounds with use.' },
+      { type: 'heading', level: 3, text: 'How it works' },
+      { type: 'paragraph', text: 'Each step runs a five-persona wave: Scout observes, Planner picks the next action, Actor executes, Verifier checks, Narrator tells you what happened. The sidecar chooses the cheapest reliable grounding — UIA for native apps, Playwright for browsers, OmniParser vision when nothing else has a useful tree.' },
+      { type: 'paragraph', text: 'See the concepts pages for safety ontology, grounding hierarchy, kill switches, and the session whitelist model.' },
+    ],
+  },
+];
