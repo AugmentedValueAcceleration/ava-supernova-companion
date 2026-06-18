@@ -68,14 +68,25 @@ export const healthCatalogApi = {
     if (p.workoutType) u.set('workout_type', p.workoutType);
     return apiFetch(`/health/exercises?${u.toString()}`).then(r => r.json());
   },
-  recipes: (p: { offset?: number; limit?: number; q?: string; course?: string | null }) => {
+  recipes: (p: { offset?: number; limit?: number; q?: string; course?: string | null; collections?: string[]; diets?: string[]; flags?: string[]; cuisines?: string[]; maxTime?: number | null; sort?: 'curated' | 'name' }) => {
     const u = new URLSearchParams({ limit: String(p.limit ?? 24), offset: String(p.offset ?? 0) });
     if (p.q) u.set('q', p.q);
     if (p.course) u.set('course', p.course);
+    // Structured filters — comma-separated slug lists (OR within an axis, AND
+    // across axes). `flag` covers "free from"; same contract as every surface.
+    if (p.collections?.length) u.set('collection', p.collections.join(','));
+    if (p.diets?.length) u.set('diet', p.diets.join(','));
+    if (p.flags?.length) u.set('flag', p.flags.join(','));
+    if (p.cuisines?.length) u.set('cuisine', p.cuisines.join(','));
+    if (p.maxTime != null) u.set('max_time', String(p.maxTime));
+    if (p.sort && p.sort !== 'curated') u.set('sort', p.sort);
     return apiFetch(`/health/recipes?${u.toString()}`).then(r => r.json());
   },
   exercise: (slug: string) => apiFetch(`/health/exercises/${encodeURIComponent(slug)}`).then(r => r.json()),
   recipe: (slug: string) => apiFetch(`/health/recipes/${encodeURIComponent(slug)}`).then(r => r.json()),
+  // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
+  // for the recipe filter dropdowns. Public.
+  taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
 };
 
 // Health profile — single-object cloud copy for cross-surface sync.

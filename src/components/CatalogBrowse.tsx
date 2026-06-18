@@ -30,6 +30,7 @@ function CatalogBrowse<T extends { id: string }>({
   fetchPage,
   renderCard,
   onSelect,
+  filterBar,
 }: {
   title: string;
   searchPlaceholder: string;
@@ -37,6 +38,10 @@ function CatalogBrowse<T extends { id: string }>({
   fetchPage: (o: { offset: number; q: string; category: string | null }) => Promise<PageResult<T>>;
   renderCard: (item: T) => React.ReactNode;
   onSelect: (item: T) => void;
+  /** Optional extra filter UI (recipe dropdowns) shown under the category
+   *  chips. When it changes the calling view's fetchPage identity, the list
+   *  reloads automatically via the load effect below. */
+  filterBar?: React.ReactNode;
 }) {
   useLocale();
   const [items, setItems] = useState<T[]>([]);
@@ -91,6 +96,9 @@ function CatalogBrowse<T extends { id: string }>({
               <Chip key={c} label={c} active={category === c} onClick={() => setCategory(c)} />
             ))}
           </div>
+          {filterBar && (
+            <div className="flex gap-2 overflow-x-auto mt-2 -mx-1 px-1 pb-1 no-scrollbar">{filterBar}</div>
+          )}
         </div>
 
         <div className="px-4 py-4">
@@ -143,6 +151,58 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   );
 }
 
+type Tx = { slug: string; name: string };
+
+/** One recipe-filter axis as a compact multi-select dropdown. Opaque popover
+ *  (ava-surface), closes on outside tap. `valueLabel` shows a single value
+ *  (time / sort) instead of a count. */
+function FilterDropdown({ label, options, selected, onToggle, valueLabel }: {
+  label: string;
+  options: Tx[];
+  selected: Set<string>;
+  onToggle: (slug: string) => void;
+  valueLabel?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+  const count = selected.size;
+  const active = valueLabel ? valueLabel !== 'Curated' : count > 0;
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-xs transition ${active ? 'bg-ava-purple border-ava-purple text-white' : 'bg-transparent border-ava-border text-gray-400'}`}
+      >
+        {valueLabel ? `${label}: ${valueLabel}` : `${label}${count > 0 ? ` · ${count}` : ''}`}
+        <span className="text-[8px] opacity-70">▾</span>
+      </button>
+      {open && (
+        <div className="absolute left-0 z-30 mt-1.5 max-h-64 w-52 overflow-y-auto rounded-xl border border-ava-border bg-ava-surface p-1.5 shadow-2xl">
+          {options.map(o => {
+            const on = selected.has(o.slug);
+            return (
+              <button
+                key={o.slug}
+                onClick={() => onToggle(o.slug)}
+                className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] ${on ? 'text-ava-purple-light' : 'text-gray-300'}`}
+              >
+                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[9px] text-white ${on ? 'border-ava-purple bg-ava-purple' : 'border-ava-border'}`}>{on ? '✓' : ''}</span>
+                {o.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CardShell({ image, title, meta }: { image: string | null; title: string; meta: string }) {
   return (
     <div className="rounded-2xl border border-ava-border bg-ava-surface overflow-hidden h-full">
@@ -189,20 +249,77 @@ export function WorkoutsBrowse() {
 
 export function RecipesBrowse() {
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+  // Structured filters (slugs). Multi-select OR within an axis, AND across.
+  // Changing any of these recreates fetchPage, which CatalogBrowse reloads on.
+  const [tax, setTax] = useState<{ collections: Tx[]; diets: Tx[]; dietary_flags: Tx[]; cuisines: Tx[] } | null>(null);
+  const [collections, setCollections] = useState<Set<string>>(new Set());
+  const [diets, setDiets] = useState<Set<string>>(new Set());
+  const [flags, setFlags] = useState<Set<string>>(new Set());
+  const [cuisines, setCuisines] = useState<Set<string>>(new Set());
+  const [maxTime, setMaxTime] = useState<number | null>(null);
+  const [sort, setSort] = useState<'curated' | 'name'>('curated');
+
+  useEffect(() => {
+    healthCatalogApi.taxonomies()
+      .then((d: Partial<{ collections: Tx[]; diets: Tx[]; dietary_flags: Tx[]; cuisines: Tx[] }>) => setTax({
+        collections: d.collections ?? [], diets: d.diets ?? [], dietary_flags: d.dietary_flags ?? [], cuisines: d.cuisines ?? [],
+      }))
+      .catch(() => {});
+  }, []);
+
   const fetchPage = useCallback(
     async ({ offset, q, category }: { offset: number; q: string; category: string | null }) => {
-      const r = await healthCatalogApi.recipes({ offset, limit: PAGE_SIZE, q, course: category });
+      const r = await healthCatalogApi.recipes({
+        offset, limit: PAGE_SIZE, q, course: category,
+        collections: collections.size ? [...collections] : undefined,
+        diets: diets.size ? [...diets] : undefined,
+        flags: flags.size ? [...flags] : undefined,
+        cuisines: cuisines.size ? [...cuisines] : undefined,
+        maxTime, sort,
+      });
       return { items: (r.recipes ?? []) as RecipeCard[], total: r.total ?? 0 };
     },
-    [],
+    [collections, diets, flags, cuisines, maxTime, sort],
   );
+
+  const toggle = (set: Set<string>, setSet: (s: Set<string>) => void) => (slug: string) => {
+    const n = new Set(set);
+    if (n.has(slug)) n.delete(slug); else n.add(slug);
+    setSet(n);
+  };
+
   if (openSlug) return <RecipeDetailView slug={openSlug} onBack={() => setOpenSlug(null)} />;
+
+  const filterBar = tax ? (
+    <>
+      {tax.collections.length > 0 && <FilterDropdown label="Collections" options={tax.collections} selected={collections} onToggle={toggle(collections, setCollections)} />}
+      {tax.diets.length > 0 && <FilterDropdown label="Diet" options={tax.diets} selected={diets} onToggle={toggle(diets, setDiets)} />}
+      {tax.dietary_flags.length > 0 && <FilterDropdown label="Dietary" options={tax.dietary_flags} selected={flags} onToggle={toggle(flags, setFlags)} />}
+      {tax.cuisines.length > 0 && <FilterDropdown label="Cuisine" options={tax.cuisines} selected={cuisines} onToggle={toggle(cuisines, setCuisines)} />}
+      <FilterDropdown
+        label="Time"
+        options={[15, 30, 45, 60].map((m) => ({ slug: String(m), name: `≤ ${m} min` }))}
+        selected={new Set(maxTime != null ? [String(maxTime)] : [])}
+        onToggle={(s) => setMaxTime(maxTime === Number(s) ? null : Number(s))}
+        valueLabel={maxTime != null ? `≤ ${maxTime} min` : undefined}
+      />
+      <FilterDropdown
+        label="Sort"
+        options={[{ slug: 'curated', name: 'Curated' }, { slug: 'name', name: 'A–Z' }]}
+        selected={new Set([sort])}
+        onToggle={(s) => setSort(s as 'curated' | 'name')}
+        valueLabel={sort === 'name' ? 'A–Z' : 'Curated'}
+      />
+    </>
+  ) : undefined;
+
   return (
     <CatalogBrowse<RecipeCard>
       title={t('catalogRecipesTitle')}
       searchPlaceholder={t('catalogRecipesSearchPlaceholder')}
       categories={RECIPE_COURSES}
       fetchPage={fetchPage}
+      filterBar={filterBar}
       onSelect={(r) => setOpenSlug(r.slug)}
       renderCard={(r) => (
         <CardShell
