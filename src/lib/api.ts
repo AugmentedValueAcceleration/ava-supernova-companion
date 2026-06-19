@@ -174,7 +174,7 @@ export const MODELS: ModelOption[] = [
   // the IDE / extension BYOK lineup for consistency across surfaces.
   { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot AI', free: false, requiresAccount: false },
   { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false, requiresAccount: false },
-  { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu AI', free: false, requiresAccount: false },
+  { id: 'glm-5.2', name: 'GLM-5.2', provider: 'Zhipu AI', free: false, requiresAccount: false },
   { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'mistral-large-latest', name: 'Mistral Large 3', provider: 'Mistral', free: false, requiresAccount: false },
