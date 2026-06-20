@@ -153,7 +153,7 @@ export const MODELS: ModelOption[] = [
   // for users who pay per token and want the choice.
   //
   // Roles each platform model owns:
-  //   - Qwen 3.6 Plus       → chat with depth (the one heavy lane the
+  //   - Qwen 3.7 Plus       → chat with depth (the one heavy lane the
   //                            operator wanted included — not too pricey)
   //   - Qwen 3.5 Omni Flash → fast chat with vision (camera input)
   //   - Qwen 3.5 Flash      → fastest text-only tasks, cheapest entry
@@ -162,8 +162,7 @@ export const MODELS: ModelOption[] = [
   //                            confirms — both gates flip together)
   //   - Mistral Medium 3.5  → mid-tier chat with vision, EU-friendly
   //   - Mistral Small 4     → fast EU-friendly tasks
-  { id: 'qwen3.6-plus', name: 'Qwen 3.6 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'qwen3.5-omni-flash', name: 'Qwen 3.5 Omni Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
+  { id: 'qwen3.7-plus', name: 'Qwen 3.7 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
   { id: 'deepseek-v4-flash-platform', name: 'DeepSeek V4 Flash', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
   { id: 'mistral-medium-3.5-platform', name: 'Mistral Medium 3.5', provider: 'Mistral (managed)', free: true, requiresAccount: true },

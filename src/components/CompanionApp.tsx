@@ -218,9 +218,9 @@ export default function CompanionApp({
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('qwen3.6-plus');
+      chat.setSelectedModel('qwen3.7-plus');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'qwen3.6-plus');
+        localStorage.setItem('ava-companion-model', 'qwen3.7-plus');
       }
     }
     chat.setMessages([{
@@ -236,7 +236,7 @@ export default function CompanionApp({
   // the web) that doesn't flow through handleApiKeyConnect. If the user
   // lands on the companion already signed in (or signs in via the
   // parent-level flow) and their current model is a BYOK one they have
-  // no key for — or is empty — switch them to qwen3.6-plus so Chat works
+  // no key for — or is empty — switch them to qwen3.7-plus so Chat works
   // immediately. Respects existing valid preferences.
   useEffect(() => {
     if (isGuest) return;
@@ -244,9 +244,9 @@ export default function CompanionApp({
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('qwen3.6-plus');
+      chat.setSelectedModel('qwen3.7-plus');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'qwen3.6-plus');
+        localStorage.setItem('ava-companion-model', 'qwen3.7-plus');
       }
     }
     // Only react to login-state changes, not every render.
