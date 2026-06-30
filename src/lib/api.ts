@@ -185,6 +185,8 @@ export const MODELS: ModelOption[] = [
   { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-sonnet-5', name: 'Claude Sonnet 5', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', provider: 'Anthropic', free: false, requiresAccount: false },
+  { id: 'hy3-preview', name: 'Hunyuan Hy3', provider: 'Tencent Hunyuan', free: false, requiresAccount: false },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra', provider: 'NVIDIA', free: false, requiresAccount: false },
   { id: 'mimo-v2.5-pro', name: 'MiMo V2.5-Pro', provider: 'Xiaomi', free: false, requiresAccount: false },
   { id: 'mimo-v2.5', name: 'MiMo V2.5', provider: 'Xiaomi', free: false, requiresAccount: false },
 ];
