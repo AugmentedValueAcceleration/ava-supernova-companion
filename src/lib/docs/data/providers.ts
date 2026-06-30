@@ -119,8 +119,7 @@ export const PROVIDERS: ProviderFact[] = [
     name: 'Anthropic',
     kind: 'byok',
     models: [
-      { id: 'claude-opus-4-7', displayName: 'Claude Opus 4.7', inputPricePerM: 5, outputPricePerM: 25, contextWindow: 200_000, capabilities: ['tools', 'vision', 'streaming'] },
-      { id: 'claude-opus-4-6', displayName: 'Claude Opus 4.6', inputPricePerM: 5, outputPricePerM: 25, contextWindow: 200_000, capabilities: ['tools', 'vision', 'streaming'] },
+      { id: 'claude-opus-4-8', displayName: 'Claude Opus 4.8', inputPricePerM: 5, outputPricePerM: 25, contextWindow: 200_000, capabilities: ['tools', 'vision', 'streaming'] },
       { id: 'claude-sonnet-4-6', displayName: 'Claude Sonnet 4.6', inputPricePerM: 3, outputPricePerM: 15, contextWindow: 200_000, capabilities: ['tools', 'vision', 'streaming'] },
       { id: 'claude-haiku-4-5-20251001', displayName: 'Claude Haiku 4.5', inputPricePerM: 1, outputPricePerM: 5, contextWindow: 200_000, capabilities: ['tools', 'vision', 'streaming'] },
     ],
@@ -162,9 +161,11 @@ export const PROVIDERS: ProviderFact[] = [
     id: 'zhipu',
     name: 'Zhipu AI',
     kind: 'byok',
-    notes: 'GLM-5.2: open-weights (MIT), 1M context, top open-weight coding.',
+    notes: 'GLM-5 reports 77.8% on SWE-Bench.',
     models: [
-      { id: 'glm-5.2', displayName: 'GLM-5.2', inputPricePerM: 1.40, outputPricePerM: 4.40, contextWindow: 1_000_000, capabilities: ['tools', 'vision', 'thinking', 'streaming'] },
+      { id: 'glm-5.1', displayName: 'GLM-5.1', inputPricePerM: 1.40, outputPricePerM: 4.40, contextWindow: 200_000, capabilities: ['tools', 'vision', 'thinking', 'streaming'] },
+      { id: 'glm-5', displayName: 'GLM-5', inputPricePerM: 1.00, outputPricePerM: 3.20, contextWindow: 200_000, capabilities: ['tools', 'vision', 'thinking', 'streaming'] },
+      { id: 'glm-4.7', displayName: 'GLM-4.7', inputPricePerM: 0.60, outputPricePerM: 2.20, contextWindow: 200_000, capabilities: ['tools', 'thinking', 'streaming'] },
       { id: 'glm-4.5-air', displayName: 'GLM-4.5 Air', inputPricePerM: 0.20, outputPricePerM: 1.10, contextWindow: 128_000, capabilities: ['tools', 'streaming'] },
     ],
   },
