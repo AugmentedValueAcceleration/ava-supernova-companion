@@ -1,4 +1,15 @@
+import { getLanguage } from './i18n';
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
+
+/** Append `?locale=xx` for non-English, matching how the IDE + extension fetch
+ *  the catalogue. The health catalogue translates on demand and caches
+ *  server-side; without this a non-English user always got English content. */
+function withLocale(path: string): string {
+  const l = getLanguage();
+  if (!l || l === 'en') return path;
+  return path + (path.includes('?') ? '&' : '?') + `locale=${encodeURIComponent(l)}`;
+}
 
 function getDeviceId(): string {
   if (typeof window === 'undefined') return 'server';
@@ -66,7 +77,7 @@ export const healthCatalogApi = {
     const u = new URLSearchParams({ limit: String(p.limit ?? 24), offset: String(p.offset ?? 0) });
     if (p.q) u.set('q', p.q);
     if (p.workoutType) u.set('workout_type', p.workoutType);
-    return apiFetch(`/health/exercises?${u.toString()}`).then(r => r.json());
+    return apiFetch(withLocale(`/health/exercises?${u.toString()}`)).then(r => r.json());
   },
   recipes: (p: { offset?: number; limit?: number; q?: string; course?: string | null; collections?: string[]; diets?: string[]; flags?: string[]; cuisines?: string[]; maxTime?: number | null; sort?: 'curated' | 'name' }) => {
     const u = new URLSearchParams({ limit: String(p.limit ?? 24), offset: String(p.offset ?? 0) });
@@ -80,10 +91,10 @@ export const healthCatalogApi = {
     if (p.cuisines?.length) u.set('cuisine', p.cuisines.join(','));
     if (p.maxTime != null) u.set('max_time', String(p.maxTime));
     if (p.sort && p.sort !== 'curated') u.set('sort', p.sort);
-    return apiFetch(`/health/recipes?${u.toString()}`).then(r => r.json());
+    return apiFetch(withLocale(`/health/recipes?${u.toString()}`)).then(r => r.json());
   },
-  exercise: (slug: string) => apiFetch(`/health/exercises/${encodeURIComponent(slug)}`).then(r => r.json()),
-  recipe: (slug: string) => apiFetch(`/health/recipes/${encodeURIComponent(slug)}`).then(r => r.json()),
+  exercise: (slug: string) => apiFetch(withLocale(`/health/exercises/${encodeURIComponent(slug)}`)).then(r => r.json()),
+  recipe: (slug: string) => apiFetch(withLocale(`/health/recipes/${encodeURIComponent(slug)}`)).then(r => r.json()),
   // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
   // for the recipe filter dropdowns. Public.
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
@@ -169,20 +180,27 @@ export const MODELS: ModelOption[] = [
   { id: 'mistral-small-4-platform', name: 'Mistral Small 4', provider: 'Mistral (managed)', free: true, requiresAccount: true },
 
   // ── BYOK — full lineup, no curation ────────────────────────────────────
-  // The user pays per token, so it's their call which to use. Mirror of
-  // the IDE / extension BYOK lineup for consistency across surfaces.
-  { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot AI', free: false, requiresAccount: false },
-  { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot AI', free: false, requiresAccount: false },
-  { id: 'glm-5.2', name: 'GLM-5.2', provider: 'Zhipu AI', free: false, requiresAccount: false },
+  // The user pays per token, so it's their call which to use. Mirror of the
+  // IDE / extension BYOK lineup for consistency across surfaces — kept in sync
+  // with packages/core/src/providers/*/models.ts (picker-visible models only:
+  // hiddenFromPicker + disabled excluded). Reconciled 2026-07-17.
   { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
   { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
-  { id: 'mistral-large-latest', name: 'Mistral Large 3', provider: 'Mistral', free: false, requiresAccount: false },
+  { id: 'kimi-k3', name: 'Kimi K3', provider: 'Moonshot AI', free: false, requiresAccount: false },
+  { id: 'kimi-k2.7-code', name: 'Kimi K2.7 Code', provider: 'Moonshot AI', free: false, requiresAccount: false },
+  { id: 'qwen3.7-max', name: 'Qwen 3.7 Max', provider: 'Alibaba Cloud', free: false, requiresAccount: false },
+  { id: 'glm-5.2', name: 'GLM-5.2', provider: 'Zhipu AI', free: false, requiresAccount: false },
+  { id: 'glm-4.5-air', name: 'GLM-4.5 Air', provider: 'Zhipu AI', free: false, requiresAccount: false },
+  { id: 'MiniMax-M3', name: 'MiniMax M3', provider: 'MiniMax', free: false, requiresAccount: false },
+  { id: 'MiniMax-M2.7', name: 'MiniMax M2.7', provider: 'MiniMax', free: false, requiresAccount: false },
+  { id: 'MiniMax-M2.7-highspeed', name: 'MiniMax M2.7 Highspeed', provider: 'MiniMax', free: false, requiresAccount: false },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'claude-opus-4-7', name: 'Claude Opus 4.7', provider: 'Anthropic', free: false, requiresAccount: false },
-  { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', provider: 'Anthropic', free: false, requiresAccount: false },
+  { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', free: false, requiresAccount: false },
+  { id: 'claude-opus-4-8', name: 'Claude Opus 4.8', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-sonnet-5', name: 'Claude Sonnet 5', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'hy3-preview', name: 'Hunyuan Hy3', provider: 'Tencent Hunyuan', free: false, requiresAccount: false },
