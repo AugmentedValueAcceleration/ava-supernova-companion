@@ -516,25 +516,30 @@ export default function CompanionApp({
               by 1M and showed "0.0M" for every paid user. Now: exact
               thousands-separated value, always precise, never ambiguous. */}
           {chat.tokenBalance && chat.tokenBalance.limit > 0 && (() => {
+            // Admin/unlimited tiers carry a sentinel limit — show ∞, not a raw
+            // 9-digit number (the progress bar below uses the same threshold).
+            const unlimited = chat.tokenBalance.limit >= 999_999_999;
             const remaining = Math.max(0, chat.tokenBalance.limit - chat.tokenBalance.used);
-            const over90 = chat.tokenBalance.used / chat.tokenBalance.limit > 0.9;
+            const over90 = !unlimited && chat.tokenBalance.used / chat.tokenBalance.limit > 0.9;
             return (
-              // Hidden on the narrowest screens — the progress bar directly
-              // beneath the header already shows exact remaining + percent
-              // color, so duplicating here just costs horizontal space.
+              // Always in the header so the credit count is visible while you
+              // chat (watch it tick as turns bill). Compact on mobile — tighter
+              // gap/padding — so it sits beside the model pill without pushing
+              // the cluster off-screen. The progress bar beneath the header
+              // still gives the exact remaining + percent color.
               <div
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium shrink-0"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] font-medium shrink-0"
                 style={{
                   background: over90 ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.1)',
                   color: over90 ? '#f87171' : '#c084fc',
                   border: `1px solid ${over90 ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.15)'}`,
                 }}
-                title={`${remaining.toLocaleString('en-US')} credits remaining`}
+                title={unlimited ? 'Unlimited credits' : `${remaining.toLocaleString('en-US')} credits remaining`}
               >
                 <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75" />
                 </svg>
-                {remaining.toLocaleString('en-US')}
+                {unlimited ? '∞' : remaining.toLocaleString('en-US')}
               </div>
             );
           })()}
@@ -996,7 +1001,7 @@ export default function CompanionApp({
 
       {/* Mobile bottom nav — [Chat][Tasks][✦ Wellbeing][Journal][More].
           Hidden when the keyboard is open. */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-border bg-ava-surface flex items-center justify-around py-2 safe-area-bottom transition-transform duration-200 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-ava-purple/10 bg-ava-surface flex items-center justify-around py-2 safe-area-bottom transition-transform duration-200 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
         <ThumbButton
           icon={<ChatIcon />}
           label={t('chat')}
@@ -1205,17 +1210,30 @@ function ThumbButton({ icon, label, active, onClick, primary, hero }: {
   icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; primary?: boolean; hero?: boolean;
 }) {
   if (hero) {
+    // Accent-TINT circle, not a solid bright fill — matches the ext/IDE house
+    // language (translucent accent bg + accent border + accent icon, cf.
+    // PersonaStatus). The 4px surface ring keeps the FAB reading as elevated
+    // above the bar; active deepens the tint rather than swapping to a loud dark.
     return (
       <button onClick={onClick} className="flex flex-col items-center gap-0.5 -mt-6" aria-label={label}>
-        <span className={`flex items-center justify-center w-14 h-14 rounded-full border-4 border-ava-surface shadow-lg shadow-ava-purple/40 text-white transition active:scale-95 ${active ? 'bg-ava-purple-dark' : 'bg-ava-purple'}`}>
+        <span className={`flex items-center justify-center w-14 h-14 rounded-full border-4 border-ava-surface shadow-lg shadow-ava-purple/20 text-ava-purple-light transition active:scale-95 ${active ? 'bg-ava-purple/30' : 'bg-ava-purple/20'}`}>
           {icon}
         </span>
-        <span className={`text-[10px] font-medium ${active ? 'text-ava-purple' : 'text-gray-400'}`}>{label}</span>
+        <span className="text-[10px] font-medium" style={{ color: active ? '#cdd6f4' : '#6c7086' }}>{label}</span>
       </button>
     );
   }
+  // Restrained tab: muted (#6c7086) when idle, brightened (#cdd6f4) when active,
+  // with a thin accent edge bar on top — the horizontal analog of the IDE
+  // ActivityBar's 2px accent left-border. The accent lives in the indicator,
+  // not in saturated label text.
   return (
-    <button onClick={onClick} className={`flex flex-col items-center gap-0.5 px-3 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''} ${active ? 'text-ava-purple' : 'text-gray-400'}`}>
+    <button
+      onClick={onClick}
+      className={`relative flex flex-col items-center gap-0.5 px-3 py-1 transition ${primary ? 'scale-[1.15] -mt-1' : ''}`}
+      style={{ color: active ? '#cdd6f4' : '#6c7086' }}
+    >
+      {active && <span className="absolute -top-2 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-ava-purple" />}
       {icon}
       <span className="text-[10px] font-medium">{label}</span>
     </button>
