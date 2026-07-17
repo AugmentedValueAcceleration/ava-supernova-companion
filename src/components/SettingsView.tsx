@@ -721,8 +721,10 @@ function TogglePills({ options, selected, onChange }: {
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
-          className={`px-3 py-1 rounded-md text-xs font-medium transition ${
-            selected === o.value ? 'bg-ava-purple text-white' : 'text-gray-500 hover:text-gray-300'
+          className={`px-3 py-1 rounded-md text-xs font-medium transition border ${
+            selected === o.value
+              ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple'
+              : 'border-transparent text-gray-500 hover:text-gray-300'
           }`}
         >
           {o.label}
