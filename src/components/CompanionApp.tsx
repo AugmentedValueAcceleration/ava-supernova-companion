@@ -218,9 +218,9 @@ export default function CompanionApp({
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('qwen3.7-plus');
+      chat.setSelectedModel('auto');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'qwen3.7-plus');
+        localStorage.setItem('ava-companion-model', 'auto');
       }
     }
     chat.setMessages([{
@@ -244,9 +244,9 @@ export default function CompanionApp({
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('qwen3.7-plus');
+      chat.setSelectedModel('auto');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'qwen3.7-plus');
+        localStorage.setItem('ava-companion-model', 'auto');
       }
     }
     // Only react to login-state changes, not every render.

@@ -155,6 +155,19 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
+  // ── ORCHESTRATED FLEETS (the account/credit models) ─────────────────────
+  // The three fleets the IDE + extension surface to signed-in users, matched
+  // here so the companion offers the same thing. Each is a whole multi-model
+  // fleet behind one pick; the backend (api/companion/chat) maps the id to the
+  // fleet's lead (auto→qwen3.7-plus, supernova→deepseek-v4-pro,
+  // aurora→mistral-medium-3.5). Public for any signed-in platform user — the
+  // admin gate was retired 2026-04-30 (mode-availability.ts). BYOK users reach
+  // them with the fleet's keys (Maestro=Qwen, Aurora=Mistral, Supernova=Qwen+
+  // DeepSeek); on a plan they run on credits. '✦' matches the other surfaces.
+  { id: 'auto',      name: '✦ Maestro',   provider: 'Orchestrated · balanced', free: true, requiresAccount: true },
+  { id: 'aurora',    name: '✦ Aurora',    provider: 'Orchestrated · EU-sovereign', free: true, requiresAccount: true },
+  { id: 'supernova', name: '✦ Supernova', provider: 'Orchestrated · polyglot', free: true, requiresAccount: true },
+
   // ── PLATFORM (managed, with account) ────────────────────────────────────
   // Companion is a phone-sized chat + tasks surface, so the platform
   // menu is curated — heavy coordinator-class models (Qwen 3.5 Plus /
