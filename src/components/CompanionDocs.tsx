@@ -11,7 +11,7 @@ import {
   type RendererAdapter,
   type FactsData,
   TOOLS, PROVIDERS, MODES, PERSONAS, PERMISSION_MODES, SHORTCUTS,
-  filterForSurface, buildSidebar, anchorFor, getPages, renderPage,
+  filterForSurface, buildSidebar, getPages, renderPage,
 } from '@/lib/docs';
 import { useLocale } from '@/lib/i18n';
 
