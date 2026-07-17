@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
@@ -171,13 +172,13 @@ export default function TasksPanel({ token }: { token: string | null }) {
           placeholder={t('addTaskPlaceholder')}
           className="flex-1 bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
         />
-        <button
+        <Button
           onClick={addTask}
           disabled={!newTask.trim()}
-          className="bg-ava-purple text-white px-3 rounded-lg text-sm font-medium disabled:opacity-30 hover:bg-ava-purple-dark transition"
+          className="px-3"
         >
           +
-        </button>
+        </Button>
       </div>
 
       {/* Task list */}

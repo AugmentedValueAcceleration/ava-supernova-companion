@@ -1,4 +1,5 @@
 'use client';
+import { Button } from './Button';
 
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
@@ -249,12 +250,9 @@ export default function SettingsView({
                   <p className="text-xs text-gray-500">{t('guestSubtitle')}</p>
                 </div>
               </div>
-              <button
-                onClick={onSignIn}
-                className="w-full bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2.5 rounded-xl transition text-sm"
-              >
+              <Button onClick={onSignIn} size="lg" block>
                 {t('signIn')}
-              </button>
+              </Button>
               <a
                 href="https://ava-supernova.com/pricing"
                 target="_blank"

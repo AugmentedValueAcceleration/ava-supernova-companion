@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Button } from './Button';
 import { memoriesApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
 
@@ -276,13 +277,13 @@ export default function MemoryPanel({ token }: { token: string | null }) {
             className="w-full bg-ava-surface border border-ava-border rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
           />
         </div>
-        <button
+        <Button
           onClick={startAdd}
           aria-label="Add memory"
-          className="bg-ava-purple text-white px-3 rounded-lg text-sm font-medium hover:bg-ava-purple-dark transition"
+          className="px-3"
         >
           +
-        </button>
+        </Button>
       </div>
 
       {/* Sync banner — show when signed in with unsynced local memories */}
@@ -291,13 +292,9 @@ export default function MemoryPanel({ token }: { token: string | null }) {
           <span className="text-xs text-gray-300">
             <span className="text-ava-purple-light font-medium">{unsyncedCount}</span> local {unsyncedCount === 1 ? 'memory' : 'memories'} not synced
           </span>
-          <button
-            onClick={syncToCloud}
-            disabled={syncing}
-            className="text-xs font-medium text-white bg-ava-purple px-3 py-1 rounded-lg hover:bg-ava-purple-dark transition disabled:opacity-50"
-          >
+          <Button onClick={syncToCloud} disabled={syncing} size="sm">
             {syncing ? 'Syncing...' : 'Push to Cloud'}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -333,19 +330,17 @@ export default function MemoryPanel({ token }: { token: string | null }) {
             </select>
           </div>
           <div className="flex gap-2 pt-1">
-            <button
+            <Button
               onClick={editingId ? updateMemory : addMemory}
               disabled={!formKey.trim() || !formContent.trim()}
-              className="flex-1 bg-ava-purple text-white text-xs font-medium py-1.5 rounded-lg hover:bg-ava-purple-dark transition disabled:opacity-30"
+              size="sm"
+              className="flex-1"
             >
               {editingId ? 'Update' : 'Save'}
-            </button>
-            <button
-              onClick={resetForm}
-              className="flex-1 bg-ava-bg text-gray-400 text-xs py-1.5 rounded-lg border border-ava-border hover:text-white transition"
-            >
+            </Button>
+            <Button onClick={resetForm} variant="secondary" size="sm" className="flex-1">
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

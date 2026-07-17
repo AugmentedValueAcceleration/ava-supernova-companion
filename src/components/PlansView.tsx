@@ -9,6 +9,7 @@
 // day from the catalogue — lands in 4a-ii.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
 import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
@@ -89,7 +90,7 @@ export function PlansView({ token }: { token?: string | null }) {
       <div className="max-w-3xl mx-auto w-full pb-28">
         <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
           <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
-          <button onClick={() => setCreating(true)} className="rounded-full bg-ava-purple px-3 py-1.5 text-xs font-semibold text-white hover:bg-ava-purple-dark transition">{t('plansNewButton')}</button>
+          <Button onClick={() => setCreating(true)} size="sm">{t('plansNewButton')}</Button>
         </div>
 
         <div className="flex gap-1 border-b border-ava-border px-2">
@@ -124,7 +125,7 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onNew, onOpen }: {
     return (
       <div className="px-4 py-16 text-center">
         <p className="text-sm text-gray-400">{t('plansEmptyState')}</p>
-        <button onClick={onNew} className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-2 text-sm text-ava-purple-light">{t('plansEmptyStateButton')}</button>
+        <Button onClick={onNew} variant="secondary" className="mt-3">{t('plansEmptyStateButton')}</Button>
       </div>
     );
   }
