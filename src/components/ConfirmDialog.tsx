@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from './Button';
+
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
@@ -29,22 +31,12 @@ export default function ConfirmDialog({
         <h3 className="text-white font-semibold text-lg">{title}</h3>
         <p className="text-sm text-gray-300 leading-relaxed">{message}</p>
         <div className="flex gap-2 pt-1">
-          <button
-            onClick={onConfirm}
-            className={`flex-1 font-medium py-2.5 rounded-xl transition text-sm ${
-              destructive
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-ava-purple text-white hover:bg-ava-purple-dark'
-            }`}
-          >
+          <Button onClick={onConfirm} variant={destructive ? 'danger' : 'primary'} block>
             {confirmLabel}
-          </button>
-          <button
-            onClick={onCancel}
-            className="flex-1 bg-ava-border text-gray-300 font-medium py-2.5 rounded-xl hover:bg-gray-600 transition text-sm"
-          >
+          </Button>
+          <Button onClick={onCancel} variant="secondary" block>
             {cancelLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

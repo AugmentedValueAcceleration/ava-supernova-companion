@@ -17,6 +17,7 @@
 //     experience.
 
 import { useState, useEffect } from 'react';
+import { Button } from './Button';
 
 interface Props {
   userName: string;
@@ -214,24 +215,22 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
       <div className="shrink-0 px-5 pb-6 pt-3 max-w-sm mx-auto w-full">
         <div className="flex gap-3">
           {step > 1 && (
-            <button
-              onClick={() => setStep(step - 1)}
-              className="flex-1 py-3 rounded-xl border border-ava-border text-gray-400 font-medium text-sm hover:border-gray-500 transition"
-            >
+            <Button onClick={() => setStep(step - 1)} variant="secondary" size="lg" className="flex-1">
               Back
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={() => {
               if (step === 0) { recordConsent(); setStep(1); }
               else if (step < steps.length - 1) setStep(step + 1);
               else onComplete();
             }}
             disabled={step === 0 && !consentChecked}
-            className={`flex-1 py-3 rounded-xl bg-ava-purple text-white font-semibold text-sm transition ${step === 0 && !consentChecked ? 'opacity-30 cursor-not-allowed' : 'hover:bg-ava-purple-dark'}`}
+            size="lg"
+            className="flex-1"
           >
             {step === 0 ? 'I Agree' : step === steps.length - 1 ? "Let\u2019s go" : 'Next'}
-          </button>
+          </Button>
         </div>
         {step > 0 && step < steps.length - 1 && (
           <button onClick={onComplete} className="w-full mt-2 text-xs text-gray-600 hover:text-gray-400 transition">
