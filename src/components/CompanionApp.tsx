@@ -445,7 +445,7 @@ export default function CompanionApp({
   };
 
   return (
-    <div className={`h-dvh flex flex-col bg-ava-bg md:pb-0 ${keyboardOpen ? 'pb-0' : 'pb-24'}`}>
+    <div className={`h-dvh flex flex-col bg-ava-bg md:pb-0 ${keyboardOpen ? 'pb-0' : 'pb-20'}`}>
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-ava-border shrink-0">
         {/* Left: Logo + New Chat + History */}
