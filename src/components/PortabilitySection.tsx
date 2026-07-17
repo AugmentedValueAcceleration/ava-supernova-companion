@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
 import {
   exportEncryptedBackup,
@@ -98,38 +99,24 @@ export default function PortabilitySection() {
     }
   }
 
-  const btn = 'w-full font-medium py-2.5 rounded-xl transition text-sm disabled:opacity-50';
-
   return (
     <div>
       <h3 className="text-[11px] font-bold text-gray-500 tracking-wider mb-2 uppercase">{t('backupSection')}</h3>
       <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-3">
         <p className="text-[11px] text-gray-500 leading-relaxed">{t('backupIntro')}</p>
 
-        <button
-          onClick={() => setPassModal({ mode: 'export' })}
-          disabled={busy}
-          className={`${btn} bg-ava-purple hover:bg-ava-purple-dark text-white`}
-        >
+        <Button onClick={() => setPassModal({ mode: 'export' })} disabled={busy} size="lg" block>
           {'\u{1F512}'} {t('backupExportEnc')} (.ava-backup)
-        </button>
+        </Button>
 
-        <button
-          onClick={doExportReadable}
-          disabled={busy}
-          className={`${btn} bg-ava-surface border border-ava-border hover:border-ava-purple text-white`}
-        >
+        <Button onClick={doExportReadable} disabled={busy} variant="secondary" size="lg" block>
           {t('backupExportReadable')} (.json)
-        </button>
+        </Button>
 
         <div className="pt-1 border-t border-ava-border">
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={busy}
-            className={`${btn} mt-3 bg-ava-surface border border-ava-border hover:border-ava-purple text-white`}
-          >
+          <Button onClick={() => fileRef.current?.click()} disabled={busy} variant="secondary" size="lg" block className="mt-3">
             {'↑'} {t('backupImport')}
-          </button>
+          </Button>
           <p className="text-[11px] text-gray-500 mt-2 text-center">{t('backupImportHint')}</p>
         </div>
 
@@ -166,20 +153,12 @@ export default function PortabilitySection() {
               }}
             />
             <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => { setPassModal(null); setPass(''); }}
-                disabled={busy}
-                className="flex-1 bg-ava-surface border border-ava-border text-gray-300 font-medium py-2 rounded-xl text-sm disabled:opacity-50"
-              >
+              <Button onClick={() => { setPassModal(null); setPass(''); }} disabled={busy} variant="secondary" block>
                 {t('cancel')}
-              </button>
-              <button
-                onClick={() => passModal.mode === 'export' ? doExportEncrypted(pass) : runImport(passModal.content!, pass)}
-                disabled={busy || !pass}
-                className="flex-1 bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2 rounded-xl text-sm disabled:opacity-50"
-              >
+              </Button>
+              <Button onClick={() => passModal.mode === 'export' ? doExportEncrypted(pass) : runImport(passModal.content!, pass)} disabled={busy || !pass} block>
                 {busy ? t('backupWorking') : passModal.mode === 'export' ? t('backupCreate') : t('backupImportAction')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
