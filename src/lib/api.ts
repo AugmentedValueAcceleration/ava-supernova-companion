@@ -176,13 +176,6 @@ export function isFleet(id: string): boolean {
   return id in FLEET_KEY_REQUIREMENTS;
 }
 
-/** Short hint shown on a locked fleet — what unlocks it (sign in, or these keys). */
-export const FLEET_HINT: Record<string, string> = {
-  auto: 'Sign in · Qwen',
-  aurora: 'Sign in · Mistral',
-  supernova: 'Sign in · Qwen+DeepSeek',
-};
-
 /** A fleet is usable if the user is signed in (credits) OR holds every BYOK key
  *  it needs. `keys` is loadProviderKeys(). Non-fleet ids return false. */
 export function fleetAvailable(

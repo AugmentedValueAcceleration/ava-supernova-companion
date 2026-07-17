@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { API_BASE, MODELS, isFleet, fleetAvailable, FLEET_HINT } from '@/lib/api';
+import { API_BASE, MODELS, isFleet, fleetAvailable } from '@/lib/api';
 import { t, type StringKey } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
@@ -585,33 +585,30 @@ export default function CompanionApp({
                     const available = isFleet(model.id)
                       ? fleetAvailable(model.id, !isGuest, byokKeys)
                       : model.free ? !isGuest : !!getActiveProviderKey(model.id);
-                    // What's missing, for the disabled hint.
-                    const fleetHint = isFleet(model.id) && !available
-                      ? (FLEET_HINT[model.id] ?? 'Sign in')
+                    // Short, uniform right-side label so no row wraps:
+                    // locked models say why in one word, selected shows a tick.
+                    const hint = !available
+                      ? (isFleet(model.id) ? 'Sign in' : 'API key')
                       : null;
                     return (
                     <button
                       key={model.id}
                       onClick={() => { if (!available) return; selectModel(model.id); }}
                       disabled={!available}
-                      className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-ava-surface-hover transition ${
+                      className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 hover:bg-ava-surface-hover transition ${
                         chat.selectedModel === model.id ? 'bg-ava-purple/10' : ''
                       } ${!available ? 'opacity-50' : ''}`}
                     >
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${isFleet(model.id) ? 'bg-ava-purple' : model.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
-                          <span className="text-sm text-white">{model.name}</span>
+                          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isFleet(model.id) || !model.free ? 'bg-ava-purple' : 'bg-emerald-400'}`} />
+                          <span className="text-sm text-white truncate">{model.name}</span>
                         </div>
-                        <span className="text-[11px] text-gray-500 ml-3.5">{model.provider}</span>
+                        <span className="text-[11px] text-gray-500 ml-3.5 block truncate">{model.provider}</span>
                       </div>
-                      {fleetHint ? (
-                        <span className="text-[10px] text-gray-500">{fleetHint}</span>
-                      ) : !available && isGuest ? (
-                        <span className="text-[10px] text-gray-500">API key</span>
-                      ) : (
-                        chat.selectedModel === model.id && <span className="text-ava-purple">&#10003;</span>
-                      )}
+                      <span className="flex-shrink-0 whitespace-nowrap text-[10px] text-gray-500">
+                        {hint ?? (chat.selectedModel === model.id ? <span className="text-ava-purple text-sm">&#10003;</span> : null)}
+                      </span>
                     </button>
                     );
                   }); })()}{isGuest && (
