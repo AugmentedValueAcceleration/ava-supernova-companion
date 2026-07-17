@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './Button';
-import { memoriesApi } from '@/lib/api';
-import { includesCloud, includesLocal } from '@/lib/data-mode';
 
 const PAGE_SIZE = 100;
 
@@ -14,7 +12,7 @@ interface Memory {
   category: string;
   created_at: string;
   updated_at: string;
-  synced?: boolean; // false = local-only, true/undefined = synced to cloud
+  synced?: boolean; // legacy field on older stored memories; unused now (local-only)
 }
 
 const STORAGE_KEY = 'ava-companion-memories';
@@ -74,7 +72,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [syncing, setSyncing] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -84,32 +81,13 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   const [formCategory, setFormCategory] = useState('general');
 
   // ── Load memories ──────────────────────────────────────────────────
-
-  // Route on Data Mode + token. When mode='local' (or no token) we
-  // stay entirely local — never call the cloud endpoint regardless of
-  // token availability. When the mode permits cloud, the remote list
-  // is the source of truth and any local unsynced entries are merged
-  // in so a draft isn't lost between sessions.
+  // Local-only. The companion keeps all data on-device (no cloud storage) —
+  // memories live in localStorage and never leave the device.
   const loadMemories = useCallback(async () => {
     setLoading(true);
-    const useCloud = includesCloud() && !!token;
-
-    if (!useCloud) {
-      setMemories(loadLocal());
-      setLoading(false);
-      return;
-    }
-    try {
-      const data = await memoriesApi.list(token!);
-      const remote: Memory[] = (data.memories || data || []).map((m: Memory) => ({ ...m, synced: true }));
-      const local = loadLocal().filter(m => !m.synced);
-      setMemories([...local, ...remote]);
-    } catch {
-      setMemories(loadLocal());
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+    setMemories(loadLocal());
+    setLoading(false);
+  }, []);
 
   useEffect(() => { loadMemories(); }, [loadMemories]);
 
@@ -117,10 +95,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
 
   const addMemory = async () => {
     if (!formKey.trim() || !formContent.trim()) return;
-
-    const useCloud = includesCloud() && !!token;
-    const useLocal = includesLocal() || !token;
-
     const memory: Memory = {
       id: crypto.randomUUID(),
       key: formKey.trim(),
@@ -128,89 +102,30 @@ export default function MemoryPanel({ token }: { token: string | null }) {
       category: formCategory,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      synced: false,
     };
-
-    if (useCloud) {
-      try {
-        await memoriesApi.create(token!, { key: memory.key, content: memory.content, category: memory.category });
-        // If mode=both, still persist a local copy as backup; synced
-        // flag stays false in local store because the cloud owns the
-        // canonical id. loadMemories() merges remote in and reflects
-        // synced:true there.
-        if (useLocal) saveLocal([memory, ...loadLocal()]);
-        loadMemories();
-        resetForm();
-        return;
-      } catch {
-        // Cloud write failed — if mode=cloud only, surface nothing
-        // and let the user retry. If local is also permitted, fall
-        // through to local write below so the entry survives.
-      }
-    }
-    if (useLocal) {
-      const updated = [memory, ...memories];
-      setMemories(updated);
-      saveLocal([memory, ...loadLocal()]);
-    }
+    const updated = [memory, ...memories];
+    setMemories(updated);
+    saveLocal(updated);
     resetForm();
   };
 
   const updateMemory = async () => {
     if (!editingId || !formKey.trim() || !formContent.trim()) return;
-
-    const useCloud = includesCloud() && !!token;
-    const useLocal = includesLocal() || !token;
-    const mem = memories.find(m => m.id === editingId);
     const patch = { key: formKey.trim(), content: formContent.trim(), category: formCategory };
-
-    if (useCloud && mem?.synced) {
-      try {
-        await memoriesApi.update(token!, editingId, patch);
-        loadMemories();
-        resetForm();
-        return;
-      } catch { /* fall through to local mirror */ }
-    }
-    if (useLocal) {
-      const updated = memories.map(m => m.id === editingId
-        ? { ...m, ...patch, updated_at: new Date().toISOString() }
-        : m
-      );
-      setMemories(updated);
-      saveLocal(updated.filter(m => !m.synced));
-    }
+    const updated = memories.map(m => m.id === editingId
+      ? { ...m, ...patch, updated_at: new Date().toISOString() }
+      : m
+    );
+    setMemories(updated);
+    saveLocal(updated);
     resetForm();
   };
 
   const deleteMemory = async (id: string) => {
-    const useCloud = includesCloud() && !!token;
-    const mem = memories.find(m => m.id === id);
-
-    if (useCloud && mem?.synced) {
-      try { await memoriesApi.delete(token!, id); } catch { /* non-fatal */ }
-    }
     const updated = memories.filter(m => m.id !== id);
     setMemories(updated);
-    saveLocal(updated.filter(m => !m.synced));
+    saveLocal(updated);
     setConfirmDelete(null);
-  };
-
-  // ── Sync local → cloud ────────────────────────────────────────────
-
-  const syncToCloud = async () => {
-    if (!token) return;
-    setSyncing(true);
-    const unsynced = memories.filter(m => !m.synced);
-    for (const mem of unsynced) {
-      try {
-        await memoriesApi.create(token, { key: mem.key, content: mem.content, category: mem.category });
-      } catch { /* skip failed ones */ }
-    }
-    // Clear local unsynced
-    saveLocal([]);
-    await loadMemories();
-    setSyncing(false);
   };
 
   // ── Form helpers ───────────────────────────────────────────────────
@@ -257,8 +172,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   const displayed = filtered.slice(0, displayLimit);
   const hasMore = displayLimit < filtered.length;
 
-  const unsyncedCount = memories.filter(m => !m.synced).length;
-
   // ── Render ─────────────────────────────────────────────────────────
 
   return (
@@ -285,18 +198,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
           +
         </Button>
       </div>
-
-      {/* Sync banner — show when signed in with unsynced local memories */}
-      {token && unsyncedCount > 0 && (
-        <div className="flex items-center justify-between bg-ava-purple/10 border border-ava-purple/20 rounded-lg px-3 py-2">
-          <span className="text-xs text-gray-300">
-            <span className="text-ava-purple-light font-medium">{unsyncedCount}</span> local {unsyncedCount === 1 ? 'memory' : 'memories'} not synced
-          </span>
-          <Button onClick={syncToCloud} disabled={syncing} size="sm">
-            {syncing ? 'Syncing...' : 'Push to Cloud'}
-          </Button>
-        </div>
-      )}
 
       {/* Add/Edit form */}
       {(showAdd || editingId) && (
@@ -384,9 +285,6 @@ export default function MemoryPanel({ token }: { token: string | null }) {
                   <div className="flex items-center gap-2 mb-1">
                     <div className={`w-1.5 h-1.5 rounded-full ${categoryColors[memory.category] || 'bg-gray-500'}`} />
                     <span className="text-xs font-medium text-ava-purple-light">{memory.key}</span>
-                    {!memory.synced && (
-                      <span className="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded">LOCAL</span>
-                    )}
                   </div>
                   <p className="text-sm text-gray-300 leading-relaxed">{memory.content}</p>
                   <div className="flex items-center gap-2 mt-1.5">
