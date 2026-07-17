@@ -557,65 +557,85 @@ export default function CompanionApp({
                 {/* max-w-[calc(100vw-2rem)] caps the dropdown to viewport
                     minus header padding on narrow screens — otherwise the
                     240px min-width would overflow on a ~360px phone. */}
-                <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] max-w-[calc(100vw-2rem)] py-1 max-h-[400px] overflow-y-auto">
-                  {(() => { const byokKeys = loadProviderKeys(); return MODELS.filter(model => {
-                    // The three orchestrated fleets ALWAYS show at the top,
-                    // signed in or not — availability is handled per-item below.
-                    if (isFleet(model.id)) return true;
-                    // Other account-required (credits) models are hidden from guests.
-                    if (isGuest && model.requiresAccount) return false;
-                    // Signed-in users don't see BYOK models they have no key
-                    // configured for — selecting one would just fail on send.
-                    if (!isGuest && !model.free && !getActiveProviderKey(model.id)) {
-                      return false;
+                <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-purple/25 rounded-xl shadow-xl z-20 min-w-[260px] max-w-[calc(100vw-2rem)] py-1.5 max-h-[420px] overflow-y-auto">
+                  {(() => {
+                    const byokKeys = loadProviderKeys();
+                    // Same visibility rules as before; fleets always show.
+                    const visible = MODELS.filter(model => {
+                      if (isFleet(model.id)) return true;
+                      if (isGuest && model.requiresAccount) return false;
+                      if (!isGuest && !model.free && !getActiveProviderKey(model.id)) return false;
+                      if (model.adminOnly && chat.tokenBalance?.tier !== 'admin') return false;
+                      return true;
+                    });
+                    const avail = (m: typeof MODELS[number]) => isFleet(m.id)
+                      ? fleetAvailable(m.id, !isGuest, byokKeys)
+                      : m.free ? !isGuest : !!getActiveProviderKey(m.id);
+
+                    // Fleets → "Orchestrated"; everything else grouped by provider
+                    // (managed + BYOK of one provider fold together). Matches the
+                    // IDE + extension model dropdown.
+                    const fleets = visible.filter(m => isFleet(m.id));
+                    const rest = visible.filter(m => !isFleet(m.id));
+                    const groups = new Map<string, typeof MODELS>();
+                    for (const m of rest) {
+                      const label = m.provider.replace(/ \(managed\)$/, '');
+                      const arr = groups.get(label) ?? [];
+                      arr.push(m); groups.set(label, arr);
                     }
-                    // Admin-only models (currently the V4 platform-managed
-                    // entries while DeepSeek partnership is pending) hidden
-                    // from non-admin users. Server-side admin gate on
-                    // /api/models is the source of truth; this is the
-                    // client-side mirror so non-admin can't see or select.
-                    if (model.adminOnly && chat.tokenBalance?.tier !== 'admin') {
-                      return false;
-                    }
-                    return true;
-                  }).map(model => {
-                    // A fleet is usable when signed in (credits) or the user
-                    // holds the fleet's BYOK keys; other models follow the old
-                    // credits/BYOK rules.
-                    const available = isFleet(model.id)
-                      ? fleetAvailable(model.id, !isGuest, byokKeys)
-                      : model.free ? !isGuest : !!getActiveProviderKey(model.id);
-                    // Short, uniform right-side label so no row wraps:
-                    // locked models say why in one word, selected shows a tick.
-                    const hint = !available
-                      ? (isFleet(model.id) ? 'Sign in' : 'API key')
-                      : null;
+                    const providerOrder = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+
+                    const headerCls = 'px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500';
+                    const dividerCls = 'h-px bg-ava-border/60 mx-2 my-1';
+                    const fleetSubtitle: Record<string, string> = {
+                      auto: 'Best model per task', aurora: 'EU stack · Mistral', supernova: 'Polyglot ensemble',
+                    };
+
+                    const row = (model: typeof MODELS[number], subtitle?: string) => {
+                      const available = avail(model);
+                      const active = chat.selectedModel === model.id;
+                      const hint = !available ? (isFleet(model.id) ? 'Sign in' : 'Add key') : null;
+                      return (
+                        <button
+                          key={model.id}
+                          onClick={() => { if (!available) return; selectModel(model.id); }}
+                          disabled={!available}
+                          className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 rounded-lg transition ${active ? 'bg-ava-purple/10' : 'hover:bg-ava-surface-hover'} ${!available ? 'opacity-45' : ''}`}
+                        >
+                          <div className="min-w-0 flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-ava-purple' : 'bg-white/20'}`} />
+                            <div className="min-w-0">
+                              <span className={`text-sm truncate block ${active ? 'text-ava-purple-light' : 'text-white'}`}>{model.name}</span>
+                              {subtitle && <span className="text-[10px] text-gray-500 truncate block">{subtitle}</span>}
+                            </div>
+                          </div>
+                          <span className="flex-shrink-0 whitespace-nowrap text-[10px] text-gray-500">
+                            {hint ?? (active ? <span className="text-ava-purple text-sm">&#10003;</span> : null)}
+                          </span>
+                        </button>
+                      );
+                    };
+
                     return (
-                    <button
-                      key={model.id}
-                      onClick={() => { if (!available) return; selectModel(model.id); }}
-                      disabled={!available}
-                      className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 hover:bg-ava-surface-hover transition ${
-                        chat.selectedModel === model.id ? 'bg-ava-purple/10' : ''
-                      } ${!available ? 'opacity-50' : ''}`}
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isFleet(model.id) || !model.free ? 'bg-ava-purple' : 'bg-emerald-400'}`} />
-                          <span className="text-sm text-white truncate">{model.name}</span>
-                        </div>
-                        <span className="text-[11px] text-gray-500 ml-3.5 block truncate">{model.provider}</span>
-                      </div>
-                      <span className="flex-shrink-0 whitespace-nowrap text-[10px] text-gray-500">
-                        {hint ?? (chat.selectedModel === model.id ? <span className="text-ava-purple text-sm">&#10003;</span> : null)}
-                      </span>
-                    </button>
+                      <>
+                        {fleets.length > 0 && <div className={headerCls}>Orchestrated</div>}
+                        {fleets.map(f => row(f, fleetSubtitle[f.id]))}
+                        {fleets.length > 0 && providerOrder.length > 0 && <div className={dividerCls} />}
+                        {providerOrder.map((prov, idx) => (
+                          <div key={prov}>
+                            <div className={headerCls}>{prov}</div>
+                            {groups.get(prov)!.map(m => row(m))}
+                            {idx < providerOrder.length - 1 && <div className={dividerCls} />}
+                          </div>
+                        ))}
+                        {isGuest && (
+                          <div className="px-3 py-2 border-t border-ava-border mt-1">
+                            <p className="text-[11px] text-gray-400 text-center">Sign up for 300 credits/month</p>
+                          </div>
+                        )}
+                      </>
                     );
-                  }); })()}{isGuest && (
-                    <div className="px-3 py-2 border-t border-ava-border mt-1">
-                      <p className="text-[11px] text-gray-400 text-center">Sign up for 300 free credits/month</p>
-                    </div>
-                  )}
+                  })()}
                 </div>
               </>
             )}
