@@ -158,6 +158,44 @@ export interface ModelOption {
   adminOnly?: boolean; // true = filtered out of picker unless user.tier === 'admin'
 }
 
+// ── Orchestrated fleets ─────────────────────────────────────────────────────
+// The three fleets are ALWAYS shown at the top of the picker (not gated behind
+// sign-in). They're available on a signed-in platform account (run on credits),
+// OR to a BYOK user who holds the provider keys the fleet needs — mirroring the
+// IDE's mode-availability.ts:
+//   Maestro (auto)      → Qwen
+//   Aurora  (aurora)    → Mistral
+//   Supernova           → Qwen + DeepSeek
+export const FLEET_KEY_REQUIREMENTS: Record<string, Array<'qwen' | 'mistral' | 'deepseek'>> = {
+  auto: ['qwen'],
+  aurora: ['mistral'],
+  supernova: ['qwen', 'deepseek'],
+};
+
+export function isFleet(id: string): boolean {
+  return id in FLEET_KEY_REQUIREMENTS;
+}
+
+/** Short hint shown on a locked fleet — what unlocks it (sign in, or these keys). */
+export const FLEET_HINT: Record<string, string> = {
+  auto: 'Sign in · Qwen',
+  aurora: 'Sign in · Mistral',
+  supernova: 'Sign in · Qwen+DeepSeek',
+};
+
+/** A fleet is usable if the user is signed in (credits) OR holds every BYOK key
+ *  it needs. `keys` is loadProviderKeys(). Non-fleet ids return false. */
+export function fleetAvailable(
+  id: string,
+  signedIn: boolean,
+  keys: { qwen?: string; mistral?: string; deepseek?: string },
+): boolean {
+  const req = FLEET_KEY_REQUIREMENTS[id];
+  if (!req) return false;
+  if (signedIn) return true;
+  return req.every((k) => !!keys[k]);
+}
+
 export const MODELS: ModelOption[] = [
   // ── ORCHESTRATED FLEETS (the account/credit models) ─────────────────────
   // The three fleets the IDE + extension surface to signed-in users, matched

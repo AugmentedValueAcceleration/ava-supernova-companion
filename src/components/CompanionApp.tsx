@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { API_BASE, MODELS } from '@/lib/api';
+import { API_BASE, MODELS, isFleet, fleetAvailable, FLEET_HINT } from '@/lib/api';
 import { t, type StringKey } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
@@ -13,7 +13,7 @@ import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
-import SettingsView, { getActiveProviderKey } from './SettingsView';
+import SettingsView, { getActiveProviderKey, loadProviderKeys } from './SettingsView';
 import { SupportChat } from './SupportChat';
 import CompanionDocs from './CompanionDocs';
 import PersonalityDesigner from './PersonalityDesigner';
@@ -558,13 +558,14 @@ export default function CompanionApp({
                     minus header padding on narrow screens — otherwise the
                     240px min-width would overflow on a ~360px phone. */}
                 <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-border rounded-xl shadow-xl z-20 min-w-[240px] max-w-[calc(100vw-2rem)] py-1 max-h-[400px] overflow-y-auto">
-                  {MODELS.filter(model => {
-                    // Guests don't see account-required (Qwen platform) models.
+                  {(() => { const byokKeys = loadProviderKeys(); return MODELS.filter(model => {
+                    // The three orchestrated fleets ALWAYS show at the top,
+                    // signed in or not — availability is handled per-item below.
+                    if (isFleet(model.id)) return true;
+                    // Other account-required (credits) models are hidden from guests.
                     if (isGuest && model.requiresAccount) return false;
                     // Signed-in users don't see BYOK models they have no key
                     // configured for — selecting one would just fail on send.
-                    // Once a key is added in Settings the model shows up on
-                    // the next picker open (filter is re-evaluated on render).
                     if (!isGuest && !model.free && !getActiveProviderKey(model.id)) {
                       return false;
                     }
@@ -577,31 +578,43 @@ export default function CompanionApp({
                       return false;
                     }
                     return true;
-                  }).map(model => (
+                  }).map(model => {
+                    // A fleet is usable when signed in (credits) or the user
+                    // holds the fleet's BYOK keys; other models follow the old
+                    // credits/BYOK rules.
+                    const available = isFleet(model.id)
+                      ? fleetAvailable(model.id, !isGuest, byokKeys)
+                      : model.free ? !isGuest : !!getActiveProviderKey(model.id);
+                    // What's missing, for the disabled hint.
+                    const fleetHint = isFleet(model.id) && !available
+                      ? (FLEET_HINT[model.id] ?? 'Sign in')
+                      : null;
+                    return (
                     <button
                       key={model.id}
-                      onClick={() => {
-                        if (isGuest && !model.free) return; // Can't select BYOK without keys
-                        selectModel(model.id);
-                      }}
+                      onClick={() => { if (!available) return; selectModel(model.id); }}
+                      disabled={!available}
                       className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-ava-surface-hover transition ${
                         chat.selectedModel === model.id ? 'bg-ava-purple/10' : ''
-                      } ${isGuest && !model.free ? 'opacity-50' : ''}`}
+                      } ${!available ? 'opacity-50' : ''}`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${model.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
+                          <div className={`w-1.5 h-1.5 rounded-full ${isFleet(model.id) ? 'bg-ava-purple' : model.free ? 'bg-emerald-400' : 'bg-ava-purple'}`} />
                           <span className="text-sm text-white">{model.name}</span>
                         </div>
                         <span className="text-[11px] text-gray-500 ml-3.5">{model.provider}</span>
                       </div>
-                      {isGuest ? (
+                      {fleetHint ? (
+                        <span className="text-[10px] text-gray-500">{fleetHint}</span>
+                      ) : !available && isGuest ? (
                         <span className="text-[10px] text-gray-500">API key</span>
                       ) : (
                         chat.selectedModel === model.id && <span className="text-ava-purple">&#10003;</span>
                       )}
                     </button>
-                  ))}{isGuest && (
+                    );
+                  }); })()}{isGuest && (
                     <div className="px-3 py-2 border-t border-ava-border mt-1">
                       <p className="text-[11px] text-gray-400 text-center">Sign up for 300 free credits/month</p>
                     </div>
