@@ -16,13 +16,14 @@ import WelcomeFlow from './WelcomeFlow';
 import SettingsView, { getActiveProviderKey, loadProviderKeys } from './SettingsView';
 import { SupportChat } from './SupportChat';
 import CompanionDocs from './CompanionDocs';
+import NewsView from './NewsView';
 import PersonalityDesigner from './PersonalityDesigner';
 import ConfirmDialog from './ConfirmDialog';
 import { WellbeingSection, type WellbeingView } from './Wellbeing';
 import { syncPlans } from '@/lib/health-plan-sync';
 // personality lib used by PersonalityDesigner component
 
-type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | 'docs' | WellbeingView;
+type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | 'docs' | 'news' | WellbeingView;
 
 export default function CompanionApp({
   session,
@@ -444,7 +445,7 @@ export default function CompanionApp({
   };
 
   return (
-    <div className={`h-dvh flex flex-col bg-ava-bg md:pb-0 ${keyboardOpen ? 'pb-0' : 'pb-14'}`}>
+    <div className={`h-dvh flex flex-col bg-ava-bg md:pb-0 ${keyboardOpen ? 'pb-0' : 'pb-24'}`}>
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-ava-border shrink-0">
         {/* Left: Logo + New Chat + History */}
@@ -899,16 +900,17 @@ export default function CompanionApp({
                     rows={1}
                     className={`flex-1 bg-ava-surface border border-ava-border rounded-2xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none ${textSizeClass} max-h-[120px] disabled:opacity-50 transition`}
                   />
-                  {/* Voice input */}
+                  {/* Voice input — quiet secondary (house style: white/5 tint,
+                      white/10 border). Listening tints red, denied dims out. */}
                   <button
                     onClick={toggleVoice}
                     disabled={chat.streaming || micPermission === 'denied'}
-                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition ${
+                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center border transition ${
                       isListening
-                        ? 'bg-red-500 text-white animate-pulse'
+                        ? 'border-red-500/30 bg-red-500/15 text-red-300 animate-pulse'
                         : micPermission === 'denied'
-                        ? 'bg-ava-surface border border-ava-border text-gray-600 cursor-not-allowed'
-                        : 'bg-ava-surface border border-ava-border text-gray-400 hover:text-white hover:border-ava-purple'
+                        ? 'border-white/10 bg-white/5 text-gray-600 cursor-not-allowed'
+                        : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
                     } disabled:opacity-30`}
                     title={micPermission === 'denied' ? 'Microphone access denied — check browser settings' : isListening ? 'Stop listening' : 'Voice input'}
                   >
@@ -923,11 +925,12 @@ export default function CompanionApp({
                     )}
                   </button>
 
-                  {/* Send */}
+                  {/* Send — the primary action, in the house accent-tint pill
+                      (not a solid bright fill). */}
                   <button
                     onClick={chat.sendMessage}
                     disabled={!chat.input.trim() || chat.streaming}
-                    className="shrink-0 w-10 h-10 bg-ava-purple rounded-full flex items-center justify-center text-white disabled:opacity-30 hover:bg-ava-purple-dark transition"
+                    className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center border border-ava-purple/25 bg-ava-purple/10 text-ava-purple hover:bg-ava-purple/20 disabled:opacity-30 transition"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
@@ -990,6 +993,8 @@ export default function CompanionApp({
               token={session?.access_token || apiKey || ''}
               onBack={() => setMobileView('settings')}
             />
+          ) : mobileView === 'news' ? (
+            <NewsView onAsk={(q) => { chat.setInput(q); setMobileView('chat'); }} />
           ) : mobileView === 'docs' ? (
             <CompanionDocs onBack={() => setMobileView('settings')} onAsk={(q) => { chat.setInput(q); setMobileView('chat'); }} />
           ) : (mobileView === 'today' || mobileView === 'gym' || mobileView === 'plans' || mobileView === 'recipes' || mobileView === 'workouts') ? (
@@ -1030,7 +1035,7 @@ export default function CompanionApp({
         <ThumbButton
           icon={<MoreIcon />}
           label="More"
-          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings', 'docs'].includes(mobileView)}
+          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings', 'docs', 'news'].includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'more' ? null : 'more')}
         />
       </nav>
@@ -1075,11 +1080,23 @@ export default function CompanionApp({
                   <span className="text-sm text-gray-200">{t(item.labelKey)}</span>
                 </button>
               ))}
+              {/* News — literal label for now (articles are localized server-side;
+                  the menu word can be keyed into the strict i18n set later). */}
+              <button
+                onClick={() => { setMobileView('news'); setNavSheet(null); }}
+                style={{ transitionDelay: sheetIn ? `${MORE_ITEMS.length * 40}ms` : '0ms' }}
+                className={`flex items-center gap-3 rounded-full border border-ava-border bg-ava-surface shadow-xl shadow-black/50 px-4 py-3 text-left hover:border-ava-purple/50 origin-bottom-right transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-6'}`}
+              >
+                <span className="text-gray-400">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                </span>
+                <span className="text-sm text-gray-200">News</span>
+              </button>
               {/* Help & Docs — literal label for now (corpus content is localized;
                   the menu word can be keyed into the strict i18n set later). */}
               <button
                 onClick={() => { setMobileView('docs'); setNavSheet(null); }}
-                style={{ transitionDelay: sheetIn ? `${MORE_ITEMS.length * 40}ms` : '0ms' }}
+                style={{ transitionDelay: sheetIn ? `${(MORE_ITEMS.length + 1) * 40}ms` : '0ms' }}
                 className={`flex items-center gap-3 rounded-full border border-ava-border bg-ava-surface shadow-xl shadow-black/50 px-4 py-3 text-left hover:border-ava-purple/50 origin-bottom-right transition-all duration-300 ease-out ${sheetIn ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-6'}`}
               >
                 <span className="text-gray-400">

@@ -100,6 +100,18 @@ export const healthCatalogApi = {
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
 };
 
+// News desk — public read of the same published articles the web /news page
+// and the newsroom serve. No auth. `list` supports a category filter; `article`
+// pulls the full body + related pieces for the in-app reader.
+export const newsApi = {
+  list: (p: { category?: string | null; limit?: number; page?: number } = {}) => {
+    const u = new URLSearchParams({ limit: String(p.limit ?? 30), page: String(p.page ?? 1) });
+    if (p.category) u.set('category', p.category);
+    return apiFetch(`/news?${u.toString()}`).then(r => r.json());
+  },
+  article: (slug: string) => apiFetch(`/news/${encodeURIComponent(slug)}`).then(r => r.json()),
+};
+
 // Health profile — single-object cloud copy for cross-surface sync.
 export const profileApi = {
   get: (token: string) => apiFetch('/health/profile/sync', {}, token).then(r => r.json()),
