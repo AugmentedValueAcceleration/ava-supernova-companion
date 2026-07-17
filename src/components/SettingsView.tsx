@@ -376,19 +376,21 @@ export default function SettingsView({
               value={selectedModel}
               onChange={onSelectModel}
               placeholder={isGuest ? t('modelPickerSignInHint') : t('modelPickerSelect')}
-              // Guests only see models they have a BYOK key for. "free" means
-              // free on the platform account tier — it is not free for guests.
+              // Guests only see models they have a BYOK key for. The CREDITS
+              // badge marks a model that runs on the account's plan credits —
+              // NO model is free; the credit system meters every one. It just
+              // means "billed from your credit balance" vs BYOK ("your key").
               options={MODELS.filter(m => isGuest ? !!getActiveProviderKey(m.id) : true).map(m => {
                 const hasOwnKey = !!getActiveProviderKey(m.id);
-                const showFree = !isGuest && m.free && !hasOwnKey;
+                const showCredits = !isGuest && m.free && !hasOwnKey;
                 const showBYOK = hasOwnKey;
                 return {
                   value: m.id,
                   label: m.name,
                   sublabel: m.provider,
-                  badge: showFree ? 'FREE' : showBYOK ? 'BYOK' : undefined,
-                  badgeColor: showFree
-                    ? 'text-emerald-400 bg-emerald-400/10'
+                  badge: showCredits ? 'CREDITS' : showBYOK ? 'BYOK' : undefined,
+                  badgeColor: showCredits
+                    ? 'text-ava-purple bg-ava-purple/10'
                     : showBYOK
                       ? 'text-blue-400 bg-blue-400/10'
                       : undefined,

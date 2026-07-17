@@ -149,7 +149,11 @@ export interface ModelOption {
   id: string;
   name: string;
   provider: string;
-  free: boolean;       // true = available with free account credits
+  // NOT "free" — no model is free; the credit system meters every one. This
+  // flag means the model runs on the account's plan CREDITS (billed from the
+  // credit balance) rather than needing a BYOK key. The picker badges it
+  // CREDITS, never FREE. (Field name kept for now to avoid a wide rename.)
+  free: boolean;
   requiresAccount: boolean; // true = needs signed-in account
   adminOnly?: boolean; // true = filtered out of picker unless user.tier === 'admin'
 }
@@ -163,7 +167,8 @@ export const MODELS: ModelOption[] = [
   // aurora→mistral-medium-3.5). Public for any signed-in platform user — the
   // admin gate was retired 2026-04-30 (mode-availability.ts). BYOK users reach
   // them with the fleet's keys (Maestro=Qwen, Aurora=Mistral, Supernova=Qwen+
-  // DeepSeek); on a plan they run on credits. '✦' matches the other surfaces.
+  // DeepSeek). On a plan they run on credits — NOT free; every model is metered
+  // by the credit system. '✦' matches the other surfaces.
   { id: 'auto',      name: '✦ Maestro',   provider: 'Orchestrated · balanced', free: true, requiresAccount: true },
   { id: 'aurora',    name: '✦ Aurora',    provider: 'Orchestrated · EU-sovereign', free: true, requiresAccount: true },
   { id: 'supernova', name: '✦ Supernova', provider: 'Orchestrated · polyglot', free: true, requiresAccount: true },
