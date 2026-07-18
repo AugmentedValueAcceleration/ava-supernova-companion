@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Button } from './Button';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
@@ -16,6 +15,13 @@ interface Task {
   source: string;
 }
 
+// Same option sets the extension/IDE QuickAdd uses, so a task added on the
+// phone carries the same priority + category vocabulary as one added on
+// desktop. Values are shown raw (capitalised) — matching how the companion
+// already renders task.priority — so no 40-key i18n mirror is needed.
+const CATEGORY_OPTIONS = ['personal', 'coding', 'admin', 'meeting', 'health', 'finance', 'errands', 'study', 'home'];
+const PRIORITY_OPTIONS = ['low', 'medium', 'high', 'urgent'];
+
 const priorityColors: Record<string, string> = {
   low: 'bg-emerald-500',
   medium: 'bg-blue-500',
@@ -23,11 +29,12 @@ const priorityColors: Record<string, string> = {
   urgent: 'bg-red-500',
 };
 
+interface CreateTaskInput { title: string; priority: string; category: string; due_date?: string }
+
 export default function TasksPanel({ token }: { token: string | null }) {
   useLocale();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<'today' | 'all'>('today');
-  const [newTask, setNewTask] = useState('');
   const [loading, setLoading] = useState(true);
 
   const today = new Date().toISOString().split('T')[0];
@@ -68,20 +75,21 @@ export default function TasksPanel({ token }: { token: string | null }) {
 
   useEffect(() => { loadTasks(); }, [loadTasks]);
 
-  const addTask = async () => {
-    if (!newTask.trim()) return;
+  const createTask = async (input: CreateTaskInput) => {
+    const title = input.title.trim();
+    if (!title) return;
     const useCloud = includesCloud() && !!token;
     const useLocal = includesLocal() || !token;
 
-    // Always mirror into local state + storage first for instant UI
-    // response. Cloud fires in parallel if the mode permits.
+    // Mirror into local state + storage first for instant UI. Cloud fires
+    // in parallel only if the mode permits (it never does today — local-first).
     const task: Task = {
       id: Date.now().toString(),
-      title: newTask.trim(),
-      priority: 'medium',
+      title,
+      priority: input.priority,
       status: 'todo',
-      category: 'personal',
-      due_date: today,
+      category: input.category,
+      due_date: input.due_date,
       source: 'user',
     };
     if (useLocal) {
@@ -89,15 +97,13 @@ export default function TasksPanel({ token }: { token: string | null }) {
       setTasks(updated);
       saveLocal(updated);
     }
-    setNewTask('');
-
     if (useCloud) {
       try {
         await tasksApi.create(token!, {
-          title: task.title,
-          due_date: today,
-          priority: 'medium',
-          category: 'personal',
+          title,
+          due_date: input.due_date,
+          priority: input.priority,
+          category: input.category,
         });
         loadTasks();
       } catch { /* non-fatal — local copy kept if cloud fails */ }
@@ -143,7 +149,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
   };
 
   const filtered = filter === 'today'
-    ? tasks.filter(t => t.due_date === today || t.status === 'in-progress')
+    ? tasks.filter(t => t.due_date === today || t.status === 'in_progress')
     : tasks;
 
   return (
@@ -163,23 +169,10 @@ export default function TasksPanel({ token }: { token: string | null }) {
         </button>
       </div>
 
-      {/* Add task */}
-      <div className="flex gap-2">
-        <input
-          value={newTask}
-          onChange={e => setNewTask(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && addTask()}
-          placeholder={t('addTaskPlaceholder')}
-          className="flex-1 bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
-        />
-        <Button
-          onClick={addTask}
-          disabled={!newTask.trim()}
-          className="px-3"
-        >
-          +
-        </Button>
-      </div>
+      {/* Add task — same collapsible QuickAdd shape as the extension/IDE:
+          title + priority + category + due date. "Today" view defaults the
+          due date to today so the new task lands where it was added. */}
+      <QuickAdd onCreate={createTask} defaultDueToday={filter === 'today'} />
 
       {/* Task list */}
       {loading ? (
@@ -213,7 +206,8 @@ export default function TasksPanel({ token }: { token: string | null }) {
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <div className={`w-1.5 h-1.5 rounded-full ${priorityColors[task.priority] || 'bg-gray-500'}`} />
-                    <span className="text-xs text-gray-500">{task.priority}</span>
+                    <span className="text-xs text-gray-500 capitalize">{task.priority}</span>
+                    {task.category && <span className="text-xs text-gray-600 capitalize">· {task.category}</span>}
                     {task.due_date && (
                       <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
                         {task.due_date === today ? t('today') : task.due_date}
@@ -235,6 +229,79 @@ export default function TasksPanel({ token }: { token: string | null }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// Collapsible add form — mirrors the extension/IDE QuickAdd: a dashed
+// "add" affordance that expands into title + priority + category + due date,
+// styled in the house accent-tint. Enter adds and keeps the form open for
+// rapid entry; Escape closes it.
+function QuickAdd({ onCreate, defaultDueToday }: { onCreate: (t: CreateTaskInput) => void; defaultDueToday: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [category, setCategory] = useState('personal');
+  const [dueDate, setDueDate] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
+
+  const reset = () => { setTitle(''); setPriority('medium'); setCategory('personal'); setDueDate(''); };
+  const submit = () => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    const due = dueDate || (defaultDueToday ? new Date().toISOString().slice(0, 10) : undefined);
+    onCreate({ title: trimmed, priority, category, due_date: due });
+    reset();
+    inputRef.current?.focus();
+  };
+  const cancel = () => { reset(); setOpen(false); };
+
+  const fieldCls = 'flex-1 min-w-0 bg-ava-surface border border-ava-border rounded-md px-2 py-1.5 text-xs text-white focus:border-ava-purple focus:outline-none';
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1.5 w-full px-3 py-2 rounded-lg text-sm font-medium border border-dashed border-ava-purple/25 text-gray-400 hover:text-white transition"
+      >
+        <span className="text-ava-purple text-base leading-none">+</span>
+        {t('addTask')}
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-ava-purple/15 bg-ava-purple/5 p-2 flex flex-col gap-2">
+      <input
+        ref={inputRef}
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') submit(); else if (e.key === 'Escape') cancel(); }}
+        placeholder={t('addTaskPlaceholder')}
+        className="w-full bg-ava-surface border border-ava-border rounded-md px-2.5 py-1.5 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
+      />
+      <div className="flex items-center gap-1.5">
+        <select value={priority} onChange={e => setPriority(e.target.value)} title="Priority" className={`${fieldCls} capitalize cursor-pointer`}>
+          {PRIORITY_OPTIONS.map(p => <option key={p} value={p} className="capitalize bg-ava-surface">{p}</option>)}
+        </select>
+        <input list="quickadd-categories" value={category} onChange={e => setCategory(e.target.value)} title="Category" placeholder="Category" className={`${fieldCls} capitalize`} />
+        <datalist id="quickadd-categories">{CATEGORY_OPTIONS.map(c => <option key={c} value={c} />)}</datalist>
+        <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} title="Due date" className={`${fieldCls} text-gray-300 cursor-pointer`} />
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={submit}
+          disabled={!title.trim()}
+          className="border border-ava-purple/25 bg-ava-purple/10 text-ava-purple text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple/20 disabled:opacity-30 transition"
+        >
+          {t('addTask')}
+        </button>
+        <button onClick={cancel} className="text-gray-400 hover:text-white text-sm px-3 py-1.5 transition">
+          {t('cancel')}
+        </button>
+      </div>
     </div>
   );
 }
