@@ -910,8 +910,18 @@ export default function CompanionApp({
                       {msg.role === 'assistant' ? (
                         <div className={`${textSizeClass} leading-relaxed`}>
                           <Markdown content={msg.content} />
-                          {chat.streaming && msg.id === chat.messages[chat.messages.length - 1]?.id && msg.content && (
-                            <span className="text-ava-purple animate-pulse">&#9610;</span>
+                          {chat.streaming && msg.id === chat.messages[chat.messages.length - 1]?.id && (
+                            msg.content
+                              // Text is flowing — blinking caret.
+                              ? <span className="text-ava-purple animate-pulse">&#9610;</span>
+                              // Nothing yet — she's thinking / a tool is running. Bouncing dots.
+                              : (
+                                <span className="inline-flex items-center gap-1 py-1" aria-label="Ava is thinking">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-ava-purple-light animate-bounce [animation-delay:-0.3s]" />
+                                  <span className="w-1.5 h-1.5 rounded-full bg-ava-purple-light animate-bounce [animation-delay:-0.15s]" />
+                                  <span className="w-1.5 h-1.5 rounded-full bg-ava-purple-light animate-bounce" />
+                                </span>
+                              )
                           )}
                         </div>
                       ) : (
