@@ -130,16 +130,50 @@ export function t(key: StringKey): string {
   );
 }
 
+/** Native endonyms — used only when Intl.DisplayNames is unavailable. Every
+ *  supported locale is listed, unlike the IDE's fallback map which covers 11
+ *  of 20 and would show raw codes for the rest. */
+const NATIVE_FALLBACK: Record<string, string> = {
+  en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
+  ja: '日本語', ko: '한국어', 'zh-CN': '中文（简体）', 'zh-TW': '中文（繁體）',
+  pt: 'Português', it: 'Italiano', ar: 'العربية', hi: 'हिन्दी',
+  ru: 'Русский', tr: 'Türkçe', pl: 'Polski', uk: 'Українська',
+  nl: 'Nederlands', id: 'Bahasa Indonesia', vi: 'Tiếng Việt', th: 'ไทย',
+};
+
+/** Deliberate order, matching the extension: English, then the CJK block,
+ *  then the rest roughly by reach. The companion previously sorted by
+ *  language CODE, which is arbitrary to a reader — 'de' before 'en' before
+ *  'es' means nothing to anyone. */
+const LANGUAGE_CODES = [
+  'en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'pt', 'fr', 'de', 'ru',
+  'ar', 'hi', 'vi', 'th', 'tr', 'it', 'pl', 'uk', 'nl', 'id',
+];
+
+const capitalise = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+/**
+ * Each language shown in the current UI language AND its native form
+ * ("Japonés · 日本語" when the UI is Spanish). Mirrors the IDE and extension.
+ *
+ * The companion previously showed the endonym alone, so someone browsing in
+ * Spanish got "ไทย" with no clue what it was. Uses Intl.DisplayNames, so it
+ * needs no translation keys and follows the active locale automatically.
+ */
 export function getSupportedLanguages(): Array<{ code: string; name: string }> {
-  const names: Record<string, string> = {
-    en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
-    ja: '日本語', ko: '한국어', 'zh-CN': '中文（简体）', 'zh-TW': '中文（繁體）',
-    pt: 'Português', it: 'Italiano', ar: 'العربية', hi: 'हिन्दी',
-    ru: 'Русский', tr: 'Türkçe', pl: 'Polski', uk: 'Українська',
-    nl: 'Nederlands', id: 'Bahasa Indonesia', vi: 'Tiếng Việt', th: 'ไทย',
+  const named = (code: string): string => {
+    let inCurrent = '', native = '';
+    try { inCurrent = capitalise(new Intl.DisplayNames([currentLang], { type: 'language' }).of(code) || ''); } catch { /* no Intl */ }
+    try { native = capitalise(new Intl.DisplayNames([code], { type: 'language' }).of(code) || ''); } catch { /* no Intl */ }
+    native = native || NATIVE_FALLBACK[code] || code;
+    if (!inCurrent || inCurrent === native) return native;
+    return `${inCurrent} · ${native}`;
   };
+  // Only offer locales we actually ship strings for — LANGUAGE_CODES is the
+  // display order, SUPPORTED_LANGS is the source of truth for what exists.
   return [
     { code: 'auto', name: 'Auto (Browser)' },
-    ...SUPPORTED_LANGS.sort().map((code) => ({ code, name: names[code] || code })),
+    ...LANGUAGE_CODES.filter((code) => SUPPORTED_LANGS.includes(code))
+      .map((code) => ({ code, name: named(code) })),
   ];
 }
