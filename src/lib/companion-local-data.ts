@@ -51,8 +51,20 @@ export function clearUserContent(): void {
   wipe(new Set<string>([...ALWAYS_KEEP, ...CREDENTIAL_KEYS]));
 }
 
-/** A real sign-out: user content AND credentials. Only device identity and
- *  locale survive, so the next person on this device starts clean. */
+/** Leave the account but keep everything on this device. There is NO cloud
+ *  copy, so a plain sign-out must not destroy the user's data — that's their
+ *  only copy. Drops the account session; BYOK provider keys stay (they're the
+ *  user's own, and they may carry on as a BYOK guest). */
+export function clearSessionOnly(): void {
+  if (typeof localStorage === 'undefined') return;
+  for (const key of ['ava-companion-api-key', 'ava-companion-platform-key', 'ava-signin-state', 'ava-signin-state-at']) {
+    localStorage.removeItem(key);
+  }
+}
+
+/** Sign out AND erase: user content + credentials. Only device identity and
+ *  locale survive, so the next person on this device starts clean. Irreversible
+ *  — there's no sync to restore from, so it must always be an explicit choice. */
 export function clearOnSignOut(): void {
   wipe(ALWAYS_KEEP);
 }

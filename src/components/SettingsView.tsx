@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
-import { clearOnSignOut, clearUserContent, describeLocalData, type LocalStoreInfo } from '@/lib/companion-local-data';
+import { clearOnSignOut, clearSessionOnly, clearUserContent, describeLocalData, type LocalStoreInfo } from '@/lib/companion-local-data';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 import ConfirmDialog from './ConfirmDialog';
@@ -98,6 +98,7 @@ export default function SettingsView({
 
   const [providerKeys, setProviderKeys] = useState<ProviderKeys>(() => loadProviderKeys());
   const [keysOpen, setKeysOpen] = useState(false);
+  const [signOutSheet, setSignOutSheet] = useState(false);
   const [localData, setLocalData] = useState<LocalStoreInfo[] | null>(null);
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
   const configuredKeyCount = PROVIDER_KEY_FIELDS.filter(f => (providerKeys[f.key] || '').trim().length > 0).length;
@@ -301,20 +302,7 @@ export default function SettingsView({
               </a>
 
               <button
-                onClick={() => setConfirmDialog({
-                  open: true,
-                  title: t('confirmSignOut'),
-                  message: t('confirmSignOutMsg'),
-                  confirmLabel: t('signOut'),
-                  destructive: true,
-                  onConfirm: () => {
-                    setConfirmDialog(prev => ({ ...prev, open: false }));
-                    // Single source of truth — wipes every ava- key except device
-                    // identity/locale, so nothing personal survives a logout.
-                    clearOnSignOut();
-                    onSignOut();
-                  },
-                })}
+                onClick={() => setSignOutSheet(true)}
                 className="w-full bg-ava-surface border border-ava-border text-red-400 font-medium py-2.5 rounded-xl hover:bg-red-400/10 transition text-sm"
               >
                 {apiKey ? t('disconnectKey') : t('signOut')}
@@ -628,6 +616,41 @@ export default function SettingsView({
         onConfirm={confirmDialog.onConfirm}
         onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
       />
+
+      {/* Sign-out: an explicit choice, not an assumption. There is no cloud
+          copy, so wiping on sign-out would destroy the user's only copy — that
+          can never be the silent default. */}
+      {signOutSheet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setSignOutSheet(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-ava-border bg-ava-surface p-5" onClick={e => e.stopPropagation()}>
+            <h4 className="text-sm font-semibold text-white mb-1">{apiKey ? t('disconnectKey') : t('signOut')}</h4>
+            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+              Your data lives on this device — there&rsquo;s no cloud copy. Choose what happens to it.
+            </p>
+            <div className="space-y-2">
+              <Button
+                onClick={() => { clearSessionOnly(); setSignOutSheet(false); onSignOut(); }}
+                block
+              >
+                Sign out — keep my data here
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => { clearOnSignOut(); setSignOutSheet(false); onSignOut(); }}
+                block
+              >
+                Sign out &amp; erase everything
+              </Button>
+              <Button variant="ghost" onClick={() => setSignOutSheet(false)} block>
+                {t('cancel')}
+              </Button>
+            </div>
+            <p className="text-[11px] text-red-400/70 mt-3 leading-relaxed">
+              Erasing is permanent — memories, journal, tasks, chats and plans are deleted with no way to get them back. Export a backup first if you might want them.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
