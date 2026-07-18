@@ -1090,7 +1090,7 @@ export default function CompanionApp({
         />
         <ThumbButton
           icon={<WellbeingNavIcon />}
-          label="Wellbeing"
+          label={t('navWellbeing')}
           active={navSheet === 'wellbeing' || ['today', 'gym', 'plans', 'recipes', 'workouts'].includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'wellbeing' ? null : 'wellbeing')}
           hero
@@ -1103,7 +1103,7 @@ export default function CompanionApp({
         />
         <ThumbButton
           icon={<MoreIcon />}
-          label="More"
+          label={t('navMore')}
           active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings', 'docs', 'news'].includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'more' ? null : 'more')}
         />
@@ -1159,7 +1159,7 @@ export default function CompanionApp({
                 <span className="text-gray-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
                 </span>
-                <span className="text-sm text-gray-200">News</span>
+                <span className="text-sm text-gray-200">{t('navNews')}</span>
               </button>
               {/* Help & Docs — literal label for now (corpus content is localized;
                   the menu word can be keyed into the strict i18n set later). */}
@@ -1171,7 +1171,7 @@ export default function CompanionApp({
                 <span className="text-gray-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 17.25h.008v.008H12v-.008z" /></svg>
                 </span>
-                <span className="text-sm text-gray-200">Help &amp; Docs</span>
+                <span className="text-sm text-gray-200">{t('navHelpDocs')}</span>
               </button>
             </div>
           )}

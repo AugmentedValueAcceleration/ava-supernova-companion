@@ -104,6 +104,19 @@ export const enStrings = {
   // More menu + model picker + BYOK
   'support': 'Support',
   'supportSubtitle': 'Chat with Ava and the team',
+  // ── App chrome — bottom nav + More sheet ────────────────────────────────
+  'navWellbeing': 'Wellbeing',
+  'navMore': 'More',
+  'navNews': 'News',
+  'navHelpDocs': 'Help & Docs',
+  // ── Settings: Local data + About ────────────────────────────────────────
+  'localData': 'Local data',
+  'localDataDesc': 'Everything Ava stores on this device. Nothing leaves it.',
+  'localDataShow': 'Show',
+  'refresh': 'Refresh',
+  'comingSoon': 'Coming soon',
+  'aboutDataPromise': 'Your data stays yours. Local-first. No telemetry.',
+  'aboutOpenSource': 'Open source — Apache 2.0',
   'proTip': 'Pro tip',
   'pwaInstallHint': 'Add Ava to your home screen for one-tap access. iPhone: Share → Add to Home Screen. Android: menu → Install app.',
   'modelPickerSignInHint': 'Sign in for free tier, or add an API key below',

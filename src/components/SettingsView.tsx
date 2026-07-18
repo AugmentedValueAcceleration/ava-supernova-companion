@@ -437,17 +437,17 @@ export default function SettingsView({
         {/* Local data inspector — the companion has no folder to open (it's a
             web app; everything is in localStorage). This is the honest
             equivalent: exactly what's on this device, per store. */}
-        <Section title="Local data">
+        <Section title={t('localData')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
             <div className="p-4 flex items-center justify-between gap-2">
               <p className="text-xs text-gray-500">
-                Everything Ava stores on this device. Nothing leaves it.
+                {t('localDataDesc')}
               </p>
               <button
                 onClick={() => setLocalData(describeLocalData())}
                 className="shrink-0 rounded-lg border border-ava-purple/25 bg-ava-purple/10 px-3 py-1.5 text-xs font-medium text-ava-purple hover:bg-ava-purple/20 transition"
               >
-                {localData ? 'Refresh' : 'Show'}
+                {localData ? t('refresh') : t('localDataShow')}
               </button>
             </div>
             {localData && localData.map(store => (
@@ -597,7 +597,7 @@ export default function SettingsView({
             <div className="block p-4 opacity-60 cursor-not-allowed" aria-disabled="true">
               <Row
                 label="Discord"
-                value={<span className="text-[10px] uppercase tracking-wider text-gray-500">Coming soon</span>}
+                value={<span className="text-[10px] uppercase tracking-wider text-gray-500">{t('comingSoon')}</span>}
               />
             </div>
             <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
@@ -611,8 +611,8 @@ export default function SettingsView({
             </a>
           </div>
           <p className="text-xs text-gray-600 mt-3 text-center leading-relaxed">
-            Your data stays yours. Local-first. No telemetry.<br />
-            Open source — Apache 2.0
+            {t('aboutDataPromise')}<br />
+            {t('aboutOpenSource')}
           </p>
         </Section>
 
