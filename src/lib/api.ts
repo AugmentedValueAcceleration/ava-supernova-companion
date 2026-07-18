@@ -216,29 +216,15 @@ export const MODELS: ModelOption[] = [
   { id: 'aurora',    name: '✦ Aurora',    provider: 'Orchestrated · EU-sovereign', free: true, requiresAccount: true },
   { id: 'supernova', name: '✦ Supernova', provider: 'Orchestrated · polyglot', free: true, requiresAccount: true },
 
-  // ── PLATFORM (managed, with account) ────────────────────────────────────
-  // Companion is a phone-sized chat + tasks surface, so the platform
-  // menu is curated — heavy coordinator-class models (Qwen 3.5 Plus /
-  // Omni Plus, DeepSeek V4 Pro, Mistral Large 3) are omitted as overkill.
-  // Three providers represented: Mistral, DeepSeek, Qwen — locked
-  // 2026-04-29 with the operator. BYOK below carries the full lineup
-  // for users who pay per token and want the choice.
-  //
-  // Roles each platform model owns:
-  //   - Qwen 3.7 Plus       → chat with depth (the one heavy lane the
-  //                            operator wanted included — not too pricey)
-  //   - Qwen 3.5 Omni Flash → fast chat with vision (camera input)
-  //   - Qwen 3.5 Flash      → fastest text-only tasks, cheapest entry
-  //   - DeepSeek V4 Flash   → light alt to Qwen, MIT open-weight
-  //                            (admin-only until DeepSeek partnership
-  //                            confirms — both gates flip together)
-  //   - Mistral Medium 3.5  → mid-tier chat with vision, EU-friendly
-  //   - Mistral Small 4     → fast EU-friendly tasks
-  { id: 'qwen3.7-plus', name: 'Qwen 3.7 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: true },
-  { id: 'deepseek-v4-flash-platform', name: 'DeepSeek V4 Flash', provider: 'DeepSeek (managed)', free: true, requiresAccount: true, adminOnly: true },
-  { id: 'mistral-medium-3.5-platform', name: 'Mistral Medium 3.5', provider: 'Mistral (managed)', free: true, requiresAccount: true },
-  { id: 'mistral-small-4-platform', name: 'Mistral Small 4', provider: 'Mistral (managed)', free: true, requiresAccount: true },
+  // ── PLATFORM SINGLES: removed 2026-07-18 ────────────────────────────────
+  // A signed-in plan surfaces the three orchestrated fleets and NOTHING else
+  // — single-model picking is a BYOK-only perk. The account is what promotes
+  // the fleets; the fleets are the product. We no longer expose the managed
+  // singles (Qwen 3.7 Plus / 3.5 Flash, Mistral Medium 3.5 / Small 4,
+  // DeepSeek V4 Flash) as direct picks. Those models still run *inside* the
+  // fleets — you just reach a specific one only by bringing its own key
+  // (see the BYOK lineup below). Reverses the 2026-04-29 curated-singles
+  // decision.
 
   // ── BYOK — full lineup, no curation ────────────────────────────────────
   // The user pays per token, so it's their call which to use. Mirror of the

@@ -99,7 +99,9 @@ export function useChat({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
-    if (typeof window === 'undefined') return 'qwen3.5-flash';
+    // Default to the flagship fleet (Maestro). Plan users only ever get the
+    // three fleets, so a single model is never a valid default for them.
+    if (typeof window === 'undefined') return 'auto';
     const stored = localStorage.getItem('ava-companion-model');
     if (stored) return stored;
     if (isGuest) {
@@ -112,7 +114,7 @@ export function useChat({
       }
       return '';
     }
-    return 'qwen3.5-flash';
+    return 'auto';
   });
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showHistory, setShowHistory] = useState(false);

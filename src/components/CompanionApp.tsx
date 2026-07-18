@@ -237,8 +237,9 @@ export default function CompanionApp({
   // the web) that doesn't flow through handleApiKeyConnect. If the user
   // lands on the companion already signed in (or signs in via the
   // parent-level flow) and their current model is a BYOK one they have
-  // no key for — or is empty — switch them to qwen3.7-plus so Chat works
-  // immediately. Respects existing valid preferences.
+  // no key for — or is empty, or a since-removed platform single — switch
+  // them to Maestro (auto) so Chat works immediately. Respects existing
+  // valid preferences.
   useEffect(() => {
     if (isGuest) return;
     const currentModel = MODELS.find((m) => m.id === chat.selectedModel);
