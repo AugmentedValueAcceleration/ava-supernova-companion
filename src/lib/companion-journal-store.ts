@@ -15,6 +15,30 @@ interface JournalEntry {
   ava_content?: string;
 }
 
+/** Recent entries (newest first) sent up each turn so Ava can *read* the
+ *  journal — how the user's been feeling, what they reflected on — and learn
+ *  from it to assist better. Content is included, not just dates. */
+export function readRecentJournal(days = 14): Array<{ date: string; user_content?: string; ava_content?: string; user_mood?: number | null }> {
+  const out: Array<{ date: string; user_content?: string; ava_content?: string; user_mood?: number | null }> = [];
+  const base = new Date();
+  for (let i = 0; i < days; i++) {
+    const d = new Date(base);
+    d.setDate(base.getDate() - i);
+    const date = d.toISOString().slice(0, 10);
+    try {
+      const s = localStorage.getItem(`ava-journal-${date}`);
+      if (!s) continue;
+      const e = JSON.parse(s) as JournalEntry;
+      if (e.user_content || e.ava_content) {
+        out.push({ date, user_content: e.user_content, ava_content: e.ava_content, user_mood: e.user_mood });
+      }
+    } catch {
+      /* skip a corrupt entry */
+    }
+  }
+  return out;
+}
+
 /** Apply an Ava-originated journal write from a `journal_local` SSE event. */
 export function applyJournalLocal(evt: { date: string; author: string; content: string; mood?: number }) {
   const key = `ava-journal-${evt.date}`;

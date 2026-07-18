@@ -1,5 +1,7 @@
 import { getLanguage } from './i18n';
 import { readLocalTasks, applyTaskLocal } from './companion-task-store';
+import { readLocalMemories, applyMemoryLocal } from './companion-memory-store';
+import { readRecentJournal } from './companion-journal-store';
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
@@ -290,11 +292,14 @@ export async function sendChat(
   const bodyPayload: Record<string, unknown> = { message, history, model, language: lang };
   if (providerApiKey) bodyPayload.providerApiKey = providerApiKey;
   if (personalityPrefix) bodyPayload.personalityPrefix = personalityPrefix;
-  // Local data mode: Ava's server-side tools can't read the device, so send a
-  // compact snapshot of the user's local tasks. Lets her list / complete /
-  // dedupe against what's actually there instead of guessing from an empty DB.
+  // Local data mode: Ava's server-side tools can't read the device, so send
+  // compact snapshots of the user's local data. Tasks (list/complete/dedupe),
+  // memories (recall/reference), and recent journal with content (so she can
+  // read how they've been and learn about them to assist better).
   if (dataMode === 'local') {
-    try { bodyPayload.localTasks = readLocalTasks(); } catch { /* no tasks yet */ }
+    try { bodyPayload.localTasks = readLocalTasks(); } catch { /* none yet */ }
+    try { bodyPayload.localMemories = readLocalMemories(); } catch { /* none yet */ }
+    try { bodyPayload.localJournal = readRecentJournal(); } catch { /* none yet */ }
   }
 
   const res = await fetch(`${API_BASE}/companion/chat`, {
@@ -348,6 +353,9 @@ export async function sendChat(
           // Ava wrote a journal entry (the user's, or her own). Apply to the
           // local ava-journal-{date} store the Journal tab reads.
           import('./companion-journal-store').then(m => { try { m.applyJournalLocal(parsed); } catch { /* ignore */ } });
+        } else if (parsed.type === 'memory_local' && parsed.memory) {
+          // Ava saved a memory. Apply to the local memory store the Memory tab reads.
+          try { applyMemoryLocal(parsed); } catch { /* ignore */ }
         }
       } catch {
         // skip

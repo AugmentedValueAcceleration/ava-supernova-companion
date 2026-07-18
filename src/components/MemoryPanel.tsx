@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './Button';
 import { CustomSelect } from './CustomSelect';
+import { MEMORIES_CHANGED_EVENT } from '@/lib/companion-memory-store';
 
 const PAGE_SIZE = 100;
 
@@ -91,6 +92,13 @@ export default function MemoryPanel({ token }: { token: string | null }) {
   }, []);
 
   useEffect(() => { loadMemories(); }, [loadMemories]);
+
+  // Refresh when Ava saves a memory via chat (memory_local round-trip).
+  useEffect(() => {
+    const onChanged = () => loadMemories();
+    window.addEventListener(MEMORIES_CHANGED_EVENT, onChanged);
+    return () => window.removeEventListener(MEMORIES_CHANGED_EVENT, onChanged);
+  }, [loadMemories]);
 
   // ── CRUD operations ────────────────────────────────────────────────
 
