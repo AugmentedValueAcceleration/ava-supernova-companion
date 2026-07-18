@@ -88,7 +88,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
             <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-2">
               {Array.from({ length: weeks }, (_, w) => {
                 const inWeek = dayIndex > w * 7 && dayIndex <= (w + 1) * 7;
-                return <button key={w} onClick={() => setDayIndex(w * 7 + 1)} className={`shrink-0 rounded-full px-3 py-1 text-[11px] ${inWeek ? 'bg-ava-purple text-white' : 'border border-ava-border text-gray-400'}`}>{t('planBuilderWeekLabel')} {w + 1}</button>;
+                return <button key={w} onClick={() => setDayIndex(w * 7 + 1)} className={`shrink-0 rounded-full px-3 py-1 text-[11px] border ${inWeek ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-ava-border text-gray-400'}`}>{t('planBuilderWeekLabel')} {w + 1}</button>;
               })}
             </div>
           )}
@@ -97,7 +97,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               const has = d.training.length > 0 || d.meals.length > 0;
               return (
                 <button key={d.day_index} onClick={() => setDayIndex(d.day_index)}
-                  className={`shrink-0 w-10 h-10 rounded-lg text-[11px] flex flex-col items-center justify-center ${d.day_index === dayIndex ? 'bg-ava-purple text-white' : 'border border-ava-border text-gray-400'}`}>
+                  className={`shrink-0 w-10 h-10 rounded-lg text-[11px] flex flex-col items-center justify-center border ${d.day_index === dayIndex ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-ava-border text-gray-400'}`}>
                   {d.day_index}
                   {has && <span className="mt-0.5 h-1 w-1 rounded-full bg-current opacity-70" />}
                 </button>

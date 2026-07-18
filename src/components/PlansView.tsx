@@ -296,7 +296,7 @@ function CreateSheet({ onCancel, onCreate }: {
         </label>
 
         <button onClick={() => onCreate(type, duration, title, activate ? 'active' : 'draft')}
-          className="w-full rounded-full bg-ava-purple py-3 text-sm font-semibold text-white hover:bg-ava-purple-dark transition">
+          className="w-full rounded-full border border-ava-purple/25 bg-ava-purple/10 py-3 text-sm font-semibold text-ava-purple hover:bg-ava-purple/20 transition">
           {t('plansCreateButton')}
         </button>
       </div>

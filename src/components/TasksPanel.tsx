@@ -151,13 +151,13 @@ export default function TasksPanel({ token }: { token: string | null }) {
       <div className="flex gap-2">
         <button
           onClick={() => setFilter('today')}
-          className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'today' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+          className={`px-3 py-1 rounded-full text-sm font-medium transition border ${filter === 'today' ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-transparent bg-ava-surface text-gray-400 hover:text-white'}`}
         >
           {t('today')}
         </button>
         <button
           onClick={() => setFilter('all')}
-          className={`px-3 py-1 rounded-full text-sm font-medium transition ${filter === 'all' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+          className={`px-3 py-1 rounded-full text-sm font-medium transition border ${filter === 'all' ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-transparent bg-ava-surface text-gray-400 hover:text-white'}`}
         >
           {t('all')}
         </button>
@@ -208,7 +208,7 @@ export default function TasksPanel({ token }: { token: string | null }) {
                   <p className={`text-sm ${task.status === 'done' ? 'line-through text-gray-500' : 'text-white'}`}>
                     {task.title}
                     {task.source === 'ava' && (
-                      <span className="ml-2 text-[10px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded">Ava</span>
+                      <span className="ml-2 text-[10px] font-bold text-ava-purple-light bg-ava-purple/15 px-1.5 py-0.5 rounded">Ava</span>
                     )}
                   </p>
                   <div className="flex items-center gap-2 mt-1">

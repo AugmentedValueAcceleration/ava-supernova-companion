@@ -147,13 +147,13 @@ export default function JournalPanel({ token }: { token: string | null }) {
       <div className="flex gap-2">
         <button
           onClick={() => setTab('yours')}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'yours' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition border ${tab === 'yours' ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-transparent bg-ava-surface text-gray-400 hover:text-white'}`}
         >
           {t('yourJournal')}
         </button>
         <button
           onClick={() => setTab('ava')}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'ava' ? 'bg-ava-purple text-white' : 'bg-ava-surface text-gray-400'}`}
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition border ${tab === 'ava' ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-transparent bg-ava-surface text-gray-400 hover:text-white'}`}
         >
           {t('avasJournal')}
         </button>
@@ -189,7 +189,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
                 className="w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none resize-none min-h-[200px]"
               />
               <div className="flex gap-2 mt-2">
-                <button onClick={saveEntry} className="bg-ava-purple text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple-dark transition">
+                <button onClick={saveEntry} className="border border-ava-purple/25 bg-ava-purple/10 text-ava-purple text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple/20 transition">
                   {t('saveEntry')}
                 </button>
                 <button onClick={() => { setEditing(false); loadEntry(); }} className="bg-ava-surface text-gray-400 text-sm px-4 py-1.5 rounded-lg border border-ava-border hover:text-white transition">
@@ -213,7 +213,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500 text-sm">{t('noEntry')}</p>
-              <button onClick={() => setEditing(true)} className="mt-2 bg-ava-purple text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple-dark transition">
+              <button onClick={() => setEditing(true)} className="mt-2 border border-ava-purple/25 bg-ava-purple/10 text-ava-purple text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-ava-purple/20 transition">
                 {t('writeEntry')}
               </button>
             </div>
@@ -225,7 +225,7 @@ export default function JournalPanel({ token }: { token: string | null }) {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-bold text-white">Ava</span>
-                <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
+                <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple/15 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
               </div>
               <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{avaContent}</p>
             </div>
