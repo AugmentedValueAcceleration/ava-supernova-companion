@@ -98,10 +98,21 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
         <p className="text-gray-400">Ava on your phone. Same brain as your desktop.</p>
       </div>
 
-      <div className="w-20 h-20 mx-auto rounded-full bg-ava-purple/20 border-2 border-ava-purple flex items-center justify-center">
-        <svg className="w-10 h-10 text-ava-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-        </svg>
+      {/* Ava's headshot — the same asset and the same treatment the IDE and
+          extension use on their identity step (WelcomeOverlay.tsx). This was a
+          generic sparkle SVG, so the one screen whose job is introducing Ava
+          was the one screen that didn't show her. The gradient sits behind the
+          image so a failed load degrades to the brand fill rather than a hole. */}
+      <div
+        className="w-20 h-20 mx-auto rounded-full overflow-hidden flex items-center justify-center border-2 border-ava-purple"
+        style={{ background: 'linear-gradient(135deg, var(--accent, #a855f7), #6366f1)' }}
+      >
+        <img
+          src="/ava-avatar.jpeg"
+          alt="Ava"
+          className="w-full h-full object-cover"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+        />
       </div>
 
       <p className="text-sm text-gray-300 leading-relaxed max-w-xs mx-auto">
