@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
-import { clearOnSignOut, clearUserContent } from '@/lib/companion-local-data';
+import { clearOnSignOut, clearUserContent, describeLocalData, type LocalStoreInfo } from '@/lib/companion-local-data';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 import ConfirmDialog from './ConfirmDialog';
@@ -97,6 +97,10 @@ export default function SettingsView({
   });
 
   const [providerKeys, setProviderKeys] = useState<ProviderKeys>(() => loadProviderKeys());
+  const [keysOpen, setKeysOpen] = useState(false);
+  const [localData, setLocalData] = useState<LocalStoreInfo[] | null>(null);
+  const [expandedStore, setExpandedStore] = useState<string | null>(null);
+  const configuredKeyCount = PROVIDER_KEY_FIELDS.filter(f => (providerKeys[f.key] || '').trim().length > 0).length;
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -400,24 +404,83 @@ export default function SettingsView({
           </div>
         </Section>
 
-        {/* Provider API Keys (BYOK) */}
+        {/* Provider API Keys (BYOK) — collapsed by default; it's 11 fields and
+            most users set one (or none). Header shows how many are configured. */}
         <Section title={t('byokTitle')}>
           <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
-            <div className="p-4">
-              <p className="text-xs text-gray-500 mb-3">
-                {t('byokDescription')}
+            <button
+              onClick={() => setKeysOpen(o => !o)}
+              className="w-full flex items-center justify-between gap-2 p-4 text-left"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm text-white">{t('byokTitle')}</span>
+                <span className="block text-xs text-gray-500 mt-0.5">
+                  {configuredKeyCount > 0
+                    ? `${configuredKeyCount} key${configuredKeyCount === 1 ? '' : 's'} configured`
+                    : 'No keys set'}
+                </span>
+              </span>
+              <svg className={`w-4 h-4 shrink-0 text-gray-500 transition ${keysOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {keysOpen && (
+              <>
+                <div className="p-4">
+                  <p className="text-xs text-gray-500">{t('byokDescription')}</p>
+                </div>
+                {PROVIDER_KEY_FIELDS.map(f => (
+                  <div key={f.key} className="p-4">
+                    <label className="text-xs text-gray-400 mb-1 block">{f.label}</label>
+                    <input
+                      type="password"
+                      value={providerKeys[f.key] || ''}
+                      onChange={e => saveProviderKey(f.key, e.target.value)}
+                      placeholder={f.placeholder}
+                      className="w-full bg-ava-bg border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition"
+                    />
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </Section>
+
+        {/* Local data inspector — the companion has no folder to open (it's a
+            web app; everything is in localStorage). This is the honest
+            equivalent: exactly what's on this device, per store. */}
+        <Section title="Local data">
+          <div className="bg-ava-surface border border-ava-border rounded-xl divide-y divide-ava-border">
+            <div className="p-4 flex items-center justify-between gap-2">
+              <p className="text-xs text-gray-500">
+                Everything Ava stores on this device. Nothing leaves it.
               </p>
+              <button
+                onClick={() => setLocalData(describeLocalData())}
+                className="shrink-0 rounded-lg border border-ava-purple/25 bg-ava-purple/10 px-3 py-1.5 text-xs font-medium text-ava-purple hover:bg-ava-purple/20 transition"
+              >
+                {localData ? 'Refresh' : 'Show'}
+              </button>
             </div>
-            {PROVIDER_KEY_FIELDS.map(f => (
-              <div key={f.key} className="p-4">
-                <label className="text-xs text-gray-400 mb-1 block">{f.label}</label>
-                <input
-                  type="password"
-                  value={providerKeys[f.key] || ''}
-                  onChange={e => saveProviderKey(f.key, e.target.value)}
-                  placeholder={f.placeholder}
-                  className="w-full bg-ava-bg border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition"
-                />
+            {localData && localData.map(store => (
+              <div key={store.id} className="p-4">
+                <button
+                  onClick={() => setExpandedStore(prev => (prev === store.id ? null : store.id))}
+                  className="w-full flex items-center justify-between gap-2 text-left"
+                >
+                  <span className="text-sm text-white">{store.label}</span>
+                  <span className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs ${store.count > 0 ? 'text-ava-purple-light' : 'text-gray-600'}`}>
+                      {store.count} item{store.count === 1 ? '' : 's'}
+                    </span>
+                    <span className="text-[10px] text-gray-600">{(store.bytes / 1024).toFixed(1)}KB</span>
+                  </span>
+                </button>
+                {expandedStore === store.id && (
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-ava-bg border border-ava-border p-3 text-[10px] leading-relaxed text-gray-300 whitespace-pre-wrap break-all">
+                    {store.raw}
+                  </pre>
+                )}
               </div>
             ))}
           </div>
