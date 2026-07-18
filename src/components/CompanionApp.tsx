@@ -636,7 +636,12 @@ export default function CompanionApp({
                         ))}
                         {isGuest && (
                           <div className="px-3 py-2 border-t border-ava-border mt-1">
-                            <p className="text-[11px] text-gray-400 text-center">Sign up for 300 credits/month</p>
+                            <button
+                              onClick={() => { chat.setShowModelPicker(false); setShowAuthModal(true); }}
+                              className="w-full rounded-lg border border-ava-purple/25 bg-ava-purple/10 py-1.5 text-[11px] font-medium text-ava-purple hover:bg-ava-purple/20 transition"
+                            >
+                              Sign up for 300 credits/month
+                            </button>
                           </div>
                         )}
                       </>
