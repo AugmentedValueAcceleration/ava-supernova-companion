@@ -13,7 +13,7 @@ import {
   TOOLS, PROVIDERS, MODES, PERSONAS, PERMISSION_MODES, SHORTCUTS,
   filterForSurface, buildSidebar, getPages, renderPage,
 } from '@/lib/docs';
-import { useLocale } from '@/lib/i18n';
+import { t, useLocale } from '@/lib/i18n';
 
 const SURFACE_LABELS: Record<string, string> = { ext: 'Extension', ide: 'IDE', companion: 'Companion', cli: 'CLI', web: 'Web' };
 
@@ -126,7 +126,7 @@ export default function CompanionDocs({ onBack, onAsk }: { onBack: () => void; o
         <button onClick={onBack} aria-label="Back" className="text-gray-400 hover:text-white">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
         </button>
-        <h1 className="text-lg font-semibold text-white">Help &amp; Docs</h1>
+        <h1 className="text-lg font-semibold text-white">{t('docsTitle')}</h1>
       </div>
       <div className="px-4 pt-3 shrink-0 space-y-2">
         {/* Ask Ava — type a question, get a surface-aware answer in chat. */}
@@ -135,16 +135,24 @@ export default function CompanionDocs({ onBack, onAsk }: { onBack: () => void; o
             type="text"
             value={ask}
             onChange={(e) => setAsk(e.target.value)}
-            placeholder="Ask Ava anything…"
+            placeholder={t('docsAskPlaceholder')}
             className="flex-1 rounded-lg border border-ava-border bg-ava-surface px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-ava-purple"
           />
-          <button type="submit" className="shrink-0 rounded-lg bg-ava-purple px-4 py-2 text-sm font-medium text-white">Ask</button>
+          {/* House button style — accent tint with a bordered edge, never a
+              solid fill. This was `bg-ava-purple text-white`, the one solid
+              button left in the companion. */}
+          <button
+            type="submit"
+            className="shrink-0 rounded-lg border border-ava-purple/25 bg-ava-purple/10 px-4 py-2 text-sm font-medium text-ava-purple transition hover:bg-ava-purple/20"
+          >
+            {t('docsAskButton')}
+          </button>
         </form>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Or search the docs…"
+          placeholder={t('docsSearchPlaceholder')}
           className="w-full rounded-lg border border-ava-border bg-ava-surface px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-ava-purple"
         />
       </div>

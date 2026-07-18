@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { newsApi } from '@/lib/api';
+import { t } from '@/lib/i18n';
 import { Markdown } from './Markdown';
 
 // Mirrors packages/web/src/lib/news-categories.ts (id + label + icon). Kept
@@ -101,7 +102,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
           <button onClick={() => setOpenSlug(null)} aria-label="Back to news" className="text-gray-400 hover:text-white">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <h1 className="text-lg font-semibold text-white truncate">News</h1>
+          <h1 className="text-lg font-semibold text-white truncate">{t('navNews')}</h1>
         </div>
         <div className="flex-1 overflow-y-auto">
           {articleLoading && (
@@ -168,7 +169,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-ava-border shrink-0">
-        <h1 className="text-lg font-semibold text-white">News</h1>
+        <h1 className="text-lg font-semibold text-white">{t('navNews')}</h1>
         <span className="text-[11px] text-gray-500">Ava&rsquo;s desk</span>
       </div>
 
@@ -203,7 +204,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
         {error && !loading && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
             {error}
-            <button onClick={loadList} className="mt-2 block text-xs text-ava-purple-light underline">Try again</button>
+            <button onClick={loadList} className="mt-2 block text-xs text-ava-purple-light underline">{t('tryAgain')}</button>
           </div>
         )}
         {!loading && !error && posts.length === 0 && (

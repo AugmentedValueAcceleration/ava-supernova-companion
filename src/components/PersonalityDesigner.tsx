@@ -6,27 +6,18 @@ import { t } from '@/lib/i18n';
 
 // ── Option descriptors ─────────────────────────────────────────────────────
 
-const TONES = [
-  { value: 'warm', label: 'Warm', desc: 'Warm and encouraging' },
-  { value: 'direct', label: 'Direct', desc: 'Direct and no-nonsense' },
-  { value: 'playful', label: 'Playful', desc: 'Playful and witty' },
-  { value: 'professional', label: 'Professional', desc: 'Professional and polished' },
-  { value: 'dry-wit', label: 'Dry Wit', desc: 'Dry wit — understated brilliance' },
-];
+// `value` is persisted and sent to the model, so it stays English and stable —
+// changing one would silently reset a user's saved personality. Only the label
+// and description are translated, resolved at render time.
+const TONES = ['warm', 'direct', 'playful', 'professional', 'dry-wit'] as const;
+const ENERGIES = ['calm', 'enthusiastic', 'measured', 'excitable'] as const;
+const STYLES = ['concise', 'detailed', 'conversational', 'structured'] as const;
 
-const ENERGIES = [
-  { value: 'calm', label: 'Calm', desc: 'Calm and steady' },
-  { value: 'enthusiastic', label: 'Enthusiastic', desc: 'Enthusiastic and excited' },
-  { value: 'measured', label: 'Measured', desc: 'Measured and deliberate' },
-  { value: 'excitable', label: 'Excitable', desc: 'High energy and expressive' },
-];
-
-const STYLES = [
-  { value: 'concise', label: 'Concise', desc: 'Sharp, no filler' },
-  { value: 'detailed', label: 'Detailed', desc: 'Thorough, explains the why' },
-  { value: 'conversational', label: 'Conversational', desc: 'Natural, talks like a person' },
-  { value: 'structured', label: 'Structured', desc: 'Headers, bullets, organised' },
-];
+/** Resolve a persona option's translated label + description. */
+function optionCopy(group: 'tone' | 'energy' | 'style', value: string) {
+  const key = (suffix: string) => `persona.${group}.${value}.${suffix}` as Parameters<typeof t>[0];
+  return { value, label: t(key('label')), desc: t(key('desc')) };
+}
 
 // ── Component ──────────────────────────────────────────────────────────────
 
@@ -60,22 +51,26 @@ export default function PersonalityDesigner() {
     setDescription(p.description);
   };
 
-  const toneLabel = TONES.find(t => t.value === tone)?.label?.toLowerCase() ?? tone;
-  const energyLabel = ENERGIES.find(e => e.value === energy)?.label?.toLowerCase() ?? energy;
-  const styleLabel = STYLES.find(s => s.value === style)?.label?.toLowerCase() ?? style;
+  const toneOptions = TONES.map(v => optionCopy('tone', v));
+  const energyOptions = ENERGIES.map(v => optionCopy('energy', v));
+  const styleOptions = STYLES.map(v => optionCopy('style', v));
+
+  const toneLabel = toneOptions.find(o => o.value === tone)?.label?.toLowerCase() ?? tone;
+  const energyLabel = energyOptions.find(o => o.value === energy)?.label?.toLowerCase() ?? energy;
+  const styleLabel = styleOptions.find(o => o.value === style)?.label?.toLowerCase() ?? style;
 
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="px-4 py-3 border-b border-ava-border">
-        <h2 className="font-semibold text-white text-lg">Tune Ava&apos;s Style</h2>
-        <p className="text-xs text-gray-500 mt-0.5">Adjust how Ava communicates with you</p>
+        <h2 className="font-semibold text-white text-lg">{t('personaTitle')}</h2>
+        <p className="text-xs text-gray-500 mt-0.5">{t('personaSubtitle')}</p>
       </div>
 
       <div className="p-4 space-y-5">
         {/* Tone */}
-        <FieldSection label="TONE">
+        <FieldSection label={t('personaTone')}>
           <div className="space-y-2">
-            {TONES.map(t => (
+            {toneOptions.map(t => (
               <OptionCard
                 key={t.value}
                 label={t.label}
@@ -88,9 +83,9 @@ export default function PersonalityDesigner() {
         </FieldSection>
 
         {/* Energy */}
-        <FieldSection label="ENERGY">
+        <FieldSection label={t('personaEnergy')}>
           <div className="space-y-2">
-            {ENERGIES.map(e => (
+            {energyOptions.map(e => (
               <OptionCard
                 key={e.value}
                 label={e.label}
@@ -103,9 +98,9 @@ export default function PersonalityDesigner() {
         </FieldSection>
 
         {/* Communication Style */}
-        <FieldSection label="COMMUNICATION STYLE">
+        <FieldSection label={t('personaStyle')}>
           <div className="space-y-2">
-            {STYLES.map(s => (
+            {styleOptions.map(s => (
               <OptionCard
                 key={s.value}
                 label={s.label}
@@ -118,25 +113,30 @@ export default function PersonalityDesigner() {
         </FieldSection>
 
         {/* Description */}
-        <FieldSection label="DESCRIPTION">
+        <FieldSection label={t('personaDescription')}>
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="e.g. Like a patient older brother who's been coding for 20 years"
+            placeholder={t('personaDescPlaceholder')}
             rows={3}
             className="w-full bg-ava-bg border border-ava-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-ava-purple transition resize-none"
           />
           <p className="text-[11px] text-gray-500 mt-1.5">
-            Optional. Describe the vibe in your own words and your AI will embody it.
+            {t('personaDescHint')}
           </p>
         </FieldSection>
 
         {/* Live preview */}
         <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
-          <p className="text-[11px] font-bold text-gray-500 tracking-wider mb-2">PREVIEW</p>
+          <p className="text-[11px] font-bold text-gray-500 tracking-wider mb-2 uppercase">{t('personaPreview')}</p>
+          {/* One interpolated sentence rather than concatenated fragments —
+              "will be X, Y, and Z" cannot be reordered by a translator when
+              it is glued together in JSX, and word order varies by language. */}
           <p className="text-sm text-white">
-            <span className="font-semibold text-ava-purple">Ava</span>{' '}
-            will be {toneLabel}, {energyLabel}, and {styleLabel}.
+            {t('personaPreviewLine')
+              .replace('{tone}', toneLabel)
+              .replace('{energy}', energyLabel)
+              .replace('{style}', styleLabel)}
           </p>
           {description && (
             <p className="mt-2 text-xs text-gray-400 italic">
@@ -149,9 +149,9 @@ export default function PersonalityDesigner() {
         <div className="space-y-2">
           <button
             onClick={handleSave}
-            className="w-full bg-ava-purple hover:bg-ava-purple-dark text-white font-medium py-2.5 rounded-xl transition text-sm"
+            className="w-full rounded-xl border border-ava-purple/25 bg-ava-purple/10 py-2.5 text-sm font-medium text-ava-purple transition hover:bg-ava-purple/20"
           >
-            {saved ? t('saved') : 'Save Personality'}
+            {saved ? t('saved') : t('personaSave')}
           </button>
           <button
             onClick={handleReset}

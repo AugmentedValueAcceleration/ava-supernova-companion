@@ -292,19 +292,19 @@ export function RecipesBrowse() {
 
   const filterBar = tax ? (
     <>
-      {tax.collections.length > 0 && <FilterDropdown label="Collections" options={tax.collections} selected={collections} onToggle={toggle(collections, setCollections)} />}
-      {tax.diets.length > 0 && <FilterDropdown label="Diet" options={tax.diets} selected={diets} onToggle={toggle(diets, setDiets)} />}
-      {tax.dietary_flags.length > 0 && <FilterDropdown label="Dietary" options={tax.dietary_flags} selected={flags} onToggle={toggle(flags, setFlags)} />}
-      {tax.cuisines.length > 0 && <FilterDropdown label="Cuisine" options={tax.cuisines} selected={cuisines} onToggle={toggle(cuisines, setCuisines)} />}
+      {tax.collections.length > 0 && <FilterDropdown label={t('filterCollections')} options={tax.collections} selected={collections} onToggle={toggle(collections, setCollections)} />}
+      {tax.diets.length > 0 && <FilterDropdown label={t('filterDiet')} options={tax.diets} selected={diets} onToggle={toggle(diets, setDiets)} />}
+      {tax.dietary_flags.length > 0 && <FilterDropdown label={t('filterDietary')} options={tax.dietary_flags} selected={flags} onToggle={toggle(flags, setFlags)} />}
+      {tax.cuisines.length > 0 && <FilterDropdown label={t('filterCuisine')} options={tax.cuisines} selected={cuisines} onToggle={toggle(cuisines, setCuisines)} />}
       <FilterDropdown
-        label="Time"
+        label={t('filterTime')}
         options={[15, 30, 45, 60].map((m) => ({ slug: String(m), name: `≤ ${m} min` }))}
         selected={new Set(maxTime != null ? [String(maxTime)] : [])}
         onToggle={(s) => setMaxTime(maxTime === Number(s) ? null : Number(s))}
         valueLabel={maxTime != null ? `≤ ${maxTime} min` : undefined}
       />
       <FilterDropdown
-        label="Sort"
+        label={t('filterSort')}
         options={[{ slug: 'curated', name: 'Curated' }, { slug: 'name', name: 'A–Z' }]}
         selected={new Set([sort])}
         onToggle={(s) => setSort(s as 'curated' | 'name')}
