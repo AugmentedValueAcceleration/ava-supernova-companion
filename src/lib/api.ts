@@ -1,4 +1,5 @@
 import { getLanguage } from './i18n';
+import { readLocalTasks, applyTaskLocal } from './companion-task-store';
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
@@ -289,6 +290,12 @@ export async function sendChat(
   const bodyPayload: Record<string, unknown> = { message, history, model, language: lang };
   if (providerApiKey) bodyPayload.providerApiKey = providerApiKey;
   if (personalityPrefix) bodyPayload.personalityPrefix = personalityPrefix;
+  // Local data mode: Ava's server-side tools can't read the device, so send a
+  // compact snapshot of the user's local tasks. Lets her list / complete /
+  // dedupe against what's actually there instead of guessing from an empty DB.
+  if (dataMode === 'local') {
+    try { bodyPayload.localTasks = readLocalTasks(); } catch { /* no tasks yet */ }
+  }
 
   const res = await fetch(`${API_BASE}/companion/chat`, {
     method: 'POST',
@@ -332,6 +339,11 @@ export async function sendChat(
           // start_date when status === 'active' — same lifecycle as a plan
           // created via the manual builder.
           import('./health-plan-store').then(m => { try { m.savePlan(parsed.plan); } catch { /* ignore */ } });
+        } else if (parsed.type === 'task_local' && parsed.action) {
+          // Ava created/completed/updated/deleted a task. In Local mode the
+          // write can't happen server-side, so apply it to the same store the
+          // Tasks tab reads (which also fires a change event to refresh it).
+          try { applyTaskLocal(parsed); } catch { /* ignore */ }
         }
       } catch {
         // skip

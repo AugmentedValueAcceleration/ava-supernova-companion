@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
+import { TASKS_CHANGED_EVENT } from '@/lib/companion-task-store';
 import { CustomSelect } from './CustomSelect';
 import { DateField } from './DateField';
 
@@ -76,6 +77,13 @@ export default function TasksPanel({ token }: { token: string | null }) {
   };
 
   useEffect(() => { loadTasks(); }, [loadTasks]);
+
+  // Refresh when Ava creates/edits a task via chat (task_local round-trip).
+  useEffect(() => {
+    const onChanged = () => loadTasks();
+    window.addEventListener(TASKS_CHANGED_EVENT, onChanged);
+    return () => window.removeEventListener(TASKS_CHANGED_EVENT, onChanged);
+  }, [loadTasks]);
 
   const createTask = async (input: CreateTaskInput) => {
     const title = input.title.trim();
