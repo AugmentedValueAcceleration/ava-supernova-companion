@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile, saveProfile, syncProfile } from '@/lib/health-profile-store';
 import { CustomSelect } from './CustomSelect';
+import { DateField } from './DateField';
 import { emptyHealthProfile, type HealthProfile, type HealthGoal } from '@/lib/health-types';
 
 function goalLabel(g: HealthGoal): string {
@@ -78,7 +79,7 @@ export function ProfileView({ token }: { token?: string | null }) {
               />
             </Field>
             <Field label={t('profileDobLabel')}>
-              <input type="date" value={profile.body.date_of_birth ?? ''} onChange={e => setBody({ date_of_birth: e.target.value || null })} className={inputCls} />
+              <DateField value={profile.body.date_of_birth ?? null} onChange={v => setBody({ date_of_birth: v })} className={inputCls} />
             </Field>
             <Field label={t('profileHeightLabel')}>
               <HeightField cm={profile.body.height_cm} onChange={v => setBody({ height_cm: v })} />

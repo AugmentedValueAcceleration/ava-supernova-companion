@@ -5,6 +5,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
 import { CustomSelect } from './CustomSelect';
+import { DateField } from './DateField';
 
 interface Task {
   id: string;
@@ -291,7 +292,7 @@ function QuickAdd({ onCreate, defaultDueToday }: { onCreate: (t: CreateTaskInput
       <div className="flex items-center gap-1.5">
         <input list="quickadd-categories" value={category} onChange={e => setCategory(e.target.value)} title="Category" placeholder="Category" className={`${fieldCls} capitalize`} />
         <datalist id="quickadd-categories">{CATEGORY_OPTIONS.map(c => <option key={c} value={c} />)}</datalist>
-        <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} title="Due date" className={`${fieldCls} text-gray-300 cursor-pointer`} />
+        <DateField value={dueDate || null} onChange={v => setDueDate(v ?? '')} placeholder="Due date" className={`${fieldCls} cursor-pointer`} />
       </div>
       <div className="flex items-center gap-2">
         <button
