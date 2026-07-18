@@ -21,12 +21,20 @@ const PAGE_SIZE = 24;
 const WORKOUT_TYPES = ['strength', 'hypertrophy', 'conditioning', 'mobility', 'hybrid', 'yoga', 'pilates', 'running', 'cycling', 'recovery', 'hiit'];
 const RECIPE_COURSES = ['breakfast', 'starter', 'main', 'side', 'dessert', 'snack', 'beverage', 'sauce', 'bread'];
 
+// Value -> translated label. Same approach as the IDE's HealthPage: the value
+// stays English (it is the API filter and the cross-surface identity), and only
+// the display string is localised. Keys copied from core into the companion's
+// locales, already translated in all 20.
+const workoutLabel = (v: string) => t(`health.browse.workout.${v}` as Parameters<typeof t>[0]);
+const courseLabel = (v: string) => t(`health.browse.course.${v}` as Parameters<typeof t>[0]);
+
 interface PageResult<T> { items: T[]; total: number }
 
 function CatalogBrowse<T extends { id: string }>({
   title,
   searchPlaceholder,
   categories,
+  categoryLabel,
   fetchPage,
   renderCard,
   onSelect,
@@ -35,6 +43,12 @@ function CatalogBrowse<T extends { id: string }>({
   title: string;
   searchPlaceholder: string;
   categories: string[];
+  /** Translate a category VALUE for display. The value itself stays English —
+   *  it is what the API filters on and what syncs between surfaces — so only
+   *  the label is localised, exactly as the IDE does it
+   *  (HealthPage.tsx: `t(\`health.browse.workout.${type}\`)`).
+   *  Defaults to showing the raw value if a caller has no mapping. */
+  categoryLabel?: (value: string) => string;
   fetchPage: (o: { offset: number; q: string; category: string | null }) => Promise<PageResult<T>>;
   renderCard: (item: T) => React.ReactNode;
   onSelect: (item: T) => void;
@@ -93,7 +107,7 @@ function CatalogBrowse<T extends { id: string }>({
           <div className="flex gap-2 overflow-x-auto mt-3 -mx-1 px-1 pb-1 no-scrollbar">
             <Chip label={t('catalogFilterAll')} active={category === null} onClick={() => setCategory(null)} />
             {categories.map(c => (
-              <Chip key={c} label={c} active={category === c} onClick={() => setCategory(c)} />
+              <Chip key={c} label={categoryLabel ? categoryLabel(c) : c} active={category === c} onClick={() => setCategory(c)} />
             ))}
           </div>
           {filterBar && (
@@ -234,6 +248,7 @@ export function WorkoutsBrowse() {
       title={t('catalogWorkoutsTitle')}
       searchPlaceholder={t('catalogWorkoutsSearchPlaceholder')}
       categories={WORKOUT_TYPES}
+      categoryLabel={workoutLabel}
       fetchPage={fetchPage}
       onSelect={(e) => setOpenSlug(e.slug)}
       renderCard={(e) => (
@@ -318,6 +333,7 @@ export function RecipesBrowse() {
       title={t('catalogRecipesTitle')}
       searchPlaceholder={t('catalogRecipesSearchPlaceholder')}
       categories={RECIPE_COURSES}
+      categoryLabel={courseLabel}
       fetchPage={fetchPage}
       filterBar={filterBar}
       onSelect={(r) => setOpenSlug(r.slug)}

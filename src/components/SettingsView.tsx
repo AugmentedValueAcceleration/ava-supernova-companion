@@ -276,16 +276,16 @@ export default function SettingsView({
                     {(session?.user.user_metadata?.full_name?.[0] || session?.user.email?.[0] || 'A').toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{session?.user.user_metadata?.full_name || 'Connected'}</p>
-                    <p className="text-xs text-gray-500 truncate">{session?.user.email || (apiKey ? 'Connected via API key' : '')}</p>
+                    <p className="text-sm font-medium text-white truncate">{session?.user.user_metadata?.full_name || t('connected')}</p>
+                    <p className="text-xs text-gray-500 truncate">{session?.user.email || (apiKey ? t('connectedViaApiKey') : '')}</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-ava-surface border border-ava-border rounded-xl p-4 space-y-2">
-                <Row label={t('memory')} value={<span className="text-xs text-emerald-400">Connected</span>} />
-                <Row label={t('tasks')} value={<span className="text-xs text-emerald-400">Connected</span>} />
-                <Row label={t('journal')} value={<span className="text-xs text-emerald-400">Connected</span>} />
+                <Row label={t('memory')} value={<span className="text-xs text-emerald-400">{t('connected')}</span>} />
+                <Row label={t('tasks')} value={<span className="text-xs text-emerald-400">{t('connected')}</span>} />
+                <Row label={t('journal')} value={<span className="text-xs text-emerald-400">{t('connected')}</span>} />
               </div>
 
               {/* Billing — plan + credits. Lives inside Account since the
@@ -514,10 +514,12 @@ export default function SettingsView({
             <p className="text-xs text-gray-500 mb-2">{t('language')}</p>
             <CustomSelect
               value={language}
-              // Awaited before the reload. setLanguage() persists up front now,
-              // so this is belt-and-braces — but firing a synchronous reload at
-              // an async call is what broke this in the first place.
-              onChange={async (v) => { setLang(v); await setLanguage(v); window.location.reload(); }}
+              // No reload. CompanionApp subscribes via useLocale(), so changing
+              // language repaints in place and you stay on this screen. The old
+              // window.location.reload() threw you back to the chat tab, and
+              // (before setLanguage persisted up front) raced the async write
+              // so the choice was lost entirely.
+              onChange={async (v) => { setLang(v); await setLanguage(v); }}
               placeholder="Select language..."
               options={getSupportedLanguages().map(l => ({
                 value: l.code,

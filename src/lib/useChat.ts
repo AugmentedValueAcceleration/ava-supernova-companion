@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { sendChat, apiFetch, MODELS } from '@/lib/api';
+import { t } from '@/lib/i18n';
 import { getActiveProviderKey } from '@/components/SettingsView';
 import { loadPersonality, buildPersonalityPrefix } from '@/lib/personality';
 import {
@@ -81,11 +82,15 @@ export function useChat({
   isGuest: boolean;
   userName: string;
 }) {
+  // Ava's opening line follows the chosen language, like every other surface.
+  // Her replies already did (the locale rides on X-Ava-Language every turn);
+  // only this greeting was hardcoded English, so she introduced herself in the
+  // wrong language and then switched — the most visible seam in the app.
   const greeting: Message = {
     id: '1', role: 'assistant', timestamp: new Date(),
     content: isGuest
-      ? "Hey! I'm Ava. To start chatting, either sign in for the free tier (300 credits a month) or drop your own API key into Settings — Kimi, DeepSeek, Claude, GLM, Mistral all work.\n\nTell me what you're up to."
-      : `Hey ${userName}! I'm Ava — your companion on the go. I can manage your tasks, write journal entries, and chat about anything.\n\nWhat's on your mind?`,
+      ? t('greetingGuest')
+      : t('greetingUser').replace('{name}', userName),
   };
 
   const [conversationId, setConversationId] = useState<string | null>(() => getActiveConversationId());

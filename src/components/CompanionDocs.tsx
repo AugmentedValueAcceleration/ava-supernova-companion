@@ -92,7 +92,7 @@ function makeAdapter(): RendererAdapter<ReactNode> {
         {blocks}
         {extras?.deeper && extras.deeper.length > 0 && (
           <details className="mt-3 rounded-lg border border-ava-border bg-white/[0.02]">
-            <summary className="cursor-pointer select-none px-3 py-2 text-xs font-medium text-ava-purple-light">Show me the details</summary>
+            <summary className="cursor-pointer select-none px-3 py-2 text-xs font-medium text-ava-purple-light">{t('docsShowDetails')}</summary>
             <div className="px-3 pb-3 pt-1">{extras.deeper}</div>
           </details>
         )}

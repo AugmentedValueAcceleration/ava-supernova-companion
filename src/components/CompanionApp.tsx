@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { API_BASE, MODELS, isFleet, fleetAvailable } from '@/lib/api';
-import { t, type StringKey } from '@/lib/i18n';
+import { t, useLocale, type StringKey } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
 import { requestNotificationPermission, startTaskNotifications } from '@/lib/notifications';
@@ -56,6 +56,13 @@ export default function CompanionApp({
   onSignIn: () => void;
   onSignOut: () => void;
 }) {
+  // Re-render the whole app when the language changes. This is what lets the
+  // Settings picker switch language IN PLACE — it previously called
+  // window.location.reload(), because without a subscriber here nothing
+  // repainted. That reload threw the user back to the chat tab mid-setting,
+  // and discarded any unsaved state on the way.
+  useLocale();
+
   // Auth state — session OR API key (persisted to localStorage)
   const [apiKey, setApiKeyState] = useState<string | null>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('ava-companion-api-key');

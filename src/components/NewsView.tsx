@@ -15,20 +15,26 @@ import { Markdown } from './Markdown';
 // Mirrors packages/web/src/lib/news-categories.ts (id + label + icon). Kept
 // local because the companion is a separate package; the id list MUST stay in
 // step with that canonical source.
-const CATEGORIES: { id: string; label: string; icon: string }[] = [
-  { id: 'world',            label: 'World',      icon: '🌍' },
-  { id: 'ai',               label: 'AI',         icon: '🤖' },
-  { id: 'technology',       label: 'Technology', icon: '💻' },
-  { id: 'open-source',      label: 'Open Source',icon: '📦' },
-  { id: 'security-privacy', label: 'Security',   icon: '🛡️' },
-  { id: 'business',         label: 'Business',   icon: '📈' },
-  { id: 'science',          label: 'Science',    icon: '🔬' },
-  { id: 'health',           label: 'Health',     icon: '🩺' },
-  { id: 'food',             label: 'Food',       icon: '🍳' },
-  { id: 'education',        label: 'Education',   icon: '🎓' },
-  { id: 'sport',            label: 'Sport',      icon: '⚽' },
+const CATEGORIES: { id: string; icon: string }[] = [
+  { id: 'world',            icon: '🌍' },
+  { id: 'ai',               icon: '🤖' },
+  { id: 'technology',       icon: '💻' },
+  { id: 'open-source',      icon: '📦' },
+  { id: 'security-privacy', icon: '🛡️' },
+  { id: 'business',         icon: '📈' },
+  { id: 'science',          icon: '🔬' },
+  { id: 'health',           icon: '🩺' },
+  { id: 'food',             icon: '🍳' },
+  { id: 'education',        icon: '🎓' },
+  { id: 'sport',            icon: '⚽' },
 ];
-const CAT_LABEL: Record<string, string> = Object.fromEntries(CATEGORIES.map(c => [c.id, c.label]));
+
+// Category id -> translated label. The id stays as-is (it is the API filter and
+// must match packages/web/src/lib/news-categories.ts); only the display string
+// is localised. Core keys use underscores where the ids use hyphens
+// (`open-source` -> `news.open_source`), so normalise on the way through.
+const catLabel = (id: string): string =>
+  t(`news.${id.replace(/-/g, '_')}` as Parameters<typeof t>[0]);
 
 interface NewsPost {
   id: string;
@@ -120,7 +126,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
               )}
               <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                 {article.category && (
-                  <span className="rounded-full border border-ava-purple/25 bg-ava-purple/10 px-2 py-0.5 text-ava-purple-light">{CAT_LABEL[article.category] || article.category}</span>
+                  <span className="rounded-full border border-ava-purple/25 bg-ava-purple/10 px-2 py-0.5 text-ava-purple-light">{catLabel(article.category)}</span>
                 )}
                 {article.reading_time ? <span>{article.reading_time} min read</span> : null}
                 <span>{timeAgo(article.created_at)}</span>
@@ -176,7 +182,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
       {/* Category filter — horizontal scroll of accent-tint chips. */}
       <div className="shrink-0 overflow-x-auto border-b border-ava-border px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex items-center gap-1.5">
-          {[{ id: null as string | null, label: 'All', icon: '✦' }, ...CATEGORIES].map((c) => {
+          {[{ id: null as string | null, icon: '✦' }, ...CATEGORIES].map((c) => {
             const active = category === c.id;
             return (
               <button
@@ -188,7 +194,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
                     : 'border-ava-border bg-ava-surface text-gray-400 hover:text-white'
                 }`}
               >
-                <span className="mr-1">{c.icon}</span>{c.label}
+                <span className="mr-1">{c.icon}</span>{c.id ? catLabel(c.id) : t('catalogFilterAll')}
               </button>
             );
           })}
@@ -230,7 +236,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
                   <div className="p-2.5">
                     <div className="text-[13px] text-white leading-tight line-clamp-2">{p.title}</div>
                     <div className="text-[10px] text-gray-500 mt-1">
-                      {[p.category ? (CAT_LABEL[p.category] || p.category) : null, timeAgo(p.created_at)].filter(Boolean).join(' · ')}
+                      {[p.category ? (catLabel(p.category)) : null, timeAgo(p.created_at)].filter(Boolean).join(' · ')}
                     </div>
                   </div>
                 </div>

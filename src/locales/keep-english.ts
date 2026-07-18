@@ -72,4 +72,38 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'onboarding.hours.start',          // Start — German keeps it
   'onboarding.mode.plan.label',      // Plan — kept across most locales
   'proTip',                          // Pro tip — Dutch keeps it
+
+  // Loanwords and international terms the flagged languages genuinely keep
+  // as-is: Yoga, Pilates, HIIT, Tempo, Protein, Sodium, Calories, Total,
+  // Routine, Sport, Enterprise, Open Source, Collections, Cuisine,
+  // Description, Warm, Direct, Nutrition, Muscles, Sets, and the name Ava.
+  // Forcing a translation here would make the UI worse, not better.
+  'filterCollections',
+  'filterCuisine',
+  'health.browse.course.dessert',
+  'health.browse.course.sauce',
+  'health.browse.course.snack',
+  'health.browse.level.expert',
+  'health.browse.muscles',
+  'health.browse.nutri.calories',
+  'health.browse.nutri.fibre',
+  'health.browse.nutri.protein',
+  'health.browse.nutri.sodium',
+  'health.browse.nutrition',
+  'health.browse.opt',
+  'health.browse.routine',
+  'health.browse.routine.sets',
+  'health.browse.routine.tempo',
+  'health.browse.tab.ava',
+  'health.browse.total',
+  'health.browse.workout.hiit',
+  'health.browse.workout.hybrid',
+  'health.browse.workout.pilates',
+  'health.browse.workout.yoga',
+  'news.enterprise',
+  'news.open_source',
+  'news.sport',
+  'persona.tone.direct.label',
+  'persona.tone.warm.label',
+  'personaDescription',
 ] as StringKey[]);
