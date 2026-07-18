@@ -2,6 +2,7 @@ import { getLanguage } from './i18n';
 import { readLocalTasks, applyTaskLocal } from './companion-task-store';
 import { readLocalMemories, applyMemoryLocal } from './companion-memory-store';
 import { readRecentJournal } from './companion-journal-store';
+import { readPlansForContext } from './health-plan-store';
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
@@ -300,6 +301,7 @@ export async function sendChat(
     try { bodyPayload.localTasks = readLocalTasks(); } catch { /* none yet */ }
     try { bodyPayload.localMemories = readLocalMemories(); } catch { /* none yet */ }
     try { bodyPayload.localJournal = readRecentJournal(); } catch { /* none yet */ }
+    try { bodyPayload.localPlans = readPlansForContext(); } catch { /* none yet */ }
   }
 
   const res = await fetch(`${API_BASE}/companion/chat`, {

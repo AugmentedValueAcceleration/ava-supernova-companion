@@ -60,6 +60,34 @@ export function listPlans(): HealthPlanSummary[] {
   return getAllPlans().map(planToSummary);
 }
 
+/** Compact plan context sent up to Ava each turn so she can *see* the user's
+ *  plans — reference the active one, know what today calls for. Active plans
+ *  resolve "today" from start_date + day_index; drafts are listed by title. */
+export function readPlansForContext(): Array<{
+  type: HealthPlanType;
+  title: string;
+  status: string;
+  duration_days: number;
+  start_date: string | null;
+  today: { day_index: number; kind: string; title: string | null; training: number; meals: number; notes: string | null } | null;
+}> {
+  const out: ReturnType<typeof readPlansForContext> = [];
+  for (const plan of getAllPlans()) {
+    if (plan.status !== 'active' && plan.status !== 'draft') continue;
+    let today = null as (typeof out)[number]['today'];
+    if (plan.status === 'active' && plan.start_date) {
+      const start = new Date(`${plan.start_date}T00:00:00`).getTime();
+      const dayIndex = Math.floor((Date.now() - start) / 86_400_000) + 1;
+      if (dayIndex >= 1 && dayIndex <= plan.duration_days) {
+        const d = plan.days.find(x => x.day_index === dayIndex);
+        if (d) today = { day_index: dayIndex, kind: d.kind, title: d.title, training: d.training.length, meals: d.meals.length, notes: d.notes };
+      }
+    }
+    out.push({ type: plan.type, title: plan.title, status: plan.status, duration_days: plan.duration_days, start_date: plan.start_date, today });
+  }
+  return out;
+}
+
 /** Write a plan straight to storage with no side effects — used by the
  *  sync merge so a pulled plan doesn't re-trigger the archive rule. */
 export function writePlanRaw(plan: HealthPlan): void {
