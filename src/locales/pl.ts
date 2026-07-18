@@ -657,4 +657,6 @@ export const plStrings: Record<StringKey, string> = {
   'connected': 'Połączono',
   'connectedViaApiKey': 'Połączono za pomocą klucza API',
   'docsShowDetails': 'Pokaż szczegóły',
+  'newsTranslatedNotice': 'Przetłumaczono automatycznie',
+  'newsViewOriginal': 'Zobacz oryginał',
 };

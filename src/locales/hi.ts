@@ -657,4 +657,6 @@ export const hiStrings: Record<StringKey, string> = {
   'connected': 'जुड़ा हुआ',
   'connectedViaApiKey': 'API की के जरिए जुड़ा हुआ',
   'docsShowDetails': 'विवरण दिखाएं',
+  'newsTranslatedNotice': 'स्वतः अनुवादित',
+  'newsViewOriginal': 'मूल देखें',
 };

@@ -657,4 +657,6 @@ export const deStrings: Record<StringKey, string> = {
   'connected': 'Verbunden',
   'connectedViaApiKey': 'Verbunden über API-Schlüssel',
   'docsShowDetails': 'Details anzeigen',
+  'newsTranslatedNotice': 'Automatisch übersetzt',
+  'newsViewOriginal': 'Original anzeigen',
 };

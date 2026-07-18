@@ -657,4 +657,6 @@ export const arStrings: Record<StringKey, string> = {
   'connected': 'متصل',
   'connectedViaApiKey': 'متصل عبر مفتاح API',
   'docsShowDetails': 'أظهر لي التفاصيل',
+  'newsTranslatedNotice': 'تمت الترجمة تلقائيًا',
+  'newsViewOriginal': 'عرض النص الأصلي',
 };

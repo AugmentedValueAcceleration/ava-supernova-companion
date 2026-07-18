@@ -657,4 +657,6 @@ export const thStrings: Record<StringKey, string> = {
   'connected': 'เชื่อมต่อแล้ว',
   'connectedViaApiKey': 'เชื่อมต่อผ่านคีย์ API',
   'docsShowDetails': 'แสดงรายละเอียดให้ฉัน',
+  'newsTranslatedNotice': 'แปลอัตโนมัติ',
+  'newsViewOriginal': 'ดูต้นฉบับ',
 };

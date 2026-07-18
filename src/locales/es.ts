@@ -657,4 +657,6 @@ export const esStrings: Record<StringKey, string> = {
   'connected': 'Conectado',
   'connectedViaApiKey': 'Conectado mediante clave de API',
   'docsShowDetails': 'Muéstrame los detalles',
+  'newsTranslatedNotice': 'Traducido automáticamente',
+  'newsViewOriginal': 'Ver original',
 };

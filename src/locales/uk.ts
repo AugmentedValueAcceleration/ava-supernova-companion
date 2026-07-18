@@ -657,4 +657,6 @@ export const ukStrings: Record<StringKey, string> = {
   'connected': 'Підключено',
   'connectedViaApiKey': 'Підключено через API-ключ',
   'docsShowDetails': 'Показати деталі',
+  'newsTranslatedNotice': 'Перекладено автоматично',
+  'newsViewOriginal': 'Переглянути оригінал',
 };

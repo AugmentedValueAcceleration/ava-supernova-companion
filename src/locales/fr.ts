@@ -657,4 +657,6 @@ export const frStrings: Record<StringKey, string> = {
   'connected': 'Connecté',
   'connectedViaApiKey': 'Connecté via clé API',
   'docsShowDetails': 'Afficher les détails',
+  'newsTranslatedNotice': 'Traduit automatiquement',
+  'newsViewOriginal': 'Voir l\'original',
 };

@@ -107,13 +107,16 @@ export const healthCatalogApi = {
 // News desk — public read of the same published articles the web /news page
 // and the newsroom serve. No auth. `list` supports a category filter; `article`
 // pulls the full body + related pieces for the in-app reader.
+// Both calls carry the reader's locale so the desk arrives in their language.
+// The server translates once per (post, locale), caches it, and serves English
+// meanwhile — so a cold cache costs a reader nothing but the original wording.
 export const newsApi = {
   list: (p: { category?: string | null; limit?: number; page?: number } = {}) => {
     const u = new URLSearchParams({ limit: String(p.limit ?? 30), page: String(p.page ?? 1) });
     if (p.category) u.set('category', p.category);
-    return apiFetch(`/news?${u.toString()}`).then(r => r.json());
+    return apiFetch(withLocale(`/news?${u.toString()}`)).then(r => r.json());
   },
-  article: (slug: string) => apiFetch(`/news/${encodeURIComponent(slug)}`).then(r => r.json()),
+  article: (slug: string) => apiFetch(withLocale(`/news/${encodeURIComponent(slug)}`)).then(r => r.json()),
 };
 
 // Health profile — single-object cloud copy for cross-surface sync.

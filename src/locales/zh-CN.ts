@@ -657,4 +657,6 @@ export const zhCNStrings: Record<StringKey, string> = {
   'connected': '已连接',
   'connectedViaApiKey': '通过 API 密钥连接',
   'docsShowDetails': '显示详情',
+  'newsTranslatedNotice': '已自动翻译',
+  'newsViewOriginal': '查看原文',
 };

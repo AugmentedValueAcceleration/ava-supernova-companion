@@ -657,4 +657,6 @@ export const nlStrings: Record<StringKey, string> = {
   'connected': 'Verbonden',
   'connectedViaApiKey': 'Verbonden via API-sleutel',
   'docsShowDetails': 'Toon details',
+  'newsTranslatedNotice': 'Automatisch vertaald',
+  'newsViewOriginal': 'Bekijk origineel',
 };

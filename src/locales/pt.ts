@@ -657,4 +657,6 @@ export const ptStrings: Record<StringKey, string> = {
   'connected': 'Conectado',
   'connectedViaApiKey': 'Conectado via chave de API',
   'docsShowDetails': 'Mostrar detalhes',
+  'newsTranslatedNotice': 'Traduzido automaticamente',
+  'newsViewOriginal': 'Ver original',
 };

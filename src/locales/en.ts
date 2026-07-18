@@ -123,6 +123,10 @@ export const enStrings = {
   // her replies followed the picker but her first words did not.
   'greetingGuest': 'Hey! I’m Ava. To start chatting, either sign in for the free tier (300 credits a month) or drop your own API key into Settings — Kimi, DeepSeek, Claude, GLM, Mistral all work.\n\nTell me what you’re up to.',
   'greetingUser': 'Hey {name}! I’m Ava — your companion on the go. I can manage your tasks, write journal entries, and chat about anything.\n\nWhat’s on your mind?',
+  // Shown on machine-translated articles. The reader is entitled to know these
+  // are not the source's own words, with the original one tap away.
+  'newsTranslatedNotice': 'Translated automatically',
+  'newsViewOriginal': 'View original',
   'connected': 'Connected',
   'connectedViaApiKey': 'Connected via API key',
   'docsShowDetails': 'Show me the details',

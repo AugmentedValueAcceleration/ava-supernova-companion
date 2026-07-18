@@ -657,4 +657,6 @@ export const koStrings: Record<StringKey, string> = {
   'connected': '연결됨',
   'connectedViaApiKey': 'API 키로 연결됨',
   'docsShowDetails': '상세 정보 보기',
+  'newsTranslatedNotice': '자동 번역됨',
+  'newsViewOriginal': '원본 보기',
 };

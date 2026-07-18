@@ -657,4 +657,6 @@ export const viStrings: Record<StringKey, string> = {
   'connected': 'Đã kết nối',
   'connectedViaApiKey': 'Đã kết nối qua API khóa',
   'docsShowDetails': 'Xem chi tiết',
+  'newsTranslatedNotice': 'Đã dịch tự động',
+  'newsViewOriginal': 'Xem bản gốc',
 };

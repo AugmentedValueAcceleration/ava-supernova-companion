@@ -657,4 +657,6 @@ export const jaStrings: Record<StringKey, string> = {
   'connected': '接続済み',
   'connectedViaApiKey': 'API キー経由で接続済み',
   'docsShowDetails': '詳細を表示する',
+  'newsTranslatedNotice': '自動翻訳済み',
+  'newsViewOriginal': '原文を表示',
 };

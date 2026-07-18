@@ -78,6 +78,9 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
   const [article, setArticle] = useState<FullPost | null>(null);
   const [articleLoading, setArticleLoading] = useState(false);
   const [articleError, setArticleError] = useState<string | null>(null);
+  // Whether the open article's words are machine-translated rather than the
+  // source's own. Server-reported, so the UI can never claim otherwise.
+  const [translated, setTranslated] = useState(false);
 
   const loadList = useCallback(() => {
     setLoading(true);
@@ -95,7 +98,7 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
     setArticleLoading(true);
     setArticleError(null);
     newsApi.article(openSlug)
-      .then((data) => setArticle(data?.post ?? null))
+      .then((data) => { setArticle(data?.post ?? null); setTranslated(!!data?.translated); })
       .catch((e) => setArticleError(e instanceof Error ? e.message : 'Could not open this story.'))
       .finally(() => setArticleLoading(false));
   }, [openSlug]);
@@ -132,6 +135,20 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
                 <span>{timeAgo(article.created_at)}</span>
               </div>
               <h2 className="mb-3 text-xl font-bold leading-snug text-white">{article.title}</h2>
+
+              {/* Machine-translation notice. Sits above the body, not buried at
+                  the end — a reader should know whose words these are BEFORE
+                  reading them, and the original is one tap away. */}
+              {translated && (
+                <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-ava-border bg-white/[0.03] px-3 py-2 text-[11px] text-gray-400">
+                  <span>{t('newsTranslatedNotice')}</span>
+                  {article.source_url && (
+                    <a href={article.source_url} target="_blank" rel="noreferrer" className="text-ava-purple-light underline">
+                      {t('newsViewOriginal')}
+                    </a>
+                  )}
+                </div>
+              )}
 
               {article.ava_commentary && (
                 <div className="mb-4 rounded-xl border border-ava-purple/25 bg-ava-purple/[0.07] px-3.5 py-3">

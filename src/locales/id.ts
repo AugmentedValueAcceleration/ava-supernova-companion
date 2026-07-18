@@ -657,4 +657,6 @@ export const idStrings: Record<StringKey, string> = {
   'connected': 'Terkoneksi',
   'connectedViaApiKey': 'Terkoneksi melalui kunci API',
   'docsShowDetails': 'Tampilkan detailnya',
+  'newsTranslatedNotice': 'Diterjemahkan otomatis',
+  'newsViewOriginal': 'Lihat versi asli',
 };

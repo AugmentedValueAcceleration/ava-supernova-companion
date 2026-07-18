@@ -657,4 +657,6 @@ export const zhTWStrings: Record<StringKey, string> = {
   'connected': '已連線',
   'connectedViaApiKey': '透過 API 金鑰連線',
   'docsShowDetails': '顯示詳細資訊',
+  'newsTranslatedNotice': '已自動翻譯',
+  'newsViewOriginal': '查看原文',
 };

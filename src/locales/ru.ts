@@ -657,4 +657,6 @@ export const ruStrings: Record<StringKey, string> = {
   'connected': 'Подключено',
   'connectedViaApiKey': 'Подключено через ключ API',
   'docsShowDetails': 'Показать детали',
+  'newsTranslatedNotice': 'Переведено автоматически',
+  'newsViewOriginal': 'Посмотреть оригинал',
 };

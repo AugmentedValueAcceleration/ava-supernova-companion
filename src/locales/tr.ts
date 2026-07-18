@@ -657,4 +657,6 @@ export const trStrings: Record<StringKey, string> = {
   'connected': 'Bağlı',
   'connectedViaApiKey': 'API anahtarı ile bağlı',
   'docsShowDetails': 'Detayları göster',
+  'newsTranslatedNotice': 'Otomatik çevrildi',
+  'newsViewOriginal': 'Orijinali görüntüle',
 };
