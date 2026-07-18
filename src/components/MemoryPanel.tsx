@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './Button';
+import { CustomSelect } from './CustomSelect';
 
 const PAGE_SIZE = 100;
 
@@ -219,16 +220,11 @@ export default function MemoryPanel({ token }: { token: string | null }) {
           />
           <div>
             <label className="text-[11px] text-gray-500 mb-1 block">Category</label>
-            <select
+            <CustomSelect
               value={formCategory}
-              onChange={e => setFormCategory(e.target.value)}
-              aria-label="Memory category"
-              className="w-full bg-ava-bg border border-ava-border rounded-lg px-2 py-1.5 text-xs text-white focus:border-ava-purple focus:outline-none appearance-none"
-            >
-              {categories.map(c => (
-                <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
-              ))}
-            </select>
+              onChange={setFormCategory}
+              options={categories.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) }))}
+            />
           </div>
           <div className="flex gap-2 pt-1">
             <Button

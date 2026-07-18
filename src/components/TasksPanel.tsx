@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { tasksApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
+import { CustomSelect } from './CustomSelect';
 
 interface Task {
   id: string;
@@ -282,10 +283,12 @@ function QuickAdd({ onCreate, defaultDueToday }: { onCreate: (t: CreateTaskInput
         placeholder={t('addTaskPlaceholder')}
         className="w-full bg-ava-surface border border-ava-border rounded-md px-2.5 py-1.5 text-sm text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none"
       />
+      <CustomSelect
+        value={priority}
+        onChange={setPriority}
+        options={PRIORITY_OPTIONS.map(p => ({ value: p, label: p.charAt(0).toUpperCase() + p.slice(1) }))}
+      />
       <div className="flex items-center gap-1.5">
-        <select value={priority} onChange={e => setPriority(e.target.value)} title="Priority" className={`${fieldCls} capitalize cursor-pointer`}>
-          {PRIORITY_OPTIONS.map(p => <option key={p} value={p} className="capitalize bg-ava-surface">{p}</option>)}
-        </select>
         <input list="quickadd-categories" value={category} onChange={e => setCategory(e.target.value)} title="Category" placeholder="Category" className={`${fieldCls} capitalize`} />
         <datalist id="quickadd-categories">{CATEGORY_OPTIONS.map(c => <option key={c} value={c} />)}</datalist>
         <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} title="Due date" className={`${fieldCls} text-gray-300 cursor-pointer`} />

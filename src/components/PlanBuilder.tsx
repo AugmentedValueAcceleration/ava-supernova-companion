@@ -11,6 +11,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { getPlan, savePlan } from '@/lib/health-plan-store';
 import { healthCatalogApi } from '@/lib/api';
+import { CustomSelect } from './CustomSelect';
 import type {
   HealthPlan, HealthPlanDay, HealthPlanExercise, HealthPlanMeal, ExerciseCard, RecipeCard,
 } from '@/lib/health-types';
@@ -217,9 +218,12 @@ function MealRow({ ml, onChange, onRemove }: { ml: HealthPlanMeal; onChange: (p:
         <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <select value={ml.slot} onChange={e => onChange({ slot: e.target.value as HealthPlanMeal['slot'] })} className={`${cellCls} capitalize w-auto`}>
-          {MEAL_SLOTS.map(s => <option key={s} value={s}>{mealSlotLabel(s)}</option>)}
-        </select>
+        <CustomSelect
+          value={ml.slot}
+          onChange={v => onChange({ slot: v as HealthPlanMeal['slot'] })}
+          options={MEAL_SLOTS.map(s => ({ value: s, label: mealSlotLabel(s) }))}
+          className="w-32 shrink-0"
+        />
         <Cell label={t('planBuilderMealServingsLabel')}><input inputMode="decimal" value={ml.servings ?? ''} onChange={e => onChange({ servings: numOrNull(e.target.value) })} className={cellCls} /></Cell>
       </div>
     </div>

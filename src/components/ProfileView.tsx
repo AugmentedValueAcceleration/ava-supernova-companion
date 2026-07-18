@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile, saveProfile, syncProfile } from '@/lib/health-profile-store';
+import { CustomSelect } from './CustomSelect';
 import { emptyHealthProfile, type HealthProfile, type HealthGoal } from '@/lib/health-types';
 
 function goalLabel(g: HealthGoal): string {
@@ -65,12 +66,16 @@ export function ProfileView({ token }: { token?: string | null }) {
         <div className="px-4 py-4 space-y-6">
           <Section title={t('profileBodySection')}>
             <Field label={t('profileSexLabel')}>
-              <select value={profile.body.sex ?? ''} onChange={e => setBody({ sex: (e.target.value || null) as HealthProfile['body']['sex'] })} className={inputCls}>
-                <option value="">—</option>
-                <option value="female">{t('profileSexFemale')}</option>
-                <option value="male">{t('profileSexMale')}</option>
-                <option value="other">{t('profileSexOther')}</option>
-              </select>
+              <CustomSelect
+                value={profile.body.sex ?? ''}
+                onChange={v => setBody({ sex: (v || null) as HealthProfile['body']['sex'] })}
+                options={[
+                  { value: '', label: '—' },
+                  { value: 'female', label: t('profileSexFemale') },
+                  { value: 'male', label: t('profileSexMale') },
+                  { value: 'other', label: t('profileSexOther') },
+                ]}
+              />
             </Field>
             <Field label={t('profileDobLabel')}>
               <input type="date" value={profile.body.date_of_birth ?? ''} onChange={e => setBody({ date_of_birth: e.target.value || null })} className={inputCls} />
@@ -88,10 +93,11 @@ export function ProfileView({ token }: { token?: string | null }) {
 
           <Section title={t('profileGoalSection')}>
             <Field label={t('profilePrimaryGoalLabel')}>
-              <select value={profile.goals.primary ?? ''} onChange={e => setGoals({ primary: (e.target.value || null) as HealthGoal | null })} className={inputCls}>
-                <option value="">—</option>
-                {GOALS.map(v => <option key={v} value={v}>{goalLabel(v)}</option>)}
-              </select>
+              <CustomSelect
+                value={profile.goals.primary ?? ''}
+                onChange={v => setGoals({ primary: (v || null) as HealthGoal | null })}
+                options={[{ value: '', label: '—' }, ...GOALS.map(v => ({ value: v, label: goalLabel(v) }))]}
+              />
             </Field>
             <Field label={t('profileWeeklyFocusLabel')}>
               <input value={profile.goals.weekly_focus ?? ''} onChange={e => setGoals({ weekly_focus: e.target.value || null })} placeholder={t('profileWeeklyFocusPlaceholder')} className={inputCls} />
