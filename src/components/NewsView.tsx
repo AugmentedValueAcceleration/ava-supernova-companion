@@ -210,24 +210,28 @@ export default function NewsView({ onAsk }: { onAsk?: (q: string) => void }) {
           <p className="py-16 text-center text-sm text-gray-500">No stories here yet. Check back soon.</p>
         )}
         {!loading && !error && posts.length > 0 && (
-          <div className="space-y-2.5">
+          // Same 2-column image-card grid as the recipes/exercises catalogue
+          // (CardShell): aspect-[4/3] image with ✦ fallback, title + a muted
+          // "Category · time" meta line.
+          <div className="grid grid-cols-2 gap-3">
             {posts.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setOpenSlug(p.slug)}
-                className="flex w-full gap-3 rounded-xl border border-ava-border bg-ava-surface p-3 text-left transition hover:border-ava-purple/40"
+                className="text-left h-full active:scale-[0.98] transition"
               >
-                {p.image_url && (
-                  <img src={p.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg border border-ava-border object-cover" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-2 text-[10px] text-gray-500">
-                    {p.category && <span className="text-ava-purple-light">{CAT_LABEL[p.category] || p.category}</span>}
-                    <span>{timeAgo(p.created_at)}</span>
-                    {p.reading_time ? <span>· {p.reading_time}m</span> : null}
+                <div className="rounded-2xl border border-ava-border bg-ava-surface overflow-hidden h-full">
+                  <div className="aspect-[4/3] bg-black/30 flex items-center justify-center">
+                    {p.image_url
+                      ? <img src={p.image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      : <span className="text-ava-purple-light/40 text-2xl">✦</span>}
                   </div>
-                  <div className="line-clamp-2 text-sm font-semibold leading-snug text-white">{p.title}</div>
-                  {p.excerpt && <div className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-400">{p.excerpt}</div>}
+                  <div className="p-2.5">
+                    <div className="text-[13px] text-white leading-tight line-clamp-2">{p.title}</div>
+                    <div className="text-[10px] text-gray-500 mt-1">
+                      {[p.category ? (CAT_LABEL[p.category] || p.category) : null, timeAgo(p.created_at)].filter(Boolean).join(' · ')}
+                    </div>
+                  </div>
                 </div>
               </button>
             ))}
