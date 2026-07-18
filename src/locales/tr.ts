@@ -454,4 +454,6 @@ export const trStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Ayarlar',
   'onboarding.ready.settings_desc': 'Hesap, anahtarlar, senkronizasyon',
   'supportSubtitle': 'Ava ve ekip ile sohbet et',
+  'proTip': 'Pro İpucu',
+  'pwaInstallHint': 'Tek dokunuşla erişim için Ava\'yı ana ekrana ekleyin. iPhone: Paylaş → Ana Ekrana Ekle. Android: Menü → Uygulamayı Yükle.',
 };

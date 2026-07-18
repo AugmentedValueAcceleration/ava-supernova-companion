@@ -454,4 +454,6 @@ export const jaStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': '設定',
   'onboarding.ready.settings_desc': 'アカウント、キー、同期',
   'supportSubtitle': 'Ava とチームにチャット',
+  'proTip': 'プロのヒント',
+  'pwaInstallHint': 'Ava をホーム画面に追加して、ワンタップでアクセスできるようにしましょう。iPhone: シェア → ホーム画面に追加。Android: メニュー → アプリをインストール。',
 };

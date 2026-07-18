@@ -454,4 +454,6 @@ export const ukStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Налаштування',
   'onboarding.ready.settings_desc': 'Обліковий запис, ключі, синхронізація',
   'supportSubtitle': 'Чат з Ava та командою',
+  'proTip': 'Корисна порада',
+  'pwaInstallHint': 'Додайте Ava на головний екран для доступу за одним кліком. iPhone: Поділитися → Додати на головний екран. Android: меню → Встановити додаток.',
 };

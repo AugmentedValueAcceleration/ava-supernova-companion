@@ -454,4 +454,6 @@ export const zhCNStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': '设置',
   'onboarding.ready.settings_desc': '账户、密钥、同步',
   'supportSubtitle': '与 Ava 和团队聊天',
+  'proTip': '小贴士',
+  'pwaInstallHint': '将 Ava 添加到主屏幕，实现一键访问。iPhone：分享 → 添加到主屏幕。安卓：菜单 → 安装应用。',
 };

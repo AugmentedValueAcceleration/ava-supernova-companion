@@ -454,4 +454,6 @@ export const viStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Cài đặt',
   'onboarding.ready.settings_desc': 'Tài khoản, khóa, đồng bộ',
   'supportSubtitle': 'Trò chuyện cùng Ava và đội ngũ',
+  'proTip': 'Mẹo hay',
+  'pwaInstallHint': 'Thêm Ava vào màn hình chính để truy cập một chạm. iPhone: Chia sẻ → Thêm vào Màn hình chính. Android: trình đơn → Cài đặt ứng dụng.',
 };

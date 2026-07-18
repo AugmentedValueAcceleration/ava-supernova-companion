@@ -454,4 +454,6 @@ export const arStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'الإعدادات',
   'onboarding.ready.settings_desc': 'حساب، مفاتيح، مزامنة',
   'supportSubtitle': 'دردشة مع Ava والفريق',
+  'proTip': 'Pro نصيحة',
+  'pwaInstallHint': 'أضف Ava إلى شاشتك الرئيسية للوصول بضغطة زر واحدة. آيفون: مشاركة → إضافة إلى الشاشة الرئيسية. أندرويد: القائمة → تثبيت التطبيق.',
 };

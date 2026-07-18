@@ -454,4 +454,6 @@ export const nlStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Instellingen',
   'onboarding.ready.settings_desc': 'Account, sleutels, synchronisatie',
   'supportSubtitle': 'Chatten met Ava en het team',
+  'proTip': 'Pro tip',
+  'pwaInstallHint': 'Voeg Ava toe aan je startscherm voor toegang met één tik. iPhone: Delen → Toevoegen aan startscherm. Android: Menu → App installeren.',
 };

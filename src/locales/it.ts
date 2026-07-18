@@ -454,4 +454,6 @@ export const itStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Impostazioni',
   'onboarding.ready.settings_desc': 'Account, chiavi, sincronizzazione',
   'supportSubtitle': 'Chatta con Ava e la squadra',
+  'proTip': 'Consiglio Pro',
+  'pwaInstallHint': 'Aggiungi Ava alla schermata Home per un accesso con un tocco. iPhone: Condividi → Aggiungi alla schermata Home. Android: menu → Installa app.',
 };

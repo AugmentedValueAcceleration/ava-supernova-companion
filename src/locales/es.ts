@@ -454,4 +454,6 @@ export const esStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Configuración',
   'onboarding.ready.settings_desc': 'Cuenta, claves, sincronización',
   'supportSubtitle': 'Chatea con Ava y el equipo',
+  'proTip': 'Pro consejo',
+  'pwaInstallHint': 'Añadir Ava a tu pantalla de inicio para acceso con un solo toque. iPhone: Compartir → Añadir a la pantalla de inicio. Android: Menú → Instalar aplicación.',
 };

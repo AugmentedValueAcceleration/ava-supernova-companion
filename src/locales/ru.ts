@@ -454,4 +454,6 @@ export const ruStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Настройки',
   'onboarding.ready.settings_desc': 'Аккаунт, ключи, синхронизация',
   'supportSubtitle': 'Чат с Ava и командой',
+  'proTip': 'Полезный совет',
+  'pwaInstallHint': 'Добавьте Ava на главный экран для быстрого доступа. Айфон: Поделиться → Добавить на главный экран. Андроид: меню → Установить приложение.',
 };

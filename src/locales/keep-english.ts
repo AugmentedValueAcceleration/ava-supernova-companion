@@ -71,4 +71,5 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'onboarding.feature.video.label',  // Video — German, Indonesian keep it
   'onboarding.hours.start',          // Start — German keeps it
   'onboarding.mode.plan.label',      // Plan — kept across most locales
+  'proTip',                          // Pro tip — Dutch keeps it
 ] as StringKey[]);

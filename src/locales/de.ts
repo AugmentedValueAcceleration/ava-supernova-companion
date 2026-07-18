@@ -454,4 +454,6 @@ export const deStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Einstellungen',
   'onboarding.ready.settings_desc': 'Konto, Schlüssel, Synchronisation',
   'supportSubtitle': 'Chatten mit Ava und dem Team',
+  'proTip': 'Pro Tipp',
+  'pwaInstallHint': 'Fügen Sie Ava zum Startbildschirm hinzu für Zugriff mit einem Klick. iPhone: Teilen → Zum Startbildschirm hinzufügen. Android: Menü → App installieren.',
 };

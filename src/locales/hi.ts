@@ -454,4 +454,6 @@ export const hiStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'सेटिंग्स',
   'onboarding.ready.settings_desc': 'खाता, कुंजियाँ, सिंक',
   'supportSubtitle': 'Ava और टीम के साथ चैट करें',
+  'proTip': 'Pro टिप',
+  'pwaInstallHint': 'Ava को अपने होम स्क्रीन पर जोड़ें ताकि एक टैप में पहुंच सकें। iPhone: शेयर करें → होम स्क्रीन पर जोड़ें। Android: मेनू → ऐप इंस्टॉल करें।',
 };

@@ -454,4 +454,6 @@ export const thStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'การตั้งค่า',
   'onboarding.ready.settings_desc': 'บัญชี, คีย์, ซิงค์',
   'supportSubtitle': 'แชทกับ Ava และทีม',
+  'proTip': 'เคล็ดลับ',
+  'pwaInstallHint': 'เพิ่ม Ava ลงในหน้าจอหลักเพื่อเข้าถึงแบบแตะเดียว. ไอโฟน: แชร์ → เพิ่มลงในหน้าจอหลัก. แอนดรอยด์: เมนู → ติดตั้งแอป.',
 };

@@ -104,6 +104,8 @@ export const enStrings = {
   // More menu + model picker + BYOK
   'support': 'Support',
   'supportSubtitle': 'Chat with Ava and the team',
+  'proTip': 'Pro tip',
+  'pwaInstallHint': 'Add Ava to your home screen for one-tap access. iPhone: Share → Add to Home Screen. Android: menu → Install app.',
   'modelPickerSignInHint': 'Sign in for free tier, or add an API key below',
   'modelPickerSelect': 'Select a model...',
   'byokTitle': 'API KEYS (BYOK)',

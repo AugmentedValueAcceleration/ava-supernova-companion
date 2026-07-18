@@ -454,4 +454,6 @@ export const koStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': '설정',
   'onboarding.ready.settings_desc': '계정, 키, 동기화',
   'supportSubtitle': 'Ava 와 팀과 대화하세요',
+  'proTip': '프로 팁',
+  'pwaInstallHint': 'Ava 를 홈 화면에 추가해 원터치로 접속하세요. 아이폰: 공유 → 홈 화면에 추가. 안드로이드: 메뉴 → 앱 설치.',
 };

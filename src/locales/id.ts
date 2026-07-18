@@ -454,4 +454,6 @@ export const idStrings: Record<StringKey, string> = {
   'onboarding.ready.settings': 'Pengaturan',
   'onboarding.ready.settings_desc': 'Akun, kunci, sinkronisasi',
   'supportSubtitle': 'Obrolan dengan Ava dan tim',
+  'proTip': 'Tips Pro',
+  'pwaInstallHint': 'Tambahkan Ava ke layar beranda Anda untuk akses satu ketuk. iPhone: Bagikan → Tambahkan ke Layar Beranda. Android: menu → Instal aplikasi.',
 };
