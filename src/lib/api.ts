@@ -182,13 +182,29 @@ export interface ModelOption {
 //   Maestro (auto)      → Qwen
 //   Aurora  (aurora)    → Mistral
 //   Supernova           → Qwen + DeepSeek
-export const FLEET_KEY_REQUIREMENTS: Record<string, Array<'qwen' | 'mistral' | 'deepseek'>> = {
+//   Longxiang           → Moonshot + Qwen + DeepSeek, BYOK-ONLY
+//
+// NOTE the key name is 'kimi', not 'moonshot'. The companion's ProviderKeys
+// store (SettingsView.tsx) files the Moonshot credential under `kimi`, so
+// requiring 'moonshot' here would never match any stored key and would lock
+// Longxiang permanently — silently, since the flag hides the failure.
+export const FLEET_KEY_REQUIREMENTS: Record<string, Array<'qwen' | 'mistral' | 'deepseek' | 'kimi'>> = {
   auto: ['qwen'],
   aurora: ['mistral'],
   supernova: ['qwen', 'deepseek'],
+  longxiang: ['kimi', 'qwen', 'deepseek'],
 };
 
+/**
+ * Longxiang's launch flag. This is the ONE place in the codebase that mirrors
+ * core's LONGXIANG_ENABLED rather than importing it — the companion is a
+ * separate submodule with no @ava/core dependency, so there is nothing to
+ * import from. Flip this together with core/src/auto/longxiang-router.ts.
+ */
+export const LONGXIANG_LIVE = true;
+
 export function isFleet(id: string): boolean {
+  if (id === 'longxiang' && !LONGXIANG_LIVE) return false;
   return id in FLEET_KEY_REQUIREMENTS;
 }
 
@@ -197,10 +213,11 @@ export function isFleet(id: string): boolean {
 export function fleetAvailable(
   id: string,
   signedIn: boolean,
-  keys: { qwen?: string; mistral?: string; deepseek?: string },
+  keys: { qwen?: string; mistral?: string; deepseek?: string; kimi?: string },
 ): boolean {
   const req = FLEET_KEY_REQUIREMENTS[id];
   if (!req) return false;
+  if (id === 'longxiang' && !LONGXIANG_LIVE) return false;
   if (signedIn) return true;
   return req.every((k) => !!keys[k]);
 }
@@ -219,6 +236,12 @@ export const MODELS: ModelOption[] = [
   { id: 'auto',      name: '✦ Maestro',   provider: 'Orchestrated · balanced', free: true, requiresAccount: true },
   { id: 'aurora',    name: '✦ Aurora',    provider: 'Orchestrated · EU-sovereign', free: true, requiresAccount: true },
   { id: 'supernova', name: '✦ Supernova', provider: 'Orchestrated · polyglot', free: true, requiresAccount: true },
+  // Longxiang — spliced in only while the launch flag is live, so it does not
+  // appear at all before launch (a greyed row would still show the
+  // unannounced name). Otherwise it behaves like any other fleet.
+  ...(LONGXIANG_LIVE
+    ? [{ id: 'longxiang', name: '✦ Longxiang', provider: 'Orchestrated · open weights', free: true, requiresAccount: true }]
+    : []),
 
   // ── PLATFORM SINGLES: removed 2026-07-18 ────────────────────────────────
   // A signed-in plan surfaces the three orchestrated fleets and NOTHING else
