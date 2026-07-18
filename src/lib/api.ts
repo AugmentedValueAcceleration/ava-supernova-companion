@@ -344,6 +344,10 @@ export async function sendChat(
           // write can't happen server-side, so apply it to the same store the
           // Tasks tab reads (which also fires a change event to refresh it).
           try { applyTaskLocal(parsed); } catch { /* ignore */ }
+        } else if (parsed.type === 'journal_local' && parsed.date) {
+          // Ava wrote a journal entry (the user's, or her own). Apply to the
+          // local ava-journal-{date} store the Journal tab reads.
+          import('./companion-journal-store').then(m => { try { m.applyJournalLocal(parsed); } catch { /* ignore */ } });
         }
       } catch {
         // skip

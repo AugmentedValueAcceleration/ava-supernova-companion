@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { journalApi } from '@/lib/api';
 import { includesCloud, includesLocal } from '@/lib/data-mode';
+import { JOURNAL_CHANGED_EVENT } from '@/lib/companion-journal-store';
 
 const moodEmojis = ['😔', '😕', '😐', '🙂', '😊'];
 
@@ -68,6 +69,17 @@ export default function JournalPanel({ token }: { token: string | null }) {
   }, [token, selectedDate]);
 
   useEffect(() => { loadEntry(); }, [loadEntry]);
+
+  // Refresh when Ava writes a journal entry via chat (journal_local round-trip).
+  // Skip while the user is editing so a live draft isn't clobbered.
+  useEffect(() => {
+    const onChanged = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { date?: string } | undefined;
+      if (!editing && (!detail?.date || detail.date === selectedDate)) loadEntry();
+    };
+    window.addEventListener(JOURNAL_CHANGED_EVENT, onChanged);
+    return () => window.removeEventListener(JOURNAL_CHANGED_EVENT, onChanged);
+  }, [loadEntry, editing, selectedDate]);
 
   const saveEntry = async () => {
     const useCloud = includesCloud() && !!token;
