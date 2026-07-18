@@ -534,7 +534,18 @@ export default function SettingsView({
               <Row label={t('designYourAI')} subtitle={t('designSubtitle')} value={<ChevronRight />} />
             </button>
             <button onClick={onNavigateSupport} className="w-full block p-4 hover:bg-ava-surface-hover transition text-left">
-              <Row label="Support" subtitle="Chat with Ava and the team" value={<ChevronRight />} />
+              <Row label={t('support')} subtitle={t('supportSubtitle')} value={<ChevronRight />} />
+            </button>
+            {/* Replay the welcome tour — parity with the IDE and extension,
+                which both expose this in Settings. Dispatches rather than
+                calling a prop: the overlay is owned by CompanionApp, several
+                levels up. Uses the shared onboarding.* keys, so it is already
+                translated in all 20 locales. */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('ava-open-welcome'))}
+              className="w-full block p-4 hover:bg-ava-surface-hover transition text-left"
+            >
+              <Row label={t('onboarding.replay')} subtitle={t('onboarding.identity.cta')} value={<ChevronRight />} />
             </button>
           </div>
         </Section>

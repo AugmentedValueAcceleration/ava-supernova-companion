@@ -230,6 +230,16 @@ export default function CompanionApp({
     }
   }, [isGuest]);
 
+  // Replay on demand from Settings. Mirrors the IDE + extension, which both
+  // dispatch an event rather than threading a callback down — Settings sits
+  // several levels below the component that owns the welcome overlay.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const replay = () => setShowWelcome(true);
+    window.addEventListener('ava-open-welcome', replay);
+    return () => window.removeEventListener('ava-open-welcome', replay);
+  }, []);
+
   const handleApiKeyConnect = (key: string) => {
     setApiKey(key);
     setShowAuthModal(false);

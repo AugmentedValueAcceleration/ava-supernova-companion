@@ -62,4 +62,13 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   // Legacy — cloud toggle removed (companion is local-only); keys unused
   'dataModeCloud',                   // Cloud
   'dataModeLocal',                   // Local
+
+  // Onboarding loanwords — copied in with the shared onboarding flow keys.
+  // Each is a word the flagged languages genuinely keep as-is; translating
+  // them would make the UI worse. Core carries the same set.
+  // NB: avoid apostrophes in comments in this file — see i18n-check.mjs.
+  'onboarding.feature.images.label', // Images — French keeps it
+  'onboarding.feature.video.label',  // Video — German, Indonesian keep it
+  'onboarding.hours.start',          // Start — German keeps it
+  'onboarding.mode.plan.label',      // Plan — kept across most locales
 ] as StringKey[]);
