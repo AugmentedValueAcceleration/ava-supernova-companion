@@ -25,6 +25,28 @@ import { syncPlans } from '@/lib/health-plan-sync';
 
 type MobileView = 'chat' | 'tasks' | 'journal' | 'memory' | 'settings' | 'personality' | 'support' | 'docs' | 'news' | WellbeingView;
 
+// Friendly names for the tool pills shown while Ava works (like the IDE shows
+// what it's doing). Unknown tools fall back to the de-underscored name.
+const TOOL_LABELS: Record<string, string> = {
+  web_search: 'Searching the web',
+  task_manage: 'Updating your tasks',
+  journal_write: 'Writing your journal',
+  plan_create: 'Building a plan',
+  memory_recall: 'Recalling memories',
+  memory_save: 'Saving to memory',
+  docs_lookup: 'Checking the docs',
+  get_datetime: 'Checking the time',
+  generate_image: 'Creating an image',
+  self_inspect: 'Reading her own code',
+  release_notes: 'Checking release notes',
+  research_post: 'Researching',
+  post_performance: 'Checking post stats',
+  write_post: 'Drafting a post',
+  suggest_beats: 'Planning content',
+  propose_hooks: 'Drafting hooks',
+};
+const toolLabel = (name: string): string => TOOL_LABELS[name] || name.replace(/_/g, ' ');
+
 export default function CompanionApp({
   session,
   onSignIn: _onSignIn,
@@ -868,7 +890,21 @@ export default function CompanionApp({
                       {msg.role === 'assistant' && (
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-bold text-white">{personalityName}</span>
-                          <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple-dark/40 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
+                          <span className="text-[9px] font-bold text-ava-purple-light bg-ava-purple/15 px-1.5 py-0.5 rounded tracking-wider">SUPERNOVA</span>
+                        </div>
+                      )}
+                      {msg.role === 'assistant' && msg.tools && msg.tools.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {msg.tools.map((tool, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 rounded-full border border-ava-purple/25 bg-ava-purple/10 px-2 py-0.5 text-[10px] text-ava-purple-light">
+                              {tool.done ? (
+                                <svg className="w-2.5 h-2.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                              ) : (
+                                <span className="w-2.5 h-2.5 rounded-full border-2 border-ava-purple-light/40 border-t-ava-purple-light animate-spin" />
+                              )}
+                              {toolLabel(tool.name)}
+                            </span>
+                          ))}
                         </div>
                       )}
                       {msg.role === 'assistant' ? (

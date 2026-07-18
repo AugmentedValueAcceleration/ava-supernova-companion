@@ -17,6 +17,9 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  /** Tools Ava used on this turn, in call order — shown as pills so the user
+   *  can see what she's doing (web search, tasks, journal, etc.), like the IDE. */
+  tools?: Array<{ name: string; done?: boolean }>;
 }
 
 const NUDGE_AFTER_MESSAGES = 6;
@@ -320,7 +323,19 @@ export function useChat({
         setMessages(prev => prev.map(m =>
           m.id === avaMsg.id ? { ...m, content: m.content + text } : m
         ));
-      }, byokKey, personalityPrefix);
+      }, byokKey, personalityPrefix, (evt) => {
+        // Show which tools Ava uses this turn. tool_call adds a pill; tool_result
+        // marks the first matching pending one done.
+        const name = typeof evt.tool === 'string' ? evt.tool : undefined;
+        if (!name) return;
+        setMessages(prev => prev.map(m => {
+          if (m.id !== avaMsg.id) return m;
+          const tools = m.tools ?? [];
+          if (evt.type === 'tool_call') return { ...m, tools: [...tools, { name }] };
+          let marked = false;
+          return { ...m, tools: tools.map(t => (!marked && t.name === name && !t.done ? (marked = true, { ...t, done: true }) : t)) };
+        }));
+      });
     } catch (err: any) {
       const friendlyError = getFriendlyError(err.message);
       setMessages(prev => prev.map(m =>

@@ -269,6 +269,7 @@ export async function sendChat(
   onChunk: (text: string) => void,
   providerApiKey?: string | null,
   personalityPrefix?: string | null,
+  onEvent?: (evt: { type: string; [k: string]: unknown }) => void,
 ) {
   // Data Mode is read lazily from localStorage so the user's choice
   // travels with every turn. Server-side tool handlers (task_manage,
@@ -338,6 +339,9 @@ export async function sendChat(
         const parsed = JSON.parse(data);
         if (parsed.type === 'text' && parsed.content) {
           onChunk(parsed.content);
+        } else if (parsed.type === 'tool_call' || parsed.type === 'tool_result') {
+          // Surface tool activity so the UI can show what Ava's doing.
+          onEvent?.(parsed);
         } else if (parsed.type === 'health_plan' && parsed.plan) {
           // Phase 4c: companion-Ava (on core) emits health plans she builds —
           // save into the local-first plan store so it lands in the Plans tab.
