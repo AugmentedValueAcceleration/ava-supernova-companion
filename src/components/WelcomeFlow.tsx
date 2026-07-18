@@ -20,7 +20,8 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from './Button';
-import { t } from '@/lib/i18n';
+import { CustomSelect } from './CustomSelect';
+import { t, useLocale, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 import { PATHS, BREADTH, stepsFor, pathById, type OnboardingPath } from '@/onboarding/flow';
 
 interface Props {
@@ -44,6 +45,19 @@ const STEPS = stepsFor('companion'); // consent, identity, path, tailored, bread
  */
 const tk = (key: string): string => t(key as Parameters<typeof t>[0]);
 
+/**
+ * The stored language PREFERENCE, not the resolved locale.
+ *
+ * getLanguage() returns what we resolved to ('en' when the preference is
+ * 'auto'), which would leave the picker unable to ever show "Auto" as the
+ * selected option. SettingsView reads the raw preference for the same reason;
+ * this matches it.
+ */
+function languagePreference(): string {
+  if (typeof window === 'undefined') return 'auto';
+  try { return localStorage.getItem('ava-companion-lang') || 'auto'; } catch { return 'auto'; }
+}
+
 function usePwaInstallHint() {
   const [shouldHint, setShouldHint] = useState(false);
   useEffect(() => {
@@ -62,6 +76,10 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
   const [consentChecked, setConsentChecked] = useState(false);
   const [pathId, setPathId] = useState<string | null>(null);
   const showPwaHint = usePwaInstallHint();
+  // Re-renders the whole tour when the language changes, so the picker below
+  // can switch in place. Settings has to reload the app to change language;
+  // here that would restart the tour, which is exactly what we must avoid.
+  useLocale();
 
   const stepId = STEPS[idx]?.id ?? 'ready';
   const path = pathId ? pathById(pathId) : undefined;
@@ -98,8 +116,27 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-ava-bg flex flex-col">
+      {/* Language picker — parity with the IDE and extension, which both put
+          one in the tour header. Without it the tour is locked to whatever the
+          browser was detected as, and a non-English user has no way out: the
+          Settings picker is on the other side of an onboarding gate they
+          cannot pass in a language they may not read.
+
+          Switches IN PLACE via useLocale() above — no reload, so the tour does
+          not restart. */}
+      <div className="shrink-0 px-5 pt-4 flex items-center gap-3">
+        <div className="w-44">
+          <CustomSelect
+            value={languagePreference()}
+            onChange={(v) => { void setLanguage(v); }}
+            options={getSupportedLanguages().map((l) => ({ value: l.code, label: l.name }))}
+            placeholder={t('language')}
+          />
+        </div>
+      </div>
+
       {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 pt-6 pb-4">
+      <div className="flex items-center justify-center gap-2 pt-4 pb-4">
         {STEPS.map((_, i) => (
           <div key={i} className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-6 bg-ava-purple' : i < idx ? 'w-1.5 bg-ava-purple/50' : 'w-1.5 bg-ava-border'}`} />
         ))}
