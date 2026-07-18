@@ -4,6 +4,7 @@ import { Button } from './Button';
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { MODELS, apiFetch } from '@/lib/api';
+import { clearOnSignOut, clearUserContent } from '@/lib/companion-local-data';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
 import ConfirmDialog from './ConfirmDialog';
@@ -213,9 +214,9 @@ export default function SettingsView({
       const keys = Object.keys(localStorage).filter(k => k.startsWith('ava-journal-'));
       keys.forEach(k => localStorage.removeItem(k));
     } else if (type === 'all') {
-      localStorage.removeItem('ava-companion-tasks');
-      const keys = Object.keys(localStorage).filter(k => k.startsWith('ava-journal-'));
-      keys.forEach(k => localStorage.removeItem(k));
+      // Everything the user made — tasks, journal, memories, plans, gym
+      // sessions, health profile, personality — but stay signed in.
+      clearUserContent();
       onClearChat();
     }
     setShowClearConfirm(null);
@@ -304,17 +305,9 @@ export default function SettingsView({
                   destructive: true,
                   onConfirm: () => {
                     setConfirmDialog(prev => ({ ...prev, open: false }));
-                    // Clear all sensitive data on logout
-                    const keysToRemove = [
-                      'ava-companion-api-key', 'ava-companion-provider-keys',
-                      'ava-companion-conversations', 'ava-companion-active-conversation',
-                      'ava-companion-tasks', 'ava-companion-settings',
-                      'ava-companion-model', 'ava-companion-offline-queue',
-                      'ava-companion-mic-consent', 'ava-companion-welcomed',
-                    ];
-                    keysToRemove.forEach(k => localStorage.removeItem(k));
-                    // Clear journal entries (prefixed keys)
-                    Object.keys(localStorage).filter(k => k.startsWith('ava-companion-journal')).forEach(k => localStorage.removeItem(k));
+                    // Single source of truth — wipes every ava- key except device
+                    // identity/locale, so nothing personal survives a logout.
+                    clearOnSignOut();
                     onSignOut();
                   },
                 })}

@@ -1035,7 +1035,14 @@ export default function CompanionApp({
               selectedModel={chat.selectedModel}
               onSelectModel={(id) => { chat.setSelectedModel(id); localStorage.setItem('ava-companion-model', id); }}
               onSignIn={() => setShowAuthModal(true)}
-              onSignOut={() => { if (apiKey) { setApiKey(null); } else { onSignOut(); } setMobileView('chat'); }}
+              onSignOut={() => {
+                // Storage is wiped by clearOnSignOut() in SettingsView; this
+                // resets the in-memory half (credits, messages, model) so the
+                // logged-out shell isn't wearing the last session's state.
+                chat.resetForSignOut();
+                if (apiKey) { setApiKey(null); } else { onSignOut(); }
+                setMobileView('chat');
+              }}
               onClearChat={() => { clearAllConversations(); handleNewChat(); }}
               onNavigatePersonality={() => setMobileView('personality')}
               onNavigateSupport={() => setMobileView('support')}

@@ -159,7 +159,7 @@ export default function AuthPage({ onApiKeyConnect, onSkip }: AuthPageProps) {
         <h1 className="text-2xl font-bold text-white">Ava</h1>
         <p className="text-ava-purple text-xs font-medium tracking-[0.2em] uppercase mt-1">Companion</p>
         <p className="text-xs text-gray-500 mt-3">
-          Sign in to sync memory, tasks, and journal across every device.
+          Your data stays on this device. Sign in for the orchestrated fleets and credits.
         </p>
       </div>
 

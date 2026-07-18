@@ -351,6 +351,23 @@ export function useChat({
     }
   }, [input, streaming, messages, selectedModel, token]);
 
+  // Sign-out reset. Clearing localStorage alone left in-memory state behind —
+  // most visibly the credit balance, which kept showing the signed-in number
+  // after logout. Wipe every piece of session state back to a true logged-out
+  // shell so the two states can't blend into each other.
+  const resetForSignOut = useCallback(() => {
+    setMessages([greeting]);
+    setInput('');
+    setConversationId(null);
+    setConversations([]);
+    setTokenBalance(null);
+    setUsageWarning({ level: 'none', message: '' });
+    setMessageCount(0);
+    setShowModelPicker(false);
+    setShowHistory(false);
+    setSelectedModel('');
+  }, [greeting]);
+
   return {
     // State
     messages,
@@ -385,5 +402,6 @@ export function useChat({
     startNewChat,
     handleDeleteConversation,
     loadConversation,
+    resetForSignOut,
   };
 }
