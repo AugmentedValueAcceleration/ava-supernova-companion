@@ -470,7 +470,7 @@ export default function CompanionApp({
           {/* History */}
           <button
             onClick={() => { chat.setConversations(getConversations()); chat.setShowHistory(!chat.showHistory); }}
-            className={`p-1.5 rounded-lg transition ${chat.showHistory ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-white hover:bg-ava-surface'}`}
+            className={`p-1.5 rounded-lg transition border ${chat.showHistory ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-transparent text-gray-400 hover:text-white hover:bg-ava-surface'}`}
             title="Chat history"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -492,10 +492,10 @@ export default function CompanionApp({
             <button
               key={item.key}
               onClick={() => item.key === 'tasks' ? handleTaskNav() : setMobileView(item.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
                 mobileView === item.key
-                  ? 'bg-ava-purple text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-ava-surface-hover'
+                  ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple'
+                  : 'border-transparent text-gray-400 hover:text-white hover:bg-ava-surface-hover'
               }`}
               aria-current={mobileView === item.key ? 'page' : undefined}
             >
