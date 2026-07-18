@@ -90,11 +90,21 @@ export async function initI18n(): Promise<void> {
 
 export async function setLanguage(lang: string): Promise<void> {
   const resolved = lang === 'auto' ? detectBrowserLanguage() : lang;
+  // Persist FIRST, before the await. The write used to sit after
+  // `await ensureLoaded()` — a dynamic import() — so a caller that reloaded
+  // the page immediately (the settings dropdown did exactly that) navigated
+  // away before the import resolved and the preference was never written.
+  // The picker appeared to reset itself to Auto/English every time.
+  //
+  // Persisting up front also means the choice survives a FAILED locale load:
+  // the user's intent is recorded even if the strings can't be fetched.
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('ava-companion-lang', lang);
+  }
   await ensureLoaded(resolved);
   currentLang = resolved;
   langVersion++;
   if (typeof window !== 'undefined') {
-    localStorage.setItem('ava-companion-lang', lang);
     window.dispatchEvent(new CustomEvent(LOCALE_CHANGED_EVENT));
   }
 }

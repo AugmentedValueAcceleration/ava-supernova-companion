@@ -514,7 +514,10 @@ export default function SettingsView({
             <p className="text-xs text-gray-500 mb-2">{t('language')}</p>
             <CustomSelect
               value={language}
-              onChange={(v) => { setLang(v); setLanguage(v); window.location.reload(); }}
+              // Awaited before the reload. setLanguage() persists up front now,
+              // so this is belt-and-braces — but firing a synchronous reload at
+              // an async call is what broke this in the first place.
+              onChange={async (v) => { setLang(v); await setLanguage(v); window.location.reload(); }}
               placeholder="Select language..."
               options={getSupportedLanguages().map(l => ({
                 value: l.code,
