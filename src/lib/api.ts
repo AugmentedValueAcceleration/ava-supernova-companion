@@ -178,12 +178,14 @@ export interface ModelOption {
 }
 
 // ── Orchestrated fleets ─────────────────────────────────────────────────────
-// The three fleets are ALWAYS shown at the top of the picker (not gated behind
+// The four fleets are ALWAYS shown at the top of the picker (not gated behind
 // sign-in). They're available on a signed-in platform account (run on credits),
 // OR to a BYOK user who holds the provider keys the fleet needs — mirroring the
 // IDE's mode-availability.ts:
-//   Maestro (auto)      → Qwen
-//   Aurora  (aurora)    → Mistral
+//   Maestro   (auto)      → Qwen
+//   Aurora    (aurora)    → Mistral
+//   Supernova (supernova) → DeepSeek + Qwen
+//   Longxiang (longxiang) → Moonshot + Qwen + DeepSeek
 //   Supernova           → Qwen + DeepSeek
 //   Longxiang           → Moonshot + Qwen + DeepSeek, BYOK-ONLY
 //
@@ -227,7 +229,7 @@ export function fleetAvailable(
 
 export const MODELS: ModelOption[] = [
   // ── ORCHESTRATED FLEETS (the account/credit models) ─────────────────────
-  // The three fleets the IDE + extension surface to signed-in users, matched
+  // The four fleets the IDE + extension surface to signed-in users, matched
   // here so the companion offers the same thing. Each is a whole multi-model
   // fleet behind one pick; the backend (api/companion/chat) maps the id to the
   // fleet's lead (auto→qwen3.7-plus, supernova→deepseek-v4-pro,

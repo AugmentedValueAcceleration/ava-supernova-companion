@@ -108,7 +108,7 @@ export function useChat({
   const [streaming, setStreaming] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => {
     // Default to the flagship fleet (Maestro). Plan users only ever get the
-    // three fleets, so a single model is never a valid default for them.
+    // four fleets, so a single model is never a valid default for them.
     if (typeof window === 'undefined') return 'auto';
     const stored = localStorage.getItem('ava-companion-model');
     if (stored) return stored;
