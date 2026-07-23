@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { sendChat, apiFetch, MODELS } from '@/lib/api';
+import { sendChat, apiFetch, MODELS, getProviderSource } from '@/lib/api';
 import { t } from '@/lib/i18n';
 import { getActiveProviderKey } from '@/components/SettingsView';
 import { loadPersonality, buildPersonalityPrefix } from '@/lib/personality';
@@ -213,7 +213,9 @@ export function useChat({
           .map(m => ({ role: m.role, content: m.content }));
 
         try {
-          const byokKey = getActiveProviderKey(item.model);
+          // Only send the BYOK key when the user is in API Key mode — in
+          // Platform mode the turn runs on credits even if a key is stored.
+          const byokKey = getProviderSource() === 'byok' ? getActiveProviderKey(item.model) : null;
           await sendChat(token, item.message, history, item.model, (text) => {
             setMessages(prev => prev.map(m =>
               m.id === avaMsg.id ? { ...m, content: m.content + text } : m
@@ -321,7 +323,8 @@ export function useChat({
       .map(m => ({ role: m.role, content: m.content }));
 
     try {
-      const byokKey = getActiveProviderKey(selectedModel);
+      // Only send the BYOK key in API Key mode; Platform mode runs on credits.
+      const byokKey = getProviderSource() === 'byok' ? getActiveProviderKey(selectedModel) : null;
       const personality = loadPersonality();
       const personalityPrefix = buildPersonalityPrefix(personality);
       await sendChat(token, userMsg.content, history, selectedModel, (text) => {

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { API_BASE, MODELS, isFleet, fleetAvailable } from '@/lib/api';
+import { API_BASE, MODELS, getProviderSource, setProviderSource, type ProviderSource } from '@/lib/api';
 import { t, useLocale, type StringKey } from '@/lib/i18n';
 import { getConversations, clearAllConversations } from '@/lib/chat-history';
 import { useChat } from '@/lib/useChat';
@@ -13,7 +13,7 @@ import JournalPanel from './JournalPanel';
 import MemoryPanel from './MemoryPanel';
 import AuthPage from './AuthPage';
 import WelcomeFlow from './WelcomeFlow';
-import SettingsView, { getActiveProviderKey, loadProviderKeys } from './SettingsView';
+import SettingsView, { getActiveProviderKey } from './SettingsView';
 import { SupportChat } from './SupportChat';
 import CompanionDocs from './CompanionDocs';
 import NewsView from './NewsView';
@@ -79,6 +79,27 @@ export default function CompanionApp({
 
   // Chat hook
   const chat = useChat({ session, token, isGuest, userName });
+
+  // Wallet: Platform (credits) vs API Key (own keys). Persisted in api.ts;
+  // Settings can change it too, so listen for the sync event. useChat reads it
+  // fresh at send time to decide whether to attach the BYOK key.
+  const [providerSource, setProviderSourceState] = useState<ProviderSource>(() => getProviderSource());
+  useEffect(() => {
+    const h = (e: Event) => setProviderSourceState((e as CustomEvent).detail as ProviderSource);
+    window.addEventListener('ava-provider-source-changed', h);
+    return () => window.removeEventListener('ava-provider-source-changed', h);
+  }, []);
+  const switchProviderSource = (s: ProviderSource) => {
+    setProviderSource(s); // persists + fires the sync event
+    setProviderSourceState(s);
+    // Keep the selected model valid for the new wallet: Platform needs a credit
+    // model; API Key needs one you hold a key for (else it greys — leave it).
+    const cur = MODELS.find(m => m.id === chat.selectedModel);
+    if (s === 'platform' && !cur?.free) {
+      chat.setSelectedModel('qwen3.5-flash');
+      if (typeof window !== 'undefined') localStorage.setItem('ava-companion-model', 'qwen3.5-flash');
+    }
+  };
 
   const [mobileView, setMobileView] = useState<MobileView>('chat');
   // Which bottom-nav sheet is open: the ✦ Wellbeing quick-actions, the More menu, or none.
@@ -606,30 +627,24 @@ export default function CompanionApp({
                     240px min-width would overflow on a ~360px phone. */}
                 <div className="absolute right-0 top-full mt-1 bg-ava-surface border border-ava-purple/25 rounded-xl shadow-xl z-20 min-w-[260px] max-w-[calc(100vw-2rem)] py-1.5 max-h-[420px] overflow-y-auto">
                   {(() => {
-                    const byokKeys = loadProviderKeys();
-                    // Same visibility rules as before; fleets always show.
+                    const isAdmin = chat.tokenBalance?.tier === 'admin';
+                    // The Platform / API Key toggle IS the wallet selector: on
+                    // Platform you see the credit catalogue (billed to your plan),
+                    // on API Key you see the full BYOK lineup (billed to your own
+                    // keys). Guests have no plan, so they're always API Key.
+                    const mode: ProviderSource = isGuest ? 'byok' : providerSource;
                     const visible = MODELS.filter(model => {
-                      if (isFleet(model.id)) return true;
-                      if (isGuest && model.requiresAccount) return false;
-                      if (!isGuest && !model.free && !getActiveProviderKey(model.id)) return false;
-                      if (model.adminOnly && chat.tokenBalance?.tier !== 'admin') return false;
-                      return true;
+                      if (model.adminOnly && !isAdmin) return false;
+                      if (mode === 'platform') return model.free; // credit catalogue
+                      return true;                                // API Key: full lineup, greyed if no key
                     });
-                    const avail = (m: typeof MODELS[number]) => isFleet(m.id)
-                      ? fleetAvailable(m.id, !isGuest, byokKeys)
-                      // A credit single (free) is usable on a signed-in plan OR
-                      // with the provider's own key — the same OR a fleet gets,
-                      // so a guest who brought a key isn't locked out. BYOK-only
-                      // models still need the key.
-                      : m.free ? (!isGuest || !!getActiveProviderKey(m.id)) : !!getActiveProviderKey(m.id);
+                    const avail = (m: typeof MODELS[number]) =>
+                      mode === 'platform' ? true : !!getActiveProviderKey(m.id);
 
-                    // Fleets → "Orchestrated"; everything else grouped by provider
-                    // (managed + BYOK of one provider fold together). Matches the
-                    // IDE + extension model dropdown.
-                    const fleets = visible.filter(m => isFleet(m.id));
-                    const rest = visible.filter(m => !isFleet(m.id));
+                    // Grouped by provider (managed + BYOK of one provider fold
+                    // together). Matches the IDE + extension model dropdown.
                     const groups = new Map<string, typeof MODELS>();
-                    for (const m of rest) {
+                    for (const m of visible) {
                       const label = m.provider.replace(/ \(managed\)$/, '');
                       const arr = groups.get(label) ?? [];
                       arr.push(m); groups.set(label, arr);
@@ -638,14 +653,11 @@ export default function CompanionApp({
 
                     const headerCls = 'px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500';
                     const dividerCls = 'h-px bg-ava-border/60 mx-2 my-1';
-                    const fleetSubtitle: Record<string, string> = {
-                      auto: 'Best model per task', aurora: 'EU stack · Mistral', supernova: 'Polyglot ensemble',
-                    };
 
-                    const row = (model: typeof MODELS[number], subtitle?: string) => {
+                    const row = (model: typeof MODELS[number]) => {
                       const available = avail(model);
                       const active = chat.selectedModel === model.id;
-                      const hint = !available ? (isFleet(model.id) ? 'Sign in' : 'Add key') : null;
+                      const hint = !available ? 'Add key' : null;
                       return (
                         <button
                           key={model.id}
@@ -655,10 +667,7 @@ export default function CompanionApp({
                         >
                           <div className="min-w-0 flex items-center gap-2">
                             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-ava-purple' : 'bg-white/20'}`} />
-                            <div className="min-w-0">
-                              <span className={`text-sm truncate block ${active ? 'text-ava-purple-light' : 'text-white'}`}>{model.name}</span>
-                              {subtitle && <span className="text-[10px] text-gray-500 truncate block">{subtitle}</span>}
-                            </div>
+                            <span className={`text-sm truncate block ${active ? 'text-ava-purple-light' : 'text-white'}`}>{model.name}</span>
                           </div>
                           <span className="flex-shrink-0 whitespace-nowrap text-[10px] text-gray-500">
                             {hint ?? (active ? <span className="text-ava-purple text-sm">&#10003;</span> : null)}
@@ -669,9 +678,31 @@ export default function CompanionApp({
 
                     return (
                       <>
-                        {fleets.length > 0 && <div className={headerCls}>Orchestrated</div>}
-                        {fleets.map(f => row(f, fleetSubtitle[f.id]))}
-                        {fleets.length > 0 && providerOrder.length > 0 && <div className={dividerCls} />}
+                        {/* Wallet toggle — the picker is where you pick both the
+                            model and, now, which wallet pays for it. Signed-in
+                            only; guests have no plan to run on. */}
+                        {!isGuest && (
+                          <>
+                            <div className="flex gap-1 p-1 mx-1.5 mb-0.5 rounded-lg bg-ava-border/30">
+                              {(['platform', 'byok'] as const).map(s => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => switchProviderSource(s)}
+                                  className={`flex-1 text-[11px] font-medium py-1.5 rounded-md transition ${providerSource === s ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-gray-200'}`}
+                                >
+                                  {s === 'platform' ? 'Platform' : 'API Key'}
+                                </button>
+                              ))}
+                            </div>
+                            <div className={dividerCls} />
+                          </>
+                        )}
+                        {providerOrder.length === 0 && (
+                          <div className="px-3 py-4 text-center text-[11px] text-gray-500">
+                            {mode === 'byok' ? 'Add a provider key in Settings to pick a model.' : 'No models available.'}
+                          </div>
+                        )}
                         {providerOrder.map((prov, idx) => (
                           <div key={prov}>
                             <div className={headerCls}>{prov}</div>

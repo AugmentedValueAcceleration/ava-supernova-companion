@@ -3,7 +3,7 @@ import { Button } from './Button';
 
 import { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { MODELS, apiFetch } from '@/lib/api';
+import { MODELS, apiFetch, getProviderSource, setProviderSource, type ProviderSource } from '@/lib/api';
 import { clearOnSignOut, clearSessionOnly, clearUserContent, describeLocalData, type LocalStoreInfo } from '@/lib/companion-local-data';
 import { CustomSelect } from './CustomSelect';
 import { t, setLanguage, getSupportedLanguages } from '@/lib/i18n';
@@ -97,6 +97,13 @@ export default function SettingsView({
   });
 
   const [providerKeys, setProviderKeys] = useState<ProviderKeys>(() => loadProviderKeys());
+  // Wallet toggle — mirror of the picker's. Sync both ways via the window event.
+  const [providerSource, setProviderSourceState] = useState<ProviderSource>(() => getProviderSource());
+  useEffect(() => {
+    const h = (e: Event) => setProviderSourceState((e as CustomEvent).detail as ProviderSource);
+    window.addEventListener('ava-provider-source-changed', h);
+    return () => window.removeEventListener('ava-provider-source-changed', h);
+  }, []);
   const [keysOpen, setKeysOpen] = useState(false);
   const [signOutSheet, setSignOutSheet] = useState(false);
   const [localData, setLocalData] = useState<LocalStoreInfo[] | null>(null);
@@ -362,6 +369,31 @@ export default function SettingsView({
 
         {/* Model */}
         <Section title={t('model')}>
+          {/* Wallet — Platform (plan credits) vs API Key (your own keys). Mirrors
+              the toggle at the top of the chat model picker; both drive one
+              persisted setting. Signed-in only — guests have no plan. */}
+          {!isGuest && (
+            <div className="bg-ava-surface border border-ava-border rounded-xl p-4 mb-3">
+              <p className="text-xs text-gray-500 mb-2">Wallet</p>
+              <div className="flex gap-1 p-1 rounded-lg bg-ava-border/30">
+                {(['platform', 'byok'] as const).map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => { setProviderSource(s); setProviderSourceState(s); }}
+                    className={`flex-1 text-xs font-medium py-2 rounded-md transition ${providerSource === s ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-gray-200'}`}
+                  >
+                    {s === 'platform' ? 'Platform · credits' : 'API Key · your keys'}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                {providerSource === 'platform'
+                  ? 'Runs on your plan credits. Your own keys are ignored while on Platform.'
+                  : 'Runs on your own API keys below — no credits used.'}
+              </p>
+            </div>
+          )}
           <div className="bg-ava-surface border border-ava-border rounded-xl p-4">
             <p className="text-xs text-gray-500 mb-2">{t('defaultModel')}</p>
             <CustomSelect

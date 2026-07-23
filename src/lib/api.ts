@@ -177,6 +177,29 @@ export interface ModelOption {
   adminOnly?: boolean; // true = filtered out of picker unless user.tier === 'admin'
 }
 
+// ── Provider source (wallet) ────────────────────────────────────────────────
+// A signed-in user can run on the platform's CREDITS or on their own BYOK keys.
+// Without a switch the companion decided this silently by key presence — holding
+// a Qwen key quietly billed your key even for a credit model, with no way to
+// choose your plan. This is the explicit toggle: 'platform' = credits (ignore
+// keys), 'byok' = your own keys. Guests are always effectively 'byok' (no plan).
+// Read fresh at send time in useChat, and drives the picker filter in
+// CompanionApp. setProviderSource fires a window event so open views re-sync.
+export type ProviderSource = 'platform' | 'byok';
+
+export function getProviderSource(): ProviderSource {
+  if (typeof localStorage === 'undefined') return 'platform';
+  return localStorage.getItem('ava-companion-provider-source') === 'byok' ? 'byok' : 'platform';
+}
+
+export function setProviderSource(src: ProviderSource): void {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.setItem('ava-companion-provider-source', src);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ava-provider-source-changed', { detail: src }));
+  }
+}
+
 // ── Orchestrated fleets ─────────────────────────────────────────────────────
 // The four fleets are ALWAYS shown at the top of the picker (not gated behind
 // sign-in). They're available on a signed-in platform account (run on credits),
