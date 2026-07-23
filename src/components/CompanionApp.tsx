@@ -258,9 +258,9 @@ export default function CompanionApp({
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('auto');
+      chat.setSelectedModel('qwen3.5-flash');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'auto');
+        localStorage.setItem('ava-companion-model', 'qwen3.5-flash');
       }
     }
     chat.setMessages([{
@@ -276,18 +276,19 @@ export default function CompanionApp({
   // the web) that doesn't flow through handleApiKeyConnect. If the user
   // lands on the companion already signed in (or signs in via the
   // parent-level flow) and their current model is a BYOK one they have
-  // no key for — or is empty, or a since-removed platform single — switch
-  // them to Maestro (auto) so Chat works immediately. Respects existing
-  // valid preferences.
+  // no key for — or is empty, or a since-removed fleet id (fleets were
+  // pulled from the companion 2026-07-23) — switch them to Qwen 3.5 Flash,
+  // the cheapest capable credit single, so Chat works immediately. Respects
+  // existing valid preferences.
   useEffect(() => {
     if (isGuest) return;
     const currentModel = MODELS.find((m) => m.id === chat.selectedModel);
     const currentIsValid = currentModel
       && (currentModel.free || getActiveProviderKey(currentModel.id));
     if (!currentIsValid) {
-      chat.setSelectedModel('auto');
+      chat.setSelectedModel('qwen3.5-flash');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ava-companion-model', 'auto');
+        localStorage.setItem('ava-companion-model', 'qwen3.5-flash');
       }
     }
     // Only react to login-state changes, not every render.
@@ -616,7 +617,11 @@ export default function CompanionApp({
                     });
                     const avail = (m: typeof MODELS[number]) => isFleet(m.id)
                       ? fleetAvailable(m.id, !isGuest, byokKeys)
-                      : m.free ? !isGuest : !!getActiveProviderKey(m.id);
+                      // A credit single (free) is usable on a signed-in plan OR
+                      // with the provider's own key — the same OR a fleet gets,
+                      // so a guest who brought a key isn't locked out. BYOK-only
+                      // models still need the key.
+                      : m.free ? (!isGuest || !!getActiveProviderKey(m.id)) : !!getActiveProviderKey(m.id);
 
                     // Fleets → "Orchestrated"; everything else grouped by provider
                     // (managed + BYOK of one provider fold together). Matches the

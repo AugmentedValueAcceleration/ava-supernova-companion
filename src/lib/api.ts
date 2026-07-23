@@ -228,56 +228,45 @@ export function fleetAvailable(
 }
 
 export const MODELS: ModelOption[] = [
-  // ── ORCHESTRATED FLEETS (the account/credit models) ─────────────────────
-  // The four fleets the IDE + extension surface to signed-in users, matched
-  // here so the companion offers the same thing. Each is a whole multi-model
-  // fleet behind one pick; the backend (api/companion/chat) maps the id to the
-  // fleet's lead (auto→qwen3.7-plus, supernova→deepseek-v4-pro,
-  // aurora→mistral-medium-3.5). Public for any signed-in platform user — the
-  // admin gate was retired 2026-04-30 (mode-availability.ts). BYOK users reach
-  // them with the fleet's keys (Maestro=Qwen, Aurora=Mistral, Supernova=Qwen+
-  // DeepSeek). On a plan they run on credits — NOT free; every model is metered
-  // by the credit system. '✦' matches the other surfaces.
-  { id: 'auto',      name: '✦ Maestro',   provider: 'Orchestrated · balanced', free: true, requiresAccount: true },
-  { id: 'aurora',    name: '✦ Aurora',    provider: 'Orchestrated · EU-sovereign', free: true, requiresAccount: true },
-  { id: 'supernova', name: '✦ Supernova', provider: 'Orchestrated · polyglot', free: true, requiresAccount: true },
-  // Longxiang — spliced in only while the launch flag is live, so it does not
-  // appear at all before launch (a greyed row would still show the
-  // unannounced name). Otherwise it behaves like any other fleet.
-  ...(LONGXIANG_LIVE
-    ? [{ id: 'longxiang', name: '✦ Longxiang', provider: 'Orchestrated · open weights', free: true, requiresAccount: true }]
-    : []),
+  // ── NO FLEETS ON THE COMPANION (operator, 2026-07-23) ───────────────────
+  // The orchestrated fleets (Maestro/Aurora/Supernova/Longxiang) are removed
+  // from the companion. Orchestration is a sledgehammer for quick mobile
+  // productivity, and now that single models are creditable an account user
+  // would just burn credits on an ensemble when one cheap model would do.
+  // Fleets remain the identity of the coding surfaces (IDE + extension); the
+  // companion's identity is single models the user can reason about directly.
 
-  // ── PLATFORM SINGLES: removed 2026-07-18 ────────────────────────────────
-  // A signed-in plan surfaces the three orchestrated fleets and NOTHING else
-  // — single-model picking is a BYOK-only perk. The account is what promotes
-  // the fleets; the fleets are the product. We no longer expose the managed
-  // singles (Qwen 3.7 Plus / 3.5 Flash, Mistral Medium 3.5 / Small 4,
-  // DeepSeek V4 Flash) as direct picks. Those models still run *inside* the
-  // fleets — you just reach a specific one only by bringing its own key
-  // (see the BYOK lineup below). Reverses the 2026-04-29 curated-singles
-  // decision.
+  // ── SINGLE FLEET MODELS — account CREDITS or BYOK ──────────────────────
+  // Reverses the 2026-07-18 removal (single-picking was made a BYOK-only
+  // perk; the operator has now opened it to the account tier). These are the
+  // single models our fleets are built from, selectable directly: on a
+  // signed-in plan they run on credits (free:true), and a BYOK user reaches
+  // them with the provider's key too. ONE entry serves both — available if
+  // signed-in OR keyed, exactly like a fleet; CompanionApp's avail() branch
+  // handles the OR. Qwen 3.7 Max is deliberately NOT here: no fleet uses it
+  // and its $2.50/$7.50 sits outside the plan, so it stays BYOK-only below.
+  { id: 'qwen3.7-plus', name: 'Qwen 3.7 Plus', provider: 'Alibaba Cloud', free: true, requiresAccount: false },
+  { id: 'qwen3.5-flash', name: 'Qwen 3.5 Flash', provider: 'Alibaba Cloud', free: true, requiresAccount: false },
+  { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: true, requiresAccount: false },
+  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: true, requiresAccount: false },
+  { id: 'kimi-k3', name: 'Kimi K3', provider: 'Moonshot AI', free: true, requiresAccount: false },
+  { id: 'kimi-k2.7-code', name: 'Kimi K2.7 Code', provider: 'Moonshot AI', free: true, requiresAccount: false },
+  { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: true, requiresAccount: false },
+  { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: true, requiresAccount: false },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', provider: 'Mistral', free: true, requiresAccount: false },
 
-  // ── BYOK — full lineup, no curation ────────────────────────────────────
-  // The user pays per token, so it's their call which to use. Mirror of the
-  // IDE / extension BYOK lineup for consistency across surfaces — kept in sync
-  // with packages/core/src/providers/*/models.ts (picker-visible models only:
-  // hiddenFromPicker + disabled excluded). Reconciled 2026-07-17.
-  { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'DeepSeek', free: false, requiresAccount: false },
-  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', free: false, requiresAccount: false },
-  { id: 'kimi-k3', name: 'Kimi K3', provider: 'Moonshot AI', free: false, requiresAccount: false },
-  { id: 'kimi-k2.7-code', name: 'Kimi K2.7 Code', provider: 'Moonshot AI', free: false, requiresAccount: false },
+  // ── BYOK-only — full lineup, no curation ───────────────────────────────
+  // Not fleet members / no managed billing path: reachable only with the
+  // user's own key. The user pays per token, so it's their call which to use.
+  // Codestral + Devstral retired 2026-07-23 — superseded by Mistral Small 4 /
+  // Medium 3.5 (which are now credit singles above). Kept in sync with
+  // packages/core/src/providers/*/models.ts (picker-visible models only).
   { id: 'qwen3.7-max', name: 'Qwen 3.7 Max', provider: 'Alibaba Cloud', free: false, requiresAccount: false },
   { id: 'glm-5.2', name: 'GLM-5.2', provider: 'Zhipu AI', free: false, requiresAccount: false },
   { id: 'glm-4.5-air', name: 'GLM-4.5 Air', provider: 'Zhipu AI', free: false, requiresAccount: false },
   { id: 'MiniMax-M3', name: 'MiniMax M3', provider: 'MiniMax', free: false, requiresAccount: false },
   { id: 'MiniMax-M2.7', name: 'MiniMax M2.7', provider: 'MiniMax', free: false, requiresAccount: false },
   { id: 'MiniMax-M2.7-highspeed', name: 'MiniMax M2.7 Highspeed', provider: 'MiniMax', free: false, requiresAccount: false },
-  { id: 'mistral-large-3', name: 'Mistral Large 3', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'codestral-latest', name: 'Codestral', provider: 'Mistral', free: false, requiresAccount: false },
-  { id: 'devstral-latest', name: 'Devstral 2', provider: 'Mistral', free: false, requiresAccount: false },
   { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-opus-4-8', name: 'Claude Opus 4.8', provider: 'Anthropic', free: false, requiresAccount: false },
   { id: 'claude-sonnet-5', name: 'Claude Sonnet 5', provider: 'Anthropic', free: false, requiresAccount: false },
