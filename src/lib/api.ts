@@ -254,14 +254,16 @@ export const MODELS: ModelOption[] = [
   { id: 'mistral-medium-3.5', name: 'Mistral Medium 3.5', provider: 'Mistral', free: true, requiresAccount: false },
   { id: 'mistral-small-4', name: 'Mistral Small 4', provider: 'Mistral', free: true, requiresAccount: false },
   { id: 'mistral-large-3', name: 'Mistral Large 3', provider: 'Mistral', free: true, requiresAccount: false },
+  // Qwen 3.7 Max — Alibaba's heavy flagship, opened to credits 2026-07-23. Not
+  // a fleet coordinator, but selectable directly like the rest; 3.22× rate.
+  { id: 'qwen3.7-max', name: 'Qwen 3.7 Max', provider: 'Alibaba Cloud', free: true, requiresAccount: false },
 
   // ── BYOK-only — full lineup, no curation ───────────────────────────────
   // Not fleet members / no managed billing path: reachable only with the
   // user's own key. The user pays per token, so it's their call which to use.
   // Codestral + Devstral retired 2026-07-23 — superseded by Mistral Small 4 /
-  // Medium 3.5 (which are now credit singles above). Kept in sync with
+  // Medium 3.5 (now credit singles above). Kept in sync with
   // packages/core/src/providers/*/models.ts (picker-visible models only).
-  { id: 'qwen3.7-max', name: 'Qwen 3.7 Max', provider: 'Alibaba Cloud', free: false, requiresAccount: false },
   { id: 'glm-5.2', name: 'GLM-5.2', provider: 'Zhipu AI', free: false, requiresAccount: false },
   { id: 'glm-4.5-air', name: 'GLM-4.5 Air', provider: 'Zhipu AI', free: false, requiresAccount: false },
   { id: 'MiniMax-M3', name: 'MiniMax M3', provider: 'MiniMax', free: false, requiresAccount: false },
