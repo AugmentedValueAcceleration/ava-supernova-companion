@@ -24,6 +24,7 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'model', 'data', 'website', 'privacy', 'account', 'journal',
 
   // Fitness loanwords — used in-language as English in gym contexts
+  'catalogDetailCardioSection',      // Cardio — same word in nl/pl/pt/vi/fr/it/es/de
   'gymHeading',                      // Gym
   'gymModeStopwatch',                // Stopwatch
   'gymModeCountdown',                // Countdown

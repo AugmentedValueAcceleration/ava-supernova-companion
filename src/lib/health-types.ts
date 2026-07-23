@@ -106,6 +106,34 @@ export interface ExerciseRoutine {
   tempo: string | null;
   frequency_per_week: number | null;
   progression: string | null;
+  // Programmable-gym additions. OPTIONAL on purpose: the API served rows
+  // without these before the gym rebuild, and declaring them required crashed
+  // the extension on older payloads.
+  rpe?: number | null;
+  percent_1rm?: string | null;
+  seconds_per_set?: number | null;
+}
+
+export interface CardioPrescription {
+  style?: string | null;
+  duration_minutes?: number | null;
+  heart_rate_zone?: string | null;
+  work_seconds?: number | null;
+  rest_seconds?: number | null;
+  rounds?: number | null;
+}
+
+export interface ExerciseContraindication {
+  slug: string;
+  name: string;
+  category?: string | null;
+  severity: string;              // avoid | caution | modify
+  note?: string | null;
+}
+
+export interface ExerciseAlternative {
+  slug: string;
+  name: string;
 }
 
 export interface ExerciseDetail {
@@ -124,6 +152,16 @@ export interface ExerciseDetail {
   thumbnail_url: string | null;
   muscles: MuscleTag[];
   equipment: EquipmentTag[];
+  movement_pattern?: string | null;
+  force_type?: string | null;
+  laterality?: string | null;
+  session_role?: string | null;
+  coaching_cues?: string[] | null;
+  cardio?: CardioPrescription | null;
+  contraindications?: ExerciseContraindication[] | null;
+  regression?: ExerciseAlternative | null;
+  progression?: ExerciseAlternative | null;
+  substitutions?: ExerciseAlternative[] | null;
 }
 
 export interface RecipeIngredient {
@@ -133,6 +171,8 @@ export interface RecipeIngredient {
   name: string;
   notes: string | null;
   optional: boolean;
+  /** Which skill level this ingredient belongs to; null = shared by all. */
+  level?: 'beginner' | 'intermediate' | 'expert' | null;
 }
 
 export interface RecipeStep {
@@ -160,6 +200,8 @@ export interface RecipeDetail {
   slug: string;
   name: string;
   cuisine_name: string | null;
+  /** Every cuisine this recipe belongs to, primary first. */
+  cuisines?: string[];
   origin_country: string | null;
   course: string | null;
   hero_image_url: string | null;
