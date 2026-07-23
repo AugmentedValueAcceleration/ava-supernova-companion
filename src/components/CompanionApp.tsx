@@ -683,17 +683,28 @@ export default function CompanionApp({
                             only; guests have no plan to run on. */}
                         {!isGuest && (
                           <>
-                            <div className="flex gap-1 p-1 mx-1.5 mb-0.5 rounded-lg bg-ava-border/30">
-                              {(['platform', 'byok'] as const).map(s => (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  onClick={() => switchProviderSource(s)}
-                                  className={`flex-1 text-[11px] font-medium py-1.5 rounded-md transition ${providerSource === s ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-gray-200'}`}
-                                >
-                                  {s === 'platform' ? 'Platform' : 'API Key'}
-                                </button>
-                              ))}
+                            {/* Segmented pill pair — matches the extension's
+                                house button style (NavSidebar Platform/API Key):
+                                translucent accent fill on the active side,
+                                transparent + muted border on the other. */}
+                            <div className="flex gap-1 mx-1.5 mb-0.5">
+                              {(['platform', 'byok'] as const).map(s => {
+                                const active = providerSource === s;
+                                return (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => switchProviderSource(s)}
+                                    className={`flex-1 rounded-lg border py-[5px] text-[11px] font-semibold transition ${
+                                      active
+                                        ? 'bg-ava-purple/20 border-ava-purple/40 text-ava-purple-light'
+                                        : 'bg-transparent border-ava-border text-gray-500 hover:bg-ava-purple/[0.08]'
+                                    }`}
+                                  >
+                                    {s === 'platform' ? 'Platform' : 'API Key'}
+                                  </button>
+                                );
+                              })}
                             </div>
                             <div className={dividerCls} />
                           </>

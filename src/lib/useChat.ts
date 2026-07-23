@@ -31,6 +31,15 @@ function getFriendlyError(message?: string): string {
   if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('err_internet'))
     return "Looks like you're offline. Check your connection and try again.";
 
+  // Out of credits / plan allowance. The backend sends this as 429 with an
+  // allowance message ("...credit allowance reached/exhausted", "Credit limit
+  // reached"), so it MUST be caught BEFORE the generic 429 branch below — else
+  // a lapsed or exhausted account is wrongly told it's "sending too fast",
+  // which is why it read as no real feedback. Now that the wallet toggle
+  // exists, API Key mode is the instant fallback that doesn't cost credits.
+  if (msg.includes('credit') || msg.includes('allowance') || msg.includes('top-up') || msg.includes('token limit') || msg.includes('limit reached'))
+    return "You're out of credits this month. Top up or upgrade at ava-supernova.com/pricing — or switch to API Key in the model picker to keep going on your own key.";
+
   if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many'))
     return "You're sending messages a bit fast — give it a moment and try again.";
 
@@ -39,9 +48,6 @@ function getFriendlyError(message?: string): string {
 
   if (msg.includes('403') || msg.includes('not available on your plan') || msg.includes('no api key'))
     return "No API key or account detected. Sign up for 300 free credits a month, or add your own API key in Settings.";
-
-  if (msg.includes('token limit') || msg.includes('limit reached'))
-    return "You've used your credit allowance. Top up at ava-supernova.com/pricing, or add your own API key in Settings.";
 
   if (msg.includes('502') || msg.includes('503') || msg.includes('provider'))
     return "The AI provider is having a rough moment. Try switching models or wait a minute.";

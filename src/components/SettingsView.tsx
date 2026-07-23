@@ -375,17 +375,26 @@ export default function SettingsView({
           {!isGuest && (
             <div className="bg-ava-surface border border-ava-border rounded-xl p-4 mb-3">
               <p className="text-xs text-gray-500 mb-2">Wallet</p>
-              <div className="flex gap-1 p-1 rounded-lg bg-ava-border/30">
-                {(['platform', 'byok'] as const).map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => { setProviderSource(s); setProviderSourceState(s); }}
-                    className={`flex-1 text-xs font-medium py-2 rounded-md transition ${providerSource === s ? 'bg-ava-purple text-white' : 'text-gray-400 hover:text-gray-200'}`}
-                  >
-                    {s === 'platform' ? 'Platform · credits' : 'API Key · your keys'}
-                  </button>
-                ))}
+              {/* Segmented pill pair — matches the extension's house button
+                  style (NavSidebar Platform/API Key). */}
+              <div className="flex gap-1">
+                {(['platform', 'byok'] as const).map(s => {
+                  const active = providerSource === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setProviderSource(s); setProviderSourceState(s); }}
+                      className={`flex-1 rounded-lg border py-2 text-xs font-semibold transition ${
+                        active
+                          ? 'bg-ava-purple/20 border-ava-purple/40 text-ava-purple-light'
+                          : 'bg-transparent border-ava-border text-gray-500 hover:bg-ava-purple/[0.08]'
+                      }`}
+                    >
+                      {s === 'platform' ? 'Platform' : 'API Key'}
+                    </button>
+                  );
+                })}
               </div>
               <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
                 {providerSource === 'platform'
