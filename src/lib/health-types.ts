@@ -236,6 +236,27 @@ export interface RecipeDetail {
 
 export type HealthGoal = 'fat_loss' | 'muscle_gain' | 'maintenance' | 'athletic' | 'recovery' | 'longevity';
 
+export type TrainingExperience = 'beginner' | 'intermediate' | 'advanced';
+/** Deliberately the same values as `recipe_versions.level`, so a profile can
+ *  pick the right VERSION of a recipe rather than just the right recipe. */
+export type CookingLevel = 'beginner' | 'intermediate' | 'expert';
+export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+/** A lift the user can already do, so weight prescription has somewhere to
+ *  start. Without any of these the planner can only say "RPE 7", which is a
+ *  dodge dressed up as a prescription. */
+export interface BaselineLift {
+  ref?: { kind: 'exercise'; slug: string } | null;
+  name: string;
+  weight_kg: number | null;
+  reps: number | null;
+}
+
+export interface WeightEntry {
+  date: string;
+  weight_kg: number;
+}
+
 export interface HealthProfile {
   schema_version: 1;
   updated_at: string | null;
@@ -262,6 +283,33 @@ export interface HealthProfile {
     meal_times: { breakfast: string | null; lunch: string | null; dinner: string | null };
     sleep_target: { bedtime: string | null; wake: string | null };
   };
+  // ── What programming actually needs ───────────────────────────────────────
+  // Optional so a profile written by core, the extension or the IDE — none of
+  // which know about these yet — still loads. Normalised on read.
+  training?: {
+    experience: TrainingExperience | null;
+    days_per_week: number | null;
+    /** WHICH days, not just how many. `schedule.training_window` gives the time
+     *  of day but nothing said "Mon/Wed/Fri", and you cannot shape a week
+     *  without knowing that. */
+    training_days: Weekday[];
+    baseline_lifts: BaselineLift[];
+  } | null;
+  kitchen?: {
+    level: CookingLevel | null;
+    /** Cooking time is not one number. Twenty minutes on a work night and an
+     *  hour at the weekend is the normal shape of a life, and a plan that
+     *  ignores it prescribes a braise on a Tuesday. */
+    minutes_weekday: number | null;
+    minutes_weekend: number | null;
+    /** Drives servings, leftovers and the shopping list — all wrong without it. */
+    household_size: number | null;
+    /** Matches `recipes.cost_tier`. Optional; the field exists and users care. */
+    cost_tier: string | null;
+  } | null;
+  /** Current weight lives in `body.weight_kg`; this is the trend. You cannot
+   *  show progress — or read whether a plan is working — from one number. */
+  weight_history?: WeightEntry[] | null;
 }
 
 // ─── Daily plan + log (Today) ───────────────────────────────────────────────
@@ -336,6 +384,54 @@ export function emptyHealthProfile(): HealthProfile {
       meal_times: { breakfast: null, lunch: null, dinner: null },
       sleep_target: { bedtime: null, wake: null },
     },
+    training: { experience: null, days_per_week: null, training_days: [], baseline_lifts: [] },
+    kitchen: { level: null, minutes_weekday: null, minutes_weekend: null, household_size: null, cost_tier: null },
+    weight_history: [],
+  };
+}
+
+/**
+ * Fill in anything a stored profile is missing.
+ *
+ * Profiles predate the training/kitchen branches, and profiles written by core,
+ * the extension or the IDE still won't have them until those surfaces are
+ * mirrored. Rather than make every reader defend itself, normalise once at the
+ * load boundary — the same treatment the meal log and plan days get.
+ *
+ * Nothing here invents a value. A missing field becomes null or an empty list,
+ * never a guess: a planner that assumes "intermediate" because nobody asked is
+ * worse than one that knows it doesn't know.
+ */
+export function normaliseHealthProfile(raw: unknown): HealthProfile {
+  const empty = emptyHealthProfile();
+  const p = (raw ?? {}) as Partial<HealthProfile>;
+  const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+  return {
+    ...empty,
+    ...p,
+    body: { ...empty.body, ...(p.body ?? {}) },
+    goals: { ...empty.goals, ...(p.goals ?? {}) },
+    constraints: {
+      ...empty.constraints,
+      ...(p.constraints ?? {}),
+      allergens: arr<string>(p.constraints?.allergens),
+      dietary: arr<string>(p.constraints?.dietary),
+      injuries: arr<string>(p.constraints?.injuries),
+      equipment_available: arr<string>(p.constraints?.equipment_available),
+    },
+    schedule: {
+      training_window: { ...empty.schedule.training_window, ...(p.schedule?.training_window ?? {}) },
+      meal_times: { ...empty.schedule.meal_times, ...(p.schedule?.meal_times ?? {}) },
+      sleep_target: { ...empty.schedule.sleep_target, ...(p.schedule?.sleep_target ?? {}) },
+    },
+    training: {
+      ...empty.training!,
+      ...(p.training ?? {}),
+      training_days: arr<Weekday>(p.training?.training_days),
+      baseline_lifts: arr<BaselineLift>(p.training?.baseline_lifts),
+    },
+    kitchen: { ...empty.kitchen!, ...(p.kitchen ?? {}) },
+    weight_history: arr<WeightEntry>(p.weight_history),
   };
 }
 
