@@ -9,7 +9,7 @@
 // `save` enforces the same one-active-plan-PER-TYPE rule the extension uses:
 // activating a plan archives any other active plan of the same type.
 
-import type { HealthPlan, HealthPlanSummary, HealthPlanType, HealthPlanDay } from './health-types';
+import type { HealthPlan, HealthPlanSummary, HealthPlanType, HealthPlanDay, HealthPlanDayProgress } from './health-types';
 import { planToSummary } from './health-types';
 
 const PREFIX = 'ava-companion-plan-';
@@ -37,12 +37,45 @@ function planIds(): string[] {
   return ids;
 }
 
+/**
+ * Give every day a completion roll-up.
+ *
+ * Plans written before completion tracking have no `completion` at all, and
+ * they are sitting in localStorage on every existing device. `getPlan` is the
+ * one boundary every read passes through — getAllPlans and listPlans both go
+ * via it — so normalising here means no caller ever has to wonder when the plan
+ * it is holding was written.
+ *
+ * A day is only ever 'pending' by default. We never infer that an old plan's
+ * days were completed: no log said so, and inventing adherence would poison the
+ * progress figures the moment they matter.
+ */
+function normaliseDay(raw: HealthPlanDay): HealthPlanDay {
+  const c = raw.completion;
+  const valid = (v: unknown): v is HealthPlanDayProgress =>
+    v === 'pending' || v === 'partial' || v === 'done' || v === 'skipped';
+  return {
+    ...raw,
+    training: Array.isArray(raw.training) ? raw.training : [],
+    meals: Array.isArray(raw.meals) ? raw.meals : [],
+    completion: {
+      training: valid(c?.training) ? c.training : 'pending',
+      nutrition: valid(c?.nutrition) ? c.nutrition : 'pending',
+      completed_at: typeof c?.completed_at === 'string' ? c.completed_at : null,
+    },
+  };
+}
+
 export function getPlan(id: string): HealthPlan | null {
   if (!hasStorage()) return null;
   const raw = localStorage.getItem(planKey(id));
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as HealthPlan;
+    const parsed = JSON.parse(raw) as HealthPlan;
+    return {
+      ...parsed,
+      days: Array.isArray(parsed.days) ? parsed.days.map(normaliseDay) : [],
+    };
   } catch {
     return null;
   }
@@ -99,7 +132,10 @@ export function writePlanRaw(plan: HealthPlan): void {
 export function blankPlan(type: HealthPlanType, durationDays: number, title: string): HealthPlan {
   const days: HealthPlanDay[] = [];
   for (let i = 1; i <= durationDays; i++) {
-    days.push({ day_index: i, kind: 'rest', title: null, training: [], meals: [], notes: null });
+    days.push({
+      day_index: i, kind: 'rest', title: null, training: [], meals: [], notes: null,
+      completion: { training: 'pending', nutrition: 'pending', completed_at: null },
+    });
   }
   return {
     schema_version: 1,

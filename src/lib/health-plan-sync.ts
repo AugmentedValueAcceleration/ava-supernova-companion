@@ -48,8 +48,24 @@ export async function syncPlans(token?: string | null): Promise<number> {
     if (!remote?.id) continue;
     const local = localById.get(remote.id);
     if (!local || isNewer(remote, local)) {
-      writePlanRaw(remote);
-      localById.set(remote.id, remote);
+      // Newest-wins on content, but never let a client that doesn't know about
+      // completion tracking erase it. The extension and IDE still write plans
+      // without `completion` (mirroring is a later step), and a newer save from
+      // one of those would otherwise wipe the local adherence record — a
+      // user's training history lost because they opened a different surface.
+      // Content follows the newer copy; completion is preserved per-day where
+      // the remote has none of its own.
+      const merged: HealthPlan = local
+        ? {
+            ...remote,
+            days: remote.days?.map((rd) => {
+              const ld = local.days?.find((d) => d.day_index === rd.day_index);
+              return rd.completion ? rd : { ...rd, completion: ld?.completion ?? null };
+            }) ?? [],
+          }
+        : remote;
+      writePlanRaw(merged);
+      localById.set(remote.id, merged);
       changed++;
     }
   }

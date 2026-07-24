@@ -34,6 +34,25 @@ export interface HealthPlanMeal {
   notes: string | null;
 }
 
+export type HealthPlanDayProgress = 'pending' | 'partial' | 'done' | 'skipped';
+
+/**
+ * What actually happened on a plan day.
+ *
+ * Deliberately a ROLL-UP, not a second copy of the logs. The detail lives where
+ * it is captured: sets performed in `GymSession`, what was eaten in
+ * `HealthDailyMeal`. Both of those are keyed by date, so deriving a plan's
+ * progress would mean loading every day's log just to draw one plan card — for
+ * every card in the library. This is the cheap summary that makes a plan
+ * self-describing; it is written when completion flows back, never typed.
+ */
+export interface HealthPlanDayCompletion {
+  training: HealthPlanDayProgress;
+  nutrition: HealthPlanDayProgress;
+  /** First time this day was considered done. Null until it is. */
+  completed_at: string | null;
+}
+
 export interface HealthPlanDay {
   day_index: number;
   kind: 'training' | 'rest' | 'active_recovery';
@@ -41,6 +60,8 @@ export interface HealthPlanDay {
   training: HealthPlanExercise[];
   meals: HealthPlanMeal[];
   notes: string | null;
+  /** Absent on plans written before completion tracking; normalised on load. */
+  completion?: HealthPlanDayCompletion | null;
 }
 
 export interface HealthPlanSummary {
