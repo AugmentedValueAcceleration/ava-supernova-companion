@@ -245,12 +245,34 @@ export interface HealthProfile {
 
 // ─── Daily plan + log (Today) ───────────────────────────────────────────────
 
+/** What happened to a meal: eaten as planned, swapped for something else, or
+ *  skipped. Ad-hoc meals logged with no plan behind them are 'eaten'. */
+export type HealthMealStatus = 'eaten' | 'swapped' | 'skipped';
+
 export interface HealthDailyMeal {
   id: string;
   time: string;
   description: string | null;
   calories: number | null;
   protein_g: number | null;
+  // ── Brought up to the training log's standard ─────────────────────────────
+  // The training side has always recorded prescribed (`target_*`) against
+  // actual (`sets[]`), linked to the library by slug. The meal log recorded
+  // free text and two macros, so a user hand-typed calories while every recipe
+  // in the library carried nutrition computed from real ingredient data — and
+  // nothing could answer "did they eat what was planned, or swap it?".
+  carbs_g: number | null;
+  fat_g: number | null;
+  /** Library link. When set, the macros above come from the recipe's computed
+   *  nutrition rather than being typed — the whole point of computing it. */
+  ref?: { kind: 'recipe'; slug: string } | null;
+  /** The `HealthPlanMeal.id` this fulfils, when the day came from a plan.
+   *  Prescribed-versus-actual for food. */
+  planned_meal_id?: string | null;
+  status?: HealthMealStatus;
+  /** Servings actually eaten — recipe macros are per serving, so one portion of
+   *  a four-serving batch is a quarter of the numbers. */
+  servings?: number | null;
 }
 
 export interface HealthDailyLog {

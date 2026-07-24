@@ -217,7 +217,17 @@ function MealEditor({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Heal
   const numOrNull = (s: string) => { const n = Number(s); return s.trim() && Number.isFinite(n) && n > 0 ? Math.round(n) : null; };
   const add = () => {
     if (!desc.trim()) return;
-    commit(l => ({ ...l, meals: [...l.meals, { id: logId(), time: nowHHMM(), description: desc.trim(), calories: numOrNull(kcal), protein_g: numOrNull(protein) }] }));
+    // Ad-hoc entry: typed by hand, so carbs/fat stay null and there's no recipe
+    // or plan behind it. A meal logged this way was eaten by definition.
+    commit(l => ({
+      ...l,
+      meals: [...l.meals, {
+        id: logId(), time: nowHHMM(), description: desc.trim(),
+        calories: numOrNull(kcal), protein_g: numOrNull(protein),
+        carbs_g: null, fat_g: null,
+        ref: null, planned_meal_id: null, status: 'eaten', servings: null,
+      }],
+    }));
     setDesc(''); setKcal(''); setProtein('');
   };
   const fc = 'rounded-md border border-ava-border bg-ava-surface px-3 py-1.5 text-[12px] text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none';
