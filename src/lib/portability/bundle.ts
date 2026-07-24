@@ -66,6 +66,13 @@ const K = {
   conversations: 'ava-companion-conversations',
   journalPrefix: 'ava-journal-',          // ava-journal-YYYY-MM-DD
   planPrefix: 'ava-companion-plan-',       // ava-companion-plan-{id}
+  // What the user actually DID. Plans and profile were already covered, but
+  // the record of every meal eaten and every set performed was not — so an
+  // export, a new device and an import lost the entire history while the
+  // plans that produced it survived. These are also exactly what adherence
+  // and per-exercise progression are computed from.
+  dayPrefix: 'ava-companion-day-',                 // ava-companion-day-YYYY-MM-DD
+  gymSessionPrefix: 'ava-companion-gym-session-',  // ava-companion-gym-session-{id}
 } as const;
 
 // Companion keeps at most this many conversations (mirrors chat-history.ts).
@@ -278,6 +285,8 @@ function conversationToHistory(conv: CompanionConversation): string {
 
 function dateFromJournalKey(k: string): string { return k.slice(K.journalPrefix.length); }
 function idFromPlanKey(k: string): string { return k.slice(K.planPrefix.length); }
+function dateFromDayKey(k: string): string { return k.slice(K.dayPrefix.length); }
+function idFromGymSessionKey(k: string): string { return k.slice(K.gymSessionPrefix.length); }
 
 // ── Orchestrators ────────────────────────────────────────────────────────────
 
@@ -308,6 +317,14 @@ export function gatherBundle(kv: KV, source = 'companion'): DataBundle {
       const id = idFromPlanKey(key);
       const raw = kv.get(key);
       if (raw) files[`health/plans/${id}.json`] = raw; // identical shape
+    } else if (key.startsWith(K.dayPrefix)) {
+      const date = dateFromDayKey(key);
+      const raw = kv.get(key);
+      if (raw) files[`health/days/${date}.json`] = raw; // identical shape
+    } else if (key.startsWith(K.gymSessionPrefix)) {
+      const id = idFromGymSessionKey(key);
+      const raw = kv.get(key);
+      if (raw) files[`health/sessions/${id}.json`] = raw; // identical shape
     }
   }
 
@@ -391,6 +408,12 @@ export function restoreBundle(kv: KV, bundle: DataBundle, opts?: { overwrite?: b
     } else if (path.startsWith('health/plans/') && path.endsWith('.json')) {
       const id = path.slice('health/plans/'.length, -'.json'.length);
       if (setMerge(`${K.planPrefix}${id}`, content)) projected.add('health plans');
+    } else if (path.startsWith('health/days/') && path.endsWith('.json')) {
+      const date = path.slice('health/days/'.length, -'.json'.length);
+      if (setMerge(`${K.dayPrefix}${date}`, content)) projected.add('daily logs');
+    } else if (path.startsWith('health/sessions/') && path.endsWith('.json')) {
+      const id = path.slice('health/sessions/'.length, -'.json'.length);
+      if (setMerge(`${K.gymSessionPrefix}${id}`, content)) projected.add('gym sessions');
     }
     // else: carried in the shadow only (learning.json, projects.json, …).
   }
