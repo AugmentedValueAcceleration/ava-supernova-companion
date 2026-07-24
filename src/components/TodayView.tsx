@@ -12,6 +12,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi } from '@/lib/api';
+import { deriveToday, todayMacros, type TodayDerived, type TodaySession } from '@/lib/health-today';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
 
 export function TodayView({ token }: { token?: string | null }) {
@@ -41,6 +42,10 @@ export function TodayView({ token }: { token?: string | null }) {
       setBriefBusy(false);
     }
   }, [token, today, profile, plan.log]);
+
+  // Joined at read time from the active plan + today's logs. Recomputed when
+  // the day changes so ticking a meal updates the section immediately.
+  const derived = useMemo(() => deriveToday(today), [today, plan]);
 
   const readiness = useMemo(() => computeReadiness(profile, plan), [profile, plan]);
   const nutrition = useMemo(() => computeNutrition(profile, plan), [profile, plan]);
@@ -74,6 +79,11 @@ export function TodayView({ token }: { token?: string | null }) {
           </button>
         </section>
 
+        {/* Today's plan — derived from the active plan, never copied into the
+            day store. Renders only when a plan actually covers today, so a
+            user with no plan sees exactly what they saw before. */}
+        {derived.hasPlan && <TodayPlanSection derived={derived} />}
+
         {/* Status */}
         <section className="mt-7">
           <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayStatusLabel')}</h2>
@@ -92,6 +102,97 @@ export function TodayView({ token }: { token?: string | null }) {
       </div>
     </div>
   );
+}
+
+// ── Today's plan ─────────────────────────────────────────────────────────────
+//
+// The join that was missing: what the active plan asks for today, shown next to
+// what has actually been logged. Read-only for now — ticking a meal off and
+// running the session land in the meal flow and the completion pass.
+
+function kindLabel(kind: TodaySession['kind']): string {
+  if (kind === 'rest') return t('todayPlanRest');
+  if (kind === 'active_recovery') return t('todayPlanRecovery');
+  return t('todayPlanTrainingLabel');
+}
+
+function TodayPlanSection({ derived }: { derived: TodayDerived }) {
+  const macros = useMemo(() => todayMacros(derived), [derived]);
+  return (
+    <section className="mt-7">
+      <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayPlanLabel')}</h2>
+
+      {derived.sessions.map(s => (
+        <div key={`${s.plan_id}-${s.day_index}`} className="mb-2.5 rounded-xl border border-ava-border bg-ava-surface p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium text-white truncate">{s.title || kindLabel(s.kind)}</div>
+              <div className="mt-0.5 text-[10px] text-gray-500">{s.plan_title} · {t('todayPlanLabel')} {s.day_index}</div>
+            </div>
+            {s.status === 'completed' && <Pill tone="done">{t('todayPlanDone')}</Pill>}
+            {s.status === 'in-progress' && <Pill tone="active">{t('todayPlanInProgress')}</Pill>}
+          </div>
+
+          {s.exercises.length > 0 ? (
+            <ul className="mt-3 space-y-1.5">
+              {s.exercises.map(ex => (
+                <li key={ex.id} className="flex items-baseline justify-between gap-3 text-[12px]">
+                  <span className="truncate text-gray-200">{ex.name}</span>
+                  <span className="shrink-0 font-mono text-[10px] text-gray-500">
+                    {[ex.sets ? `${ex.sets}×${ex.reps ?? ''}` : ex.reps, ex.weight].filter(Boolean).join(' · ')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-[12px] italic text-gray-500">{t('todayPlanRestHint')}</p>
+          )}
+
+          {s.notes && <p className="mt-2.5 text-[11px] leading-relaxed text-gray-400">{s.notes}</p>}
+        </div>
+      ))}
+
+      {derived.meals.length > 0 && (
+        <div className="rounded-xl border border-ava-border bg-ava-surface p-4">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500">{t('todayPlanMealsLabel')}</span>
+            {/* Actual against planned — the number the whole nutrition half exists to make true. */}
+            <span className="font-mono text-[10px] text-gray-500">
+              {Math.round(macros.actual.calories)} / {Math.round(macros.planned.calories)} kcal
+            </span>
+          </div>
+          <ul className="mt-2.5 space-y-1.5">
+            {derived.meals.map(m => (
+              <li key={m.planned.id} className="flex items-baseline justify-between gap-3 text-[12px]">
+                <span className="min-w-0 truncate">
+                  <span className="font-mono text-[10px] text-gray-500">{(m.planned.slot ?? '').slice(0, 2)}</span>{' '}
+                  <span className={m.status === 'pending' ? 'text-gray-200' : 'text-gray-400 line-through'}>{m.planned.name}</span>
+                </span>
+                <span className="shrink-0 text-[10px] text-gray-500">
+                  {m.status === 'eaten' ? t('todayPlanEaten')
+                    : m.status === 'swapped' ? t('todayPlanSwapped')
+                    : m.status === 'skipped' ? t('todayPlanSkipped')
+                    : m.planned.calories != null ? `${m.planned.calories} kcal` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {derived.extraMeals.length > 0 && (
+            <p className="mt-2.5 text-[10px] text-gray-500">
+              {t('todayPlanExtraMeals')}: {derived.extraMeals.map(m => m.description).filter(Boolean).join(', ')}
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Pill({ tone, children }: { tone: 'done' | 'active'; children: React.ReactNode }) {
+  const cls = tone === 'done'
+    ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300'
+    : 'border-ava-purple/40 bg-ava-purple/10 text-ava-purple-light';
+  return <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] ${cls}`}>{children}</span>;
 }
 
 // ── Status tiles ─────────────────────────────────────────────────────────────
