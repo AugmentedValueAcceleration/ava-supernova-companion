@@ -166,6 +166,7 @@ export const itStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Anche registrato',
   'mealSheetEat': 'Mangiato',
   'mealSheetSkip': 'Salta',
+  'mealSheetSwap': 'Sostituisci',
   'mealSheetUndo': 'Annulla',
   'mealSheetServings': 'Porzioni',
   'mealSheetPerServing': 'per porzione',

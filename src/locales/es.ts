@@ -166,6 +166,7 @@ export const esStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'También registrado',
   'mealSheetEat': 'Lo comí',
   'mealSheetSkip': 'Omitir',
+  'mealSheetSwap': 'Cambiar',
   'mealSheetUndo': 'Deshacer',
   'mealSheetServings': 'Raciones',
   'mealSheetPerServing': 'por ración',

@@ -166,6 +166,7 @@ export const trStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Ayrıca kaydedildi',
   'mealSheetEat': 'Yedim',
   'mealSheetSkip': 'Atla',
+  'mealSheetSwap': 'Değiştir',
   'mealSheetUndo': 'Geri al',
   'mealSheetServings': 'Porsiyon',
   'mealSheetPerServing': 'porsiyon başına',

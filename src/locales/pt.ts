@@ -166,6 +166,7 @@ export const ptStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Também registado',
   'mealSheetEat': 'Comi',
   'mealSheetSkip': 'Ignorar',
+  'mealSheetSwap': 'Trocar',
   'mealSheetUndo': 'Desfazer',
   'mealSheetServings': 'Doses',
   'mealSheetPerServing': 'por dose',

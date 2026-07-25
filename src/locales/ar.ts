@@ -166,6 +166,7 @@ export const arStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'مسجَّل أيضًا',
   'mealSheetEat': 'تناولتها',
   'mealSheetSkip': 'تخطي',
+  'mealSheetSwap': 'استبدال',
   'mealSheetUndo': 'تراجع',
   'mealSheetServings': 'الحصص',
   'mealSheetPerServing': 'لكل حصة',

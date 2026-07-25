@@ -166,6 +166,7 @@ export const idStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Juga dicatat',
   'mealSheetEat': 'Sudah dimakan',
   'mealSheetSkip': 'Lewati',
+  'mealSheetSwap': 'Ganti',
   'mealSheetUndo': 'Urungkan',
   'mealSheetServings': 'Porsi',
   'mealSheetPerServing': 'per porsi',

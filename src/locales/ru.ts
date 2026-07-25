@@ -166,6 +166,7 @@ export const ruStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Также записано',
   'mealSheetEat': 'Съедено',
   'mealSheetSkip': 'Пропустить',
+  'mealSheetSwap': 'Заменить',
   'mealSheetUndo': 'Отменить',
   'mealSheetServings': 'Порции',
   'mealSheetPerServing': 'на порцию',

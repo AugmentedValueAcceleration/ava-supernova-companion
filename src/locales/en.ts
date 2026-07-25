@@ -246,6 +246,7 @@ export const enStrings = {
   'todayPlanExtraMeals': 'Also logged',
   'mealSheetEat': 'Ate it',
   'mealSheetSkip': 'Skip',
+  'mealSheetSwap': 'Swap',
   'mealSheetUndo': 'Undo',
   'mealSheetServings': 'Servings',
   'mealSheetPerServing': 'per serving',

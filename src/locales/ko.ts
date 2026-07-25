@@ -166,6 +166,7 @@ export const koStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': '추가 기록',
   'mealSheetEat': '먹었음',
   'mealSheetSkip': '건너뛰기',
+  'mealSheetSwap': '교체',
   'mealSheetUndo': '실행 취소',
   'mealSheetServings': '인분',
   'mealSheetPerServing': '1인분당',

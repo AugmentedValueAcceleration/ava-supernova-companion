@@ -166,6 +166,7 @@ export const frStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Également enregistré',
   'mealSheetEat': 'Mangé',
   'mealSheetSkip': 'Ignorer',
+  'mealSheetSwap': 'Remplacer',
   'mealSheetUndo': 'Annuler',
   'mealSheetServings': 'Portions',
   'mealSheetPerServing': 'par portion',

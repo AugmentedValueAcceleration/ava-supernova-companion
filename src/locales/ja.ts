@@ -166,6 +166,7 @@ export const jaStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': '追加で記録',
   'mealSheetEat': '食べた',
   'mealSheetSkip': 'スキップ',
+  'mealSheetSwap': '変更',
   'mealSheetUndo': '元に戻す',
   'mealSheetServings': '人前',
   'mealSheetPerServing': '1人前あたり',

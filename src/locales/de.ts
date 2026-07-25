@@ -166,6 +166,7 @@ export const deStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Ebenfalls erfasst',
   'mealSheetEat': 'Gegessen',
   'mealSheetSkip': 'Auslassen',
+  'mealSheetSwap': 'Tauschen',
   'mealSheetUndo': 'Rückgängig',
   'mealSheetServings': 'Portionen',
   'mealSheetPerServing': 'pro Portion',

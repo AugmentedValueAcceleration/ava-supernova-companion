@@ -166,6 +166,7 @@ export const viStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Cũng đã ghi',
   'mealSheetEat': 'Đã ăn',
   'mealSheetSkip': 'Bỏ qua',
+  'mealSheetSwap': 'Đổi món',
   'mealSheetUndo': 'Hoàn tác',
   'mealSheetServings': 'Khẩu phần',
   'mealSheetPerServing': 'mỗi khẩu phần',

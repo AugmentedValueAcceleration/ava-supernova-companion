@@ -166,6 +166,7 @@ export const ukStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Також записано',
   'mealSheetEat': 'З\'їдено',
   'mealSheetSkip': 'Пропустити',
+  'mealSheetSwap': 'Замінити',
   'mealSheetUndo': 'Скасувати',
   'mealSheetServings': 'Порції',
   'mealSheetPerServing': 'на порцію',

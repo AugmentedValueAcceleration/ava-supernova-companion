@@ -11,10 +11,11 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
-import { briefApi } from '@/lib/api';
+import { briefApi, healthCatalogApi } from '@/lib/api';
 import { recentForBrief } from '@/lib/health-progress';
 import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession, type TodayMeal } from '@/lib/health-today';
-import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
+import type { HealthProfile, HealthDailyPlan, HealthDailyLog, RecipeCard } from '@/lib/health-types';
+import { CataloguePicker } from './CataloguePicker';
 
 export function TodayView({ token }: { token?: string | null }) {
   useLocale();
@@ -24,6 +25,7 @@ export function TodayView({ token }: { token?: string | null }) {
   const [briefBusy, setBriefBusy] = useState(false);
   const [briefErr, setBriefErr] = useState<string | null>(null);
   const [openMeal, setOpenMeal] = useState<TodayMeal | null>(null);
+  const [swapFor, setSwapFor] = useState<TodayMeal | null>(null);
 
   const profileEmpty = !profile || (profile.body.weight_kg == null && profile.body.height_cm == null && profile.goals.primary == null);
 
@@ -67,6 +69,44 @@ export function TodayView({ token }: { token?: string | null }) {
   const undoPlannedMeal = useCallback((m: TodayMeal) => {
     commit(log => ({ ...log, meals: log.meals.filter(x => x.planned_meal_id !== m.planned.id) }));
     setOpenMeal(null);
+  }, [commit]);
+
+  /**
+   * Swap: you ate something, just not the thing that was planned.
+   *
+   * The macros come from the REPLACEMENT recipe's computed nutrition, fetched
+   * on pick — using the planned meal's numbers would record a lie, and the
+   * whole point of the meal log is that it says what actually happened.
+   *
+   * If the fetch fails the swap is still recorded, with null macros rather
+   * than borrowed ones. An honest gap beats a confident wrong number.
+   */
+  const swapPlannedMeal = useCallback(async (m: TodayMeal, pick: RecipeCard) => {
+    setSwapFor(null);
+    setOpenMeal(null);
+    // recipe_versions.nutrition is PER SERVING, same as plan meals, so one
+    // serving of the replacement is a straight copy.
+    let n: Record<string, number | null | undefined> = {};
+    try {
+      const res = await healthCatalogApi.recipe(pick.slug);
+      n = (res?.recipe?.versions ?? [])[0]?.nutrition ?? {};
+    } catch { /* recorded without macros — see above */ }
+    const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : null);
+    commit(log => ({
+      ...log,
+      meals: [
+        ...log.meals.filter(x => x.planned_meal_id !== m.planned.id),
+        {
+          id: logId(), time: nowHHMM(), description: pick.name,
+          calories: num(n.calories), protein_g: num(n.protein_g),
+          carbs_g: num(n.carbs_g), fat_g: num(n.fat_g),
+          ref: { kind: 'recipe', slug: pick.slug },
+          planned_meal_id: m.planned.id,
+          status: 'swapped',
+          servings: 1,
+        },
+      ],
+    }));
   }, [commit]);
 
   // Push the day's roll-up back to the plan whenever the log changes.
@@ -165,6 +205,15 @@ export function TodayView({ token }: { token?: string | null }) {
           onClose={() => setOpenMeal(null)}
           onLog={logPlannedMeal}
           onUndo={undoPlannedMeal}
+          onSwap={() => setSwapFor(openMeal)}
+        />
+      )}
+
+      {swapFor && (
+        <CataloguePicker
+          kind="recipe"
+          onClose={() => setSwapFor(null)}
+          onPick={(item) => { void swapPlannedMeal(swapFor, item as RecipeCard); }}
         />
       )}
     </div>
@@ -181,11 +230,12 @@ export function TodayView({ token }: { token?: string | null }) {
 // So this is deliberately not a form. The numbers are already known; the only
 // thing the app doesn't know is whether you ate it, and how much.
 
-function MealSheet({ meal, onClose, onLog, onUndo }: {
+function MealSheet({ meal, onClose, onLog, onUndo, onSwap }: {
   meal: TodayMeal;
   onClose: () => void;
   onLog: (m: TodayMeal, status: 'eaten' | 'skipped', servings: number) => void;
   onUndo: (m: TodayMeal) => void;
+  onSwap: () => void;
 }) {
   // Default to what was actually logged if this is being revisited, else to
   // what the plan asked for.
@@ -249,6 +299,16 @@ function MealSheet({ meal, onClose, onLog, onUndo }: {
             {t('mealSheetEat')}
           </button>
         </div>
+
+        {/* Swap sits apart from the primary pair: it opens a search rather than
+            committing anything, so it shouldn't look like a third answer to
+            "did you eat this?". */}
+        <button
+          onClick={onSwap}
+          className="mt-3 w-full rounded-full px-4 py-2 text-[12px] text-gray-500 hover:text-ava-purple-light transition"
+        >
+          {t('mealSheetSwap')}
+        </button>
       </div>
     </div>
   );

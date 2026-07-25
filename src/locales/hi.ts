@@ -166,6 +166,7 @@ export const hiStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'यह भी दर्ज',
   'mealSheetEat': 'खा लिया',
   'mealSheetSkip': 'छोड़ें',
+  'mealSheetSwap': 'बदलें',
   'mealSheetUndo': 'पूर्ववत करें',
   'mealSheetServings': 'सर्विंग',
   'mealSheetPerServing': 'प्रति सर्विंग',

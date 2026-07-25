@@ -166,6 +166,7 @@ export const thStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'บันทึกเพิ่มเติม',
   'mealSheetEat': 'กินแล้ว',
   'mealSheetSkip': 'ข้าม',
+  'mealSheetSwap': 'เปลี่ยน',
   'mealSheetUndo': 'เลิกทำ',
   'mealSheetServings': 'ที่เสิร์ฟ',
   'mealSheetPerServing': 'ต่อหนึ่งที่',

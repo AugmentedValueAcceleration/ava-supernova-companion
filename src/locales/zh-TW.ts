@@ -166,6 +166,7 @@ export const zhTWStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': '另外記錄',
   'mealSheetEat': '已吃',
   'mealSheetSkip': '略過',
+  'mealSheetSwap': '更換',
   'mealSheetUndo': '復原',
   'mealSheetServings': '份量',
   'mealSheetPerServing': '每份',

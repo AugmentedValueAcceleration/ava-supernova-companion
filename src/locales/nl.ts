@@ -166,6 +166,7 @@ export const nlStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Ook gelogd',
   'mealSheetEat': 'Gegeten',
   'mealSheetSkip': 'Overslaan',
+  'mealSheetSwap': 'Ruilen',
   'mealSheetUndo': 'Ongedaan maken',
   'mealSheetServings': 'Porties',
   'mealSheetPerServing': 'per portie',

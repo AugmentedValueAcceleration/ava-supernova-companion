@@ -166,6 +166,7 @@ export const plStrings: Record<StringKey, string> = {
   'todayPlanExtraMeals': 'Też zapisano',
   'mealSheetEat': 'Zjedzone',
   'mealSheetSkip': 'Pomiń',
+  'mealSheetSwap': 'Zamień',
   'mealSheetUndo': 'Cofnij',
   'mealSheetServings': 'Porcje',
   'mealSheetPerServing': 'na porcję',
