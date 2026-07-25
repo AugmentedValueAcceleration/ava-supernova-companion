@@ -69,6 +69,52 @@ export interface Progress {
   has_any_data: boolean;
 }
 
+/**
+ * The compact evidence block the morning brief reasons from.
+ *
+ * Aggregates only — counts and averages, never the meals eaten or the sets
+ * performed. That keeps it in step with the rest of the brief context (which
+ * already sends `meals_logged: 3` rather than what they were), and it happens
+ * to be better input anyway: the model needs the shape of the last fortnight,
+ * not a transcript of it.
+ *
+ * Without this the brief could only reason from intention — goal, schedule,
+ * constraints — so someone on a four-week streak and someone who hasn't
+ * trained since signing up got the same encouraging paragraph.
+ */
+export function recentForBrief(today: string): {
+  streak: number;
+  adherence_pct: number | null;
+  sessions_last_7: number;
+  avg_calories: number | null;
+  avg_protein_g: number | null;
+  today: { kind: 'training' | 'rest' | 'active_recovery'; title: string | null; exercises: number; meals: number } | null;
+} {
+  const p = computeProgress(today, 14);
+  const weekAgo = shiftDays(today, -6);
+  const sessions7 = listSessions().filter(s => s.status === 'completed' && s.date >= weekAgo).length;
+
+  const withCals = p.intake.filter(d => d.actual_calories != null);
+  const withProtein = p.intake.filter(d => d.actual_protein_g != null);
+  const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+  const derived = deriveToday(today);
+  const session = derived.sessions[0] ?? null;
+
+  return {
+    streak: p.training.streak,
+    adherence_pct: p.training.adherence_pct,
+    sessions_last_7: sessions7,
+    avg_calories: mean(withCals.map(d => d.actual_calories as number)),
+    avg_protein_g: mean(withProtein.map(d => d.actual_protein_g as number)),
+    today: session
+      ? { kind: session.kind, title: session.title, exercises: session.exercises.length, meals: derived.meals.length }
+      : derived.meals.length > 0
+        ? { kind: 'rest', title: null, exercises: 0, meals: derived.meals.length }
+        : null,
+  };
+}
+
 export function computeProgress(today: string, windowDays = 30): Progress {
   const plans = getAllPlans();
   const sessions = listSessions();

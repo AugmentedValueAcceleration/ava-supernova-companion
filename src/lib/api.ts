@@ -129,7 +129,14 @@ export const profileApi = {
 // Morning brief — Ava-authored paragraph from a profile + log snapshot.
 // Charges 1 credit (server-side, off the resolved user id).
 export const briefApi = {
-  generate: (token: string, context: { date: string; profile: unknown; log: unknown }) =>
+  // `hour` drives the greeting and `recent` lets the brief reason from evidence
+  // rather than intention. Both were missing: without `hour` the prompt's
+  // time-of-day ladder fell all the way through and every brief opened with
+  // "Evening", whatever the actual time.
+  generate: (
+    token: string,
+    context: { date: string; hour: number; profile: unknown; log: unknown; recent?: unknown },
+  ) =>
     apiFetch('/health/morning-brief', { method: 'POST', body: JSON.stringify({ context }) }, token).then(r => r.json()),
 };
 

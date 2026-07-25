@@ -12,6 +12,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi } from '@/lib/api';
+import { recentForBrief } from '@/lib/health-progress';
 import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession, type TodayMeal } from '@/lib/health-today';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
 
@@ -82,7 +83,15 @@ export function TodayView({ token }: { token?: string | null }) {
     if (!token) { setBriefErr('Sign in to let Ava write your brief.'); return; }
     setBriefBusy(true); setBriefErr(null);
     try {
-      const res = await briefApi.generate(token, { date: today, profile, log: plan.log });
+      const res = await briefApi.generate(token, {
+        date: today,
+        hour: new Date().getHours(),
+        profile,
+        log: plan.log,
+        // Aggregate evidence — how they've actually been doing — so the brief
+        // can say something true rather than reasoning purely from intention.
+        recent: recentForBrief(today),
+      });
       if (res?.brief) setPlan(prev => saveDay({ ...prev, morning_brief: res.brief }));
       else setBriefErr(res?.error ?? 'Couldn’t write the brief.');
     } catch (e) {
