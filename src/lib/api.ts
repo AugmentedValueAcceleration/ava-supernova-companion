@@ -109,6 +109,34 @@ export const healthCatalogApi = {
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
 };
 
+// Ava helping with ONE day inside the plan builder. Charged (1 credit, 2 for a
+// combined plan), so it needs the account key — unlike the read-only catalogue
+// above. Returns a PROPOSAL; nothing is saved until the user accepts it.
+export const healthAssistApi = {
+  day: (token: string, payload: {
+    type: 'fitness' | 'meal' | 'combined';
+    goal?: string | null;
+    profile?: unknown;
+    day: unknown;
+    week?: unknown[];
+    instruction: string;
+  }) =>
+    fetch(`${API_BASE}/health/generate/day`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    }).then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body?.error || `Request failed (${r.status})`);
+      return body as {
+        day: unknown;
+        note: string;
+        credits_charged: number;
+        unverifiable_allergens: string[];
+      };
+    }),
+};
+
 // News desk — public read of the same published articles the web /news page
 // and the newsroom serve. No auth. `list` supports a category filter; `article`
 // pulls the full body + related pieces for the in-app reader.

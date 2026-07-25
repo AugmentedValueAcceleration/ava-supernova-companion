@@ -439,6 +439,37 @@ export const enStrings = {
   'duplicateSheetProgressSameNote': 'An identical week repeated for a month stops working. A small step up is usually the right call.',
   'duplicateSheetProgressNote': 'Applied to the copy only, and never to warm-ups, cool-downs or mobility work. Weights are left alone — only you know what you actually lifted.',
 
+  // ── Ask Ava (per-day assist) ──────────────────────────────────────────
+  // You drive; Ava helps with the parts you want. It proposes and never
+  // saves until you accept, so the copy can be inviting rather than cautious.
+  'planBuilderAskAva': 'Ask Ava about this day',
+  'planBuilderAskAvaEmpty': 'Ask Ava to fill this day',
+  'assistTitle': 'Ask Ava',
+  'assistDayWord': 'Day',
+  'assistClose': 'Close',
+  'assistPlaceholder': 'What would you like help with? For example: swap the squat for something kinder on my knee.',
+  'assistKeepsYourWork': 'Ava works around what you have already put here — nothing is saved until you accept it.',
+  'assistPromptFill': 'Fill this day for me',
+  'assistPromptFinisher': 'Add a finisher',
+  'assistPromptWarmup': 'Add a warm-up',
+  'assistPromptEasier': 'Make this session easier',
+  'assistPromptProtein': 'More protein today',
+  'assistPromptQuicker': 'Quicker meals',
+  'assistThinking': 'Ava is working on this day…',
+  'assistThinkingHint': 'This takes about a minute — she is checking it against your profile and the rest of your week.',
+  'assistThinkingShort': 'Working…',
+  'assistAsk': 'Ask Ava',
+  'assistFailed': "That didn't work — try again in a moment.",
+  'assistNeedsAccount': 'Sign in to your Ava account to use this.',
+  'assistAvaSays': 'Ava',
+  'assistNoNote': 'Here is the day.',
+  'assistUnverifiable': 'The library holds no information either way on:',
+  'assistWhatChanged': 'What changed',
+  'assistNothingChanged': 'Nothing changed.',
+  'assistUnchangedSuffix': 'left as they were',
+  'assistDiscard': 'Discard',
+  'assistUseThis': 'Use this',
+
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",
   'catalogWorkoutsTitle': 'Workouts',
