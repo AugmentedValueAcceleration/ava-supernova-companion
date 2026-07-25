@@ -12,7 +12,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi } from '@/lib/api';
-import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession } from '@/lib/health-today';
+import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession, type TodayMeal } from '@/lib/health-today';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
 
 export function TodayView({ token }: { token?: string | null }) {
@@ -22,12 +22,51 @@ export function TodayView({ token }: { token?: string | null }) {
   const [plan, setPlan] = useState<HealthDailyPlan>(() => loadDay(today));
   const [briefBusy, setBriefBusy] = useState(false);
   const [briefErr, setBriefErr] = useState<string | null>(null);
+  const [openMeal, setOpenMeal] = useState<TodayMeal | null>(null);
 
   const profileEmpty = !profile || (profile.body.weight_kg == null && profile.body.height_cm == null && profile.goals.primary == null);
 
   const commit = useCallback((mutate: (log: HealthDailyLog) => HealthDailyLog) => {
     setPlan(prev => saveDay({ ...prev, log: mutate(prev.log) }));
   }, []);
+
+  // ── Planned-meal actions ──────────────────────────────────────────────────
+  //
+  // The macros come from the PLAN, which took them from the recipe's computed
+  // nutrition — so eating a planned meal is one tap and nothing is typed. Plan
+  // macros are per serving, so the log records the total actually eaten.
+  //
+  // Each action replaces any existing entry for that planned meal rather than
+  // appending, so tapping twice can't double-count the day.
+  const logPlannedMeal = useCallback((m: TodayMeal, status: 'eaten' | 'skipped', servings: number) => {
+    const per = (v: number | null) => (v == null ? null : Math.round(v * servings));
+    commit(log => ({
+      ...log,
+      meals: [
+        ...log.meals.filter(x => x.planned_meal_id !== m.planned.id),
+        {
+          id: logId(),
+          time: nowHHMM(),
+          description: m.planned.name,
+          // A skipped meal was not eaten, so it contributes nothing.
+          calories: status === 'eaten' ? per(m.planned.calories) : null,
+          protein_g: status === 'eaten' ? per(m.planned.protein_g) : null,
+          carbs_g: status === 'eaten' ? per(m.planned.carbs_g) : null,
+          fat_g: status === 'eaten' ? per(m.planned.fat_g) : null,
+          ref: m.planned.ref ?? null,
+          planned_meal_id: m.planned.id,
+          status,
+          servings: status === 'eaten' ? servings : null,
+        },
+      ],
+    }));
+    setOpenMeal(null);
+  }, [commit]);
+
+  const undoPlannedMeal = useCallback((m: TodayMeal) => {
+    commit(log => ({ ...log, meals: log.meals.filter(x => x.planned_meal_id !== m.planned.id) }));
+    setOpenMeal(null);
+  }, [commit]);
 
   // Push the day's roll-up back to the plan whenever the log changes.
   //
@@ -92,7 +131,7 @@ export function TodayView({ token }: { token?: string | null }) {
         {/* Today's plan — derived from the active plan, never copied into the
             day store. Renders only when a plan actually covers today, so a
             user with no plan sees exactly what they saw before. */}
-        {derived.hasPlan && <TodayPlanSection derived={derived} />}
+        {derived.hasPlan && <TodayPlanSection derived={derived} onOpenMeal={setOpenMeal} />}
 
         {/* Status */}
         <section className="mt-7">
@@ -110,7 +149,107 @@ export function TodayView({ token }: { token?: string | null }) {
           <QuickLog log={plan.log} commit={commit} />
         </section>
       </div>
+
+      {openMeal && (
+        <MealSheet
+          meal={openMeal}
+          onClose={() => setOpenMeal(null)}
+          onLog={logPlannedMeal}
+          onUndo={undoPlannedMeal}
+        />
+      )}
     </div>
+  );
+}
+
+// ── Meal sheet — the nutrition counterpart to the Gym runner ─────────────────
+//
+// The Gym has had a session runner from the start: see what's planned, tick it
+// off, save what you did. Food had nothing equivalent — the only way to record
+// a meal was to type its name and hand-type its calories, while the recipe it
+// came from already carried nutrition computed from real ingredient data.
+//
+// So this is deliberately not a form. The numbers are already known; the only
+// thing the app doesn't know is whether you ate it, and how much.
+
+function MealSheet({ meal, onClose, onLog, onUndo }: {
+  meal: TodayMeal;
+  onClose: () => void;
+  onLog: (m: TodayMeal, status: 'eaten' | 'skipped', servings: number) => void;
+  onUndo: (m: TodayMeal) => void;
+}) {
+  // Default to what was actually logged if this is being revisited, else to
+  // what the plan asked for.
+  const [servings, setServings] = useState<number>(meal.logged?.servings ?? meal.planned.servings ?? 1);
+  const per = (v: number | null) => (v == null ? null : Math.round(v * servings));
+  const logged = meal.logged != null;
+
+  const rows: Array<[string, number | null]> = [
+    [t('mealSheetProtein'), per(meal.planned.protein_g)],
+    [t('mealSheetCarbs'), per(meal.planned.carbs_g)],
+    [t('mealSheetFat'), per(meal.planned.fat_g)],
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
+      <div className="rounded-t-2xl border-t border-ava-border bg-ava-bg px-5 pb-8 pt-5" onClick={e => e.stopPropagation()}>
+        <div className="text-[10px] uppercase tracking-wider text-gray-500">{meal.planned.slot}</div>
+        <h3 className="mt-1 text-[17px] font-light text-white">{meal.planned.name}</h3>
+
+        {meal.planned.calories != null && (
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-[24px] font-light text-white">{per(meal.planned.calories)}</span>
+            <span className="text-[11px] text-gray-500">kcal · {t('mealSheetTotal').toLowerCase()}</span>
+          </div>
+        )}
+
+        <div className="mt-3 flex gap-4">
+          {rows.filter(([, v]) => v != null).map(([label, v]) => (
+            <div key={label}>
+              <div className="text-[9px] uppercase tracking-wider text-gray-500">{label}</div>
+              <div className="text-[13px] text-gray-200">{v}g</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Servings — plan macros are per serving, so this scales everything
+            above. Half portions are real life, hence the 0.5 step. */}
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-[12px] text-gray-400">{t('mealSheetServings')}</span>
+          <div className="flex items-center gap-3">
+            <StepBtn onClick={() => setServings(s => Math.max(0.5, Math.round((s - 0.5) * 2) / 2))}>−</StepBtn>
+            <span className="w-10 text-center font-mono text-[14px] text-white">{servings}</span>
+            <StepBtn onClick={() => setServings(s => Math.min(20, Math.round((s + 0.5) * 2) / 2))}>+</StepBtn>
+          </div>
+        </div>
+
+        <div className="mt-6 flex gap-2">
+          {logged ? (
+            <button onClick={() => onUndo(meal)} className="flex-1 rounded-full border border-ava-border px-4 py-2.5 text-[13px] text-gray-300">
+              {t('mealSheetUndo')}
+            </button>
+          ) : (
+            <button onClick={() => onLog(meal, 'skipped', servings)} className="flex-1 rounded-full border border-ava-border px-4 py-2.5 text-[13px] text-gray-400">
+              {t('mealSheetSkip')}
+            </button>
+          )}
+          <button
+            onClick={() => onLog(meal, 'eaten', servings)}
+            className="flex-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-4 py-2.5 text-[13px] text-emerald-300"
+          >
+            {t('mealSheetEat')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepBtn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} className="h-8 w-8 rounded-full border border-ava-border text-[15px] leading-none text-gray-300 hover:border-ava-purple/50 hover:text-white transition">
+      {children}
+    </button>
   );
 }
 
@@ -126,7 +265,7 @@ function kindLabel(kind: TodaySession['kind']): string {
   return t('todayPlanTrainingLabel');
 }
 
-function TodayPlanSection({ derived }: { derived: TodayDerived }) {
+function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOpenMeal: (m: TodayMeal) => void }) {
   const macros = useMemo(() => todayMacros(derived), [derived]);
   return (
     <section className="mt-7">
@@ -173,7 +312,8 @@ function TodayPlanSection({ derived }: { derived: TodayDerived }) {
           </div>
           <ul className="mt-2.5 space-y-1.5">
             {derived.meals.map(m => (
-              <li key={m.planned.id} className="flex items-baseline justify-between gap-3 text-[12px]">
+              <li key={m.planned.id}>
+                <button onClick={() => onOpenMeal(m)} className="flex w-full items-baseline justify-between gap-3 text-left text-[12px]">
                 <span className="min-w-0 truncate">
                   <span className="font-mono text-[10px] text-gray-500">{(m.planned.slot ?? '').slice(0, 2)}</span>{' '}
                   <span className={m.status === 'pending' ? 'text-gray-200' : 'text-gray-400 line-through'}>{m.planned.name}</span>
@@ -184,6 +324,7 @@ function TodayPlanSection({ derived }: { derived: TodayDerived }) {
                     : m.status === 'skipped' ? t('todayPlanSkipped')
                     : m.planned.calories != null ? `${m.planned.calories} kcal` : ''}
                 </span>
+                </button>
               </li>
             ))}
           </ul>
