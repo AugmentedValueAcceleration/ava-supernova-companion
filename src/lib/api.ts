@@ -99,6 +99,11 @@ export const healthCatalogApi = {
   },
   exercise: (slug: string) => apiFetch(withLocale(`/health/exercises/${encodeURIComponent(slug)}`)).then(r => r.json()),
   recipe: (slug: string) => apiFetch(withLocale(`/health/recipes/${encodeURIComponent(slug)}`)).then(r => r.json()),
+  // Swap candidates — "something else that does the same job". Returned
+  // UNRANKED; the device ranks them against the local profile so injuries and
+  // allergens never leave it.
+  alternatives: (kind: 'exercise' | 'recipe', slug: string) =>
+    apiFetch(withLocale(`/health/alternatives?kind=${kind}&slug=${encodeURIComponent(slug)}`)).then(r => r.json()),
   // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
   // for the recipe filter dropdowns. Public.
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),

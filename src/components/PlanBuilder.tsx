@@ -26,6 +26,8 @@ import type { DayInsights, ExerciseInsight, MealInsight } from '@/lib/health-pla
 import type { BalanceFinding } from '@/lib/health-balance';
 import { CustomSelect } from './CustomSelect';
 import { CataloguePicker } from './CataloguePicker';
+import { SwapSheet } from './SwapSheet';
+import { DuplicateSheet } from './DuplicateSheet';
 import type {
   HealthPlan, HealthPlanDay, HealthPlanExercise, HealthPlanMeal, ExerciseCard, RecipeCard,
   HealthProfile, ExerciseDetail, RecipeDetail,
@@ -59,6 +61,8 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   const [dayIndex, setDayIndex] = useState(initialDay ?? 1);
   const [picker, setPicker] = useState<null | 'exercise' | 'recipe'>(null);
   const [adding, setAdding] = useState(false);
+  const [swapping, setSwapping] = useState<null | { kind: 'exercise' | 'recipe'; row: HealthPlanExercise | HealthPlanMeal }>(null);
+  const [duplicating, setDuplicating] = useState(false);
 
   // The profile is what every check is measured against. Kept live so editing
   // an injury on the profile tab updates the warnings here without a reload.
@@ -193,6 +197,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
                   ? <Empty>{t('planBuilderNoExercises')}</Empty>
                   : day.training.map(ex => <ExerciseRow key={ex.id} ex={ex}
                       insight={insights?.exercises.find(i => i.exercise.id === ex.id) ?? null}
+                      onSwap={ex.ref?.slug ? () => setSwapping({ kind: 'exercise', row: ex }) : null}
                       onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
                       onRemove={() => setDay(d => ({ ...d, training: d.training.filter(x => x.id !== ex.id) }))} />)}
               </Group>
@@ -206,6 +211,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
                   ? <Empty>{t('planBuilderNoMeals')}</Empty>
                   : day.meals.map(ml => <MealRow key={ml.id} ml={ml}
                       insight={insights?.meals.find(i => i.meal.id === ml.id) ?? null}
+                      onSwap={ml.ref?.slug ? () => setSwapping({ kind: 'recipe', row: ml }) : null}
                       onChange={patch => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? { ...x, ...patch } : x) }))}
                       onServings={v => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? rescaleMeal(x, v) : x) }))}
                       onRemove={() => setDay(d => ({ ...d, meals: d.meals.filter(x => x.id !== ml.id) }))} />)}
@@ -217,6 +223,16 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               <textarea value={day.notes ?? ''} onChange={e => setDay(d => ({ ...d, notes: e.target.value || null }))} rows={2}
                 className="w-full bg-ava-surface border border-ava-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-ava-purple focus:outline-none resize-none" />
             </div>
+
+            {/* Copying is only worth offering once there is something to copy. */}
+            {(day.training.length > 0 || day.meals.length > 0) && (
+              <button
+                onClick={() => setDuplicating(true)}
+                className="w-full rounded-lg border border-ava-border py-2 text-[12px] text-gray-400 hover:text-white hover:border-ava-purple/40"
+              >
+                {t('planBuilderDuplicateButton')}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -226,6 +242,27 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
           kind={picker}
           onClose={() => setPicker(null)}
           onPick={(item) => { if (picker === 'exercise') addExercise(item as ExerciseCard); else addMeal(item as RecipeCard); setPicker(null); }}
+        />
+      )}
+
+      {swapping && (
+        <SwapSheet
+          plan={plan}
+          kind={swapping.kind}
+          row={swapping.row}
+          dayIndex={dayIndex}
+          profile={profile}
+          onApply={next => setPlanState(savePlan(next))}
+          onClose={() => setSwapping(null)}
+        />
+      )}
+
+      {duplicating && day && (
+        <DuplicateSheet
+          plan={plan}
+          fromDay={day.day_index}
+          onApply={next => setPlanState(savePlan(next))}
+          onClose={() => setDuplicating(false)}
         />
       )}
     </div>
@@ -346,8 +383,9 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 const cellCls = 'bg-ava-bg border border-ava-border rounded px-2 py-1 text-[12px] text-white w-full focus:border-ava-purple focus:outline-none';
 
-function ExerciseRow({ ex, insight, onChange, onRemove }: {
+function ExerciseRow({ ex, insight, onSwap, onChange, onRemove }: {
   ex: HealthPlanExercise; insight: ExerciseInsight | null;
+  onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanExercise>) => void; onRemove: () => void;
 }) {
   const numOrNull = (s: string) => { const n = Number(s); return s.trim() && Number.isFinite(n) ? n : null; };
@@ -360,7 +398,12 @@ function ExerciseRow({ ex, insight, onChange, onRemove }: {
     <div className={`rounded-lg border bg-ava-surface p-3 ${avoid ? 'border-amber-500/40' : 'border-ava-border'}`}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-white truncate">{ex.name}</span>
-        <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Only offered on a library-linked row — there is nothing to find
+              alternatives to for a free-text entry. */}
+          {onSwap && <SwapButton onClick={onSwap} />}
+          <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+        </div>
       </div>
 
       {(findings.length > 0 || missing.length > 0) && (
@@ -388,8 +431,9 @@ function ExerciseRow({ ex, insight, onChange, onRemove }: {
   );
 }
 
-function MealRow({ ml, insight, onChange, onServings, onRemove }: {
+function MealRow({ ml, insight, onSwap, onChange, onServings, onRemove }: {
   ml: HealthPlanMeal; insight: MealInsight | null;
+  onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanMeal>) => void;
   onServings: (v: number | null) => void;
   onRemove: () => void;
@@ -402,7 +446,10 @@ function MealRow({ ml, insight, onChange, onServings, onRemove }: {
     <div className={`rounded-lg border bg-ava-surface p-3 ${blocked.length ? 'border-amber-500/40' : 'border-ava-border'}`}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-white truncate">{ml.name}</span>
-        <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+        <div className="flex items-center gap-2 shrink-0">
+          {onSwap && <SwapButton onClick={onSwap} />}
+          <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+        </div>
       </div>
 
       {/* Per-serving macros come from the library, so they update as servings do. */}
@@ -436,6 +483,19 @@ function MealRow({ ml, insight, onChange, onServings, onRemove }: {
         <Cell label={t('planBuilderMealServingsLabel')}><input inputMode="decimal" value={ml.servings ?? ''} onChange={e => onServings(numOrNull(e.target.value))} className={cellCls} /></Cell>
       </div>
     </div>
+  );
+}
+
+/** Two arrows crossing — the same idea as a refresh, but the exchange reading
+ *  rather than the reload one, so it does not look like "reload this row". */
+function SwapButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} aria-label={t('swapSheetTitle')} title={t('swapSheetTitle')}
+      className="text-gray-500 hover:text-ava-purple-light">
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+      </svg>
+    </button>
   );
 }
 

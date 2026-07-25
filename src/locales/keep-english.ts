@@ -63,6 +63,7 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   // German shows "Eiweiss" for protein - so this only silences the ones where
   // English is the right answer.
   'planBuilderNutritionSection',     // Nutrition
+  'duplicateSheetWeekWord',          // Week — Dutch keeps it
   'planBuilderMacroProtein',         // Protein
   'mealSheetProtein',                // Protein
   'mealSheetTotal',                  // Total

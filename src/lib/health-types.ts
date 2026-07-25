@@ -33,6 +33,10 @@ export interface PlanExerciseMeta {
 }
 
 export interface PlanMealMeta {
+  /** main / side / breakfast / dessert / … — what the dish IS. Needed so a
+   *  swap can offer a dinner in place of a dinner; without it the ranker has
+   *  nothing to match on when a meal carries no macros. */
+  course?: string | null;
   total_time_minutes?: number | null;
   prep_time_minutes?: number | null;
   cook_time_minutes?: number | null;

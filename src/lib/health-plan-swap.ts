@@ -114,11 +114,15 @@ const GOAL_SHAPE: Record<string, { reps: string; rest: number }> = {
  * people. It never carries across a change of laterality or equipment — a
  * bilateral load moved onto one leg is roughly double the demand per side, and
  * a number carried blindly there is how someone gets injured.
+ *
+ * The GOAL deliberately plays no part in this decision, only in what the
+ * numbers reset TO — see numbersFor. No goal makes carrying a bilateral load
+ * onto one leg safe, so letting it soften this would be letting a preference
+ * override a safety rule.
  */
 export function shouldCarryNumbers(
   from: PlanExerciseMeta | null | undefined,
   to: PlanExerciseMeta | null | undefined,
-  goal: HealthGoal | null | undefined,
 ): CarryVerdict {
   // Nothing to reason with — leave the numbers alone rather than invent a
   // reason to change them.
@@ -271,7 +275,11 @@ export function rankExerciseAlternatives(
     if (f.difficulty != null && c.meta.difficulty != null) {
       score += Math.max(0, 2 - Math.abs(f.difficulty - c.meta.difficulty));
     }
-    if (score === 0) continue;
+    // A zero score is NOT a reason to drop it. The pool arrives already
+    // narrowed to the same movement pattern or force, so every member is a
+    // legitimate candidate; scoring only decides the order. Dropping zeros
+    // meant a row saved before the metadata existed — nothing to match on —
+    // produced an empty sheet out of a pool of sixty perfectly good options.
 
     const check = checkExercise(c.meta, profile);
     const avoid = check.findings.find(x => x.severity === 'avoid');
@@ -343,7 +351,10 @@ export function rankRecipeAlternatives(
     if (fromTime != null && c.meta.total_time_minutes != null && c.meta.total_time_minutes <= fromTime) {
       score += 2; bits.push('no slower');
     }
-    if (score === 0) continue;
+    // Kept even at zero, for the same reason as the exercise pool: the server
+    // already filtered to the same course, so these are all real options and
+    // the score only orders them. The allergen exclusion above is the only
+    // thing that removes anything here.
 
     let caution: string | null = null;
     if (safety.off_diet.length > 0) { caution = `Outside your ${safety.off_diet.join(', ')} diet.`; score -= 3; }
@@ -485,4 +496,84 @@ export function duplicateWeek(plan: HealthPlan, fromWeek: number, toWeek: number
 /** How many weeks a plan spans, for the week pickers. */
 export function weekCount(plan: HealthPlan): number {
   return Math.max(1, Math.ceil(plan.duration_days / 7));
+}
+
+// ── 6. Progressing a copy ───────────────────────────────────────────────────
+//
+// "Never repeat week 1 for a month" is already the standing instruction to the
+// coach. Copying a week forward unchanged does exactly that, so a copy can be
+// nudged as it lands.
+//
+// Deliberately an EXPLICIT CHOICE rather than a silent rule. Load progression
+// cannot be automated honestly here: weight is free text — "60kg", "bodyweight",
+// "red band" — and adding 2.5% to "bodyweight" is nonsense. Volume can be
+// stepped safely and reversibly, so that is what is offered, and the person
+// picks it. Progression driven by what they actually LIFTED is a separate,
+// better thing that needs the log.
+
+export type Progression = 'same' | 'one_more_rep' | 'one_more_set';
+
+/**
+ * Step a rep prescription up by one.
+ *
+ * Handles the three shapes the library and users actually write: a plain count
+ * ("8"), a range ("8-12", "8–12"), and anything else — time, distance, "AMRAP",
+ * "30s" — which is returned untouched because adding a rep to it is meaningless.
+ */
+export function bumpReps(reps: string | null): string | null {
+  if (!reps) return reps;
+  const s = reps.trim();
+
+  const range = s.match(/^(\d+)\s*[-–—]\s*(\d+)$/);
+  if (range) {
+    const lo = Number(range[1]), hi = Number(range[2]);
+    if (Number.isFinite(lo) && Number.isFinite(hi)) return `${lo + 1}-${hi + 1}`;
+  }
+
+  if (/^\d+$/.test(s)) return String(Number(s) + 1);
+
+  // Time, distance, AMRAP, per-side notation — not a rep count. Leave it be
+  // rather than mangle it into something that reads like a number.
+  return reps;
+}
+
+/**
+ * Apply a progression to every training row in the given days.
+ *
+ * Only touches training. Meals do not progress — eating one more portion each
+ * week is not a nutrition plan.
+ */
+export function progressDays(
+  plan: HealthPlan,
+  dayIndexes: number[],
+  progression: Progression,
+): HealthPlan {
+  if (progression === 'same') return plan;
+  const targets = new Set(dayIndexes);
+
+  return {
+    ...plan,
+    days: plan.days.map(day => {
+      if (!targets.has(day.day_index)) return day;
+      return {
+        ...day,
+        training: day.training.map(ex => {
+          // Warm-ups, cool-downs and mobility are not the place to add volume.
+          const role = ex.meta?.session_role ?? null;
+          if (role === 'warmup' || role === 'cooldown' || role === 'mobility') return ex;
+          return progression === 'one_more_rep'
+            ? { ...ex, reps: bumpReps(ex.reps) }
+            : { ...ex, sets: ex.sets == null ? ex.sets : ex.sets + 1 };
+        }),
+      };
+    }),
+  };
+}
+
+/** The day indexes a week covers that actually exist in the plan. */
+export function daysInWeek(plan: HealthPlan, week: number): number[] {
+  const start = (week - 1) * 7 + 1;
+  return plan.days
+    .filter(d => d.day_index >= start && d.day_index < start + 7)
+    .map(d => d.day_index);
 }

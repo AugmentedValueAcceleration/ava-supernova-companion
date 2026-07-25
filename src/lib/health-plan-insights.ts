@@ -103,6 +103,7 @@ export function planMealFrom(
   const scale = (x: number | null) => (x == null ? null : Math.round(x * servings));
 
   const meta: PlanMealMeta = {
+    course: detail.course ?? null,
     total_time_minutes: v?.total_time_minutes ?? null,
     prep_time_minutes: v?.prep_time_minutes ?? null,
     cook_time_minutes: v?.cook_time_minutes ?? null,
