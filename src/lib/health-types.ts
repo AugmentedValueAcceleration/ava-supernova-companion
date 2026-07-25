@@ -25,6 +25,9 @@ export interface PlanExerciseMeta {
   force_type?: string | null;
   session_role?: string | null;
   laterality?: string | null;
+  /** compound / isolation / bodyweight / plyometric / mobility / … */
+  exercise_type?: string | null;
+  difficulty?: number | null;
   equipment?: string[] | null;
   contraindications?: ExerciseContraindication[] | null;
 }

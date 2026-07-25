@@ -42,6 +42,8 @@ export function exerciseMetaFrom(detail: ExerciseDetail): PlanExerciseMeta {
     force_type: detail.force_type ?? null,
     session_role: detail.session_role ?? null,
     laterality: detail.laterality ?? null,
+    exercise_type: detail.exercise_type ?? null,
+    difficulty: detail.difficulty ?? null,
     equipment: (detail.equipment ?? []).map(e => e.name),
     contraindications: detail.contraindications ?? null,
   };
