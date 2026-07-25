@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { WorkoutsBrowse, RecipesBrowse } from './CatalogBrowse';
 import { ProfileView } from './ProfileView';
+import { ProgressView } from './ProgressView';
 import { TodayView } from './TodayView';
 import { PlansView } from './PlansView';
 import { GymView } from './Gym';
@@ -11,7 +12,7 @@ import { t, useLocale } from '@/lib/i18n';
 // ─── Wellbeing section host ─────────────────────────────────────────────────
 //
 // Routes the five wellbeing destinations to their real screens:
-//   • Today    → daily dashboard + logging  (+ Profile sits behind a tab here)
+//   • Today    → daily dashboard + logging  (+ Progress and Profile behind tabs)
 //   • Recipes  → catalogue browse
 //   • Workouts → catalogue browse
 //   • Plans    → library + creation (manual + via Ava)
@@ -34,15 +35,18 @@ export function WellbeingSection({ view, token }: { view: WellbeingView; token?:
 
 function TodayProfilePage({ token }: { token?: string | null }) {
   useLocale();
-  const [tab, setTab] = useState<'today' | 'profile'>('today');
+  const [tab, setTab] = useState<'today' | 'progress' | 'profile'>('today');
   return (
     <div className="flex-1 min-h-0 flex flex-col">
       <div className="px-4 pt-3 flex items-center gap-2 border-b border-ava-border">
-        <TabButton active={tab === 'today'}   onClick={() => setTab('today')}>{t('wellbeingTabToday')}</TabButton>
-        <TabButton active={tab === 'profile'} onClick={() => setTab('profile')}>{t('wellbeingTabProfile')}</TabButton>
+        <TabButton active={tab === 'today'}    onClick={() => setTab('today')}>{t('wellbeingTabToday')}</TabButton>
+        <TabButton active={tab === 'progress'} onClick={() => setTab('progress')}>{t('progressTab')}</TabButton>
+        <TabButton active={tab === 'profile'}  onClick={() => setTab('profile')}>{t('wellbeingTabProfile')}</TabButton>
       </div>
       <div className="flex-1 min-h-0">
-        {tab === 'today' ? <TodayView token={token} /> : <ProfileView token={token} />}
+        {tab === 'today' ? <TodayView token={token} />
+          : tab === 'progress' ? <ProgressView />
+          : <ProfileView token={token} />}
       </div>
     </div>
   );
