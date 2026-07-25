@@ -372,6 +372,27 @@ export const enStrings = {
   'planBuilderMealServingsLabel': 'servings',
   'planBuilderPickerExercisePlaceholder': 'Add a workout',
   'planBuilderPickerRecipePlaceholder': 'Add a recipe',
+  'planBuilderGroupAdding': 'Adding…',
+
+  // Builder advisories. Written to be read by someone mid-task, so each one is
+  // a short statement of fact rather than an instruction — the builder tells
+  // you what it noticed and leaves the decision with you.
+  'planBuilderNutritionSection': 'Nutrition',
+  'planBuilderCookingTotal': 'min cooking',
+  'planBuilderKcalOf': 'kcal of',
+  'planBuilderKcalPlanned': 'kcal planned',
+  'planBuilderMacroProtein': 'Protein',
+  'planBuilderMacroCarbs': 'Carbs',
+  'planBuilderMacroFat': 'Fat',
+  'planBuilderNoTargetYet': 'No calorie target yet — your profile is missing:',
+  'planBuilderSafetyAvoid': 'Avoid',
+  'planBuilderSafetyCaution': 'Caution',
+  'planBuilderSafetyModify': 'Modify',
+  'planBuilderSafetyMatched': 'matches your',
+  'planBuilderMissingKit': 'Needs kit not on your profile:',
+  'planBuilderAllergenWarning': 'Not confirmed free from:',
+  'planBuilderAllergenUnverifiable': 'The library holds no information either way on:',
+  'planBuilderOffDiet': 'Outside your diet:',
 
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",

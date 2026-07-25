@@ -56,6 +56,18 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'todayLogWaterButton',             // Water
   'todayNutritionWaterLabel',        // water
 
+  // Same category, flagged by the checker and never listed. Each is a word the
+  // flagged language genuinely keeps: French "Nutrition", Indonesian and
+  // Turkish "Protein", Spanish and Portuguese "Total", German and Dutch
+  // "Training". The languages that DO have their own word already carry it -
+  // German shows "Eiweiss" for protein - so this only silences the ones where
+  // English is the right answer.
+  'planBuilderNutritionSection',     // Nutrition
+  'planBuilderMacroProtein',         // Protein
+  'mealSheetProtein',                // Protein
+  'mealSheetTotal',                  // Total
+  'todayPlanTrainingLabel',          // Training
+
   // Cross-language cognate — "passphrase" is a standard loanword in German
   // and Italian (and others); they keep it as-is.
   'backupPassphrase',                // Passphrase

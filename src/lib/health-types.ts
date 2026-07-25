@@ -9,6 +9,40 @@ export type HealthPlanType = 'fitness' | 'meal' | 'combined';
 export type HealthPlanSource = 'manual' | 'ava';
 export type HealthPlanStatus = 'draft' | 'active' | 'completed' | 'archived';
 
+/**
+ * Library facts captured when an item is added to a plan.
+ *
+ * Copied onto the plan rather than looked up on demand, for two reasons. The
+ * checks then run with no network at all — a plan opened on a train still warns
+ * about a bad knee — and a plan stays a faithful record of what was chosen even
+ * if the library entry is later edited.
+ *
+ * Every field optional: plans built before this existed carry none, and the
+ * services already treat missing metadata as "don't judge" rather than guessing.
+ */
+export interface PlanExerciseMeta {
+  movement_pattern?: string | null;
+  force_type?: string | null;
+  session_role?: string | null;
+  laterality?: string | null;
+  equipment?: string[] | null;
+  contraindications?: ExerciseContraindication[] | null;
+}
+
+export interface PlanMealMeta {
+  total_time_minutes?: number | null;
+  prep_time_minutes?: number | null;
+  cook_time_minutes?: number | null;
+  level?: CookingLevel | null;
+  default_servings?: number | null;
+  batch_portions?: number | null;
+  keeps_fridge_days?: number | null;
+  /** Free-from flags as slugs — what proves an allergen absent. */
+  dietary_flags?: string[] | null;
+  diets?: string[] | null;
+  allergens?: string[] | null;
+}
+
 export interface HealthPlanExercise {
   id: string;
   ref?: { kind: 'exercise'; slug: string } | null;
@@ -19,6 +53,7 @@ export interface HealthPlanExercise {
   rest_seconds: number | null;
   tempo: string | null;
   notes: string | null;
+  meta?: PlanExerciseMeta | null;
 }
 
 export interface HealthPlanMeal {
@@ -32,6 +67,7 @@ export interface HealthPlanMeal {
   carbs_g: number | null;
   fat_g: number | null;
   notes: string | null;
+  meta?: PlanMealMeta | null;
 }
 
 export type HealthPlanDayProgress = 'pending' | 'partial' | 'done' | 'skipped';
@@ -214,6 +250,14 @@ export interface RecipeVersion {
   default_servings: number | null;
   nutrition: Record<string, number | null | undefined>;
   steps: RecipeStep[];
+  // The API has always returned these; the companion's copy of the type never
+  // declared them, so nothing here could see them. Optional because a plan may
+  // hold a row captured before they were read.
+  /** "Free from" flags — what positively proves an allergen absent. */
+  dietary_flags?: string[];
+  diets?: string[];
+  /** Portions a sensible batch yields, when the dish scales and keeps. */
+  batch_portions?: number | null;
 }
 
 export interface RecipeDetail {
@@ -230,6 +274,14 @@ export interface RecipeDetail {
   source_attribution: string | null;
   ingredients: RecipeIngredient[];
   versions: RecipeVersion[];
+  /** Allergens present in the dish, recipe-level. */
+  allergens?: string[];
+  /** How long the finished dish keeps — recipe-level, shared across versions. */
+  storage?: {
+    keeps_fridge_days: number | null;
+    keeps_freezer_months: number | null;
+    from_frozen_notes: string | null;
+  } | null;
 }
 
 // ─── Health profile (mirrors the extension's HealthProfile) ─────────────────
