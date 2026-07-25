@@ -183,6 +183,7 @@ export const trStrings: Record<StringKey, string> = {
   'progressWeight': 'Kilo',
   'progressEmpty': 'Henüz gösterilecek bir şey yok — çalış, ye ve kaydet.',
   'progressNoLifts': 'Bir hareketi iki kez kaydet, ilerlemesi burada görünsün.',
+  'progressEmptyTitle': 'İlerlemen burada birikir',
   'progressPlanDay': 'Gün',
   'todayReadinessEmptyHint': 'Uyku + ruh hâlini kaydet',
   'todayReadinessStrong': 'Güçlü',

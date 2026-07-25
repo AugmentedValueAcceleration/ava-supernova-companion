@@ -183,6 +183,7 @@ export const idStrings: Record<StringKey, string> = {
   'progressWeight': 'Berat',
   'progressEmpty': 'Belum ada yang ditampilkan — latihan, makan, dan catat.',
   'progressNoLifts': 'Catat satu gerakan dua kali dan kemajuannya muncul di sini.',
+  'progressEmptyTitle': 'Kemajuanmu terbentuk di sini',
   'progressPlanDay': 'Hari',
   'todayReadinessEmptyHint': 'Catat tidur + suasana hati',
   'todayReadinessStrong': 'Kuat',

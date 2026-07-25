@@ -183,6 +183,7 @@ export const thStrings: Record<StringKey, string> = {
   'progressWeight': 'น้ำหนัก',
   'progressEmpty': 'ยังไม่มีอะไรแสดง — ฝึก กิน และบันทึก',
   'progressNoLifts': 'บันทึกท่าหนึ่งสองครั้ง แล้วความคืบหน้าจะแสดงที่นี่',
+  'progressEmptyTitle': 'ความคืบหน้าของคุณสร้างขึ้นที่นี่',
   'progressPlanDay': 'วัน',
   'todayReadinessEmptyHint': 'บันทึกการนอน + อารมณ์',
   'todayReadinessStrong': 'แข็งแรง',

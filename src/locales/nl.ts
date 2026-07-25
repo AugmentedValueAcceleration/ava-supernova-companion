@@ -183,6 +183,7 @@ export const nlStrings: Record<StringKey, string> = {
   'progressWeight': 'Gewicht',
   'progressEmpty': 'Nog niets te tonen — train, eet en log.',
   'progressNoLifts': 'Log een oefening twee keer en de voortgang verschijnt hier.',
+  'progressEmptyTitle': 'Hier bouwt je voortgang op',
   'progressPlanDay': 'Dag',
   'todayReadinessEmptyHint': 'Log slaap + stemming',
   'todayReadinessStrong': 'Sterk',

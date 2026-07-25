@@ -183,6 +183,7 @@ export const esStrings: Record<StringKey, string> = {
   'progressWeight': 'Peso',
   'progressEmpty': 'Nada que mostrar aún: entrena, come y registra, y esto se irá llenando.',
   'progressNoLifts': 'Registra un levantamiento dos veces y su progreso aparecerá aquí.',
+  'progressEmptyTitle': 'Aquí se construye tu progreso',
   'progressPlanDay': 'Día',
   'todayReadinessEmptyHint': 'Registra sueño + ánimo',
   'todayReadinessStrong': 'Fuerte',

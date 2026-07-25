@@ -183,6 +183,7 @@ export const deStrings: Record<StringKey, string> = {
   'progressWeight': 'Gewicht',
   'progressEmpty': 'Noch nichts zu zeigen — trainiere, iss und protokolliere.',
   'progressNoLifts': 'Protokolliere eine Übung zweimal, dann erscheint ihr Verlauf hier.',
+  'progressEmptyTitle': 'Hier entsteht dein Fortschritt',
   'progressPlanDay': 'Tag',
   'todayReadinessEmptyHint': 'Schlaf + Stimmung loggen',
   'todayReadinessStrong': 'Stark',

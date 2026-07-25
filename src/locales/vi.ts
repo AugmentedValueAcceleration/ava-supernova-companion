@@ -183,6 +183,7 @@ export const viStrings: Record<StringKey, string> = {
   'progressWeight': 'Cân nặng',
   'progressEmpty': 'Chưa có gì để hiển thị — hãy tập, ăn và ghi lại.',
   'progressNoLifts': 'Ghi một bài tập hai lần để thấy tiến trình ở đây.',
+  'progressEmptyTitle': 'Tiến trình của bạn hình thành ở đây',
   'progressPlanDay': 'Ngày',
   'todayReadinessEmptyHint': 'Ghi giấc ngủ + tâm trạng',
   'todayReadinessStrong': 'Mạnh',

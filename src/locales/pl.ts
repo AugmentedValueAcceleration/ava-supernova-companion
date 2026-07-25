@@ -183,6 +183,7 @@ export const plStrings: Record<StringKey, string> = {
   'progressWeight': 'Waga',
   'progressEmpty': 'Nie ma jeszcze czego pokazać — trenuj, jedz i zapisuj.',
   'progressNoLifts': 'Zapisz ćwiczenie dwa razy, a postęp pojawi się tutaj.',
+  'progressEmptyTitle': 'Tutaj buduje się twój postęp',
   'progressPlanDay': 'Dzień',
   'todayReadinessEmptyHint': 'Zapisz sen + nastrój',
   'todayReadinessStrong': 'Silny',

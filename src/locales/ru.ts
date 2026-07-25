@@ -183,6 +183,7 @@ export const ruStrings: Record<StringKey, string> = {
   'progressWeight': 'Вес',
   'progressEmpty': 'Пока нечего показать — тренируйтесь, ешьте и записывайте.',
   'progressNoLifts': 'Запишите упражнение дважды, и прогресс появится здесь.',
+  'progressEmptyTitle': 'Здесь накапливается ваш прогресс',
   'progressPlanDay': 'День',
   'todayReadinessEmptyHint': 'Записать сон + настроение',
   'todayReadinessStrong': 'Сильно',

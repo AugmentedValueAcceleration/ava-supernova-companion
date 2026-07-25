@@ -183,6 +183,7 @@ export const ptStrings: Record<StringKey, string> = {
   'progressWeight': 'Peso',
   'progressEmpty': 'Ainda nada para mostrar — treina, come e regista.',
   'progressNoLifts': 'Regista um exercício duas vezes e o progresso aparece aqui.',
+  'progressEmptyTitle': 'O teu progresso constrói-se aqui',
   'progressPlanDay': 'Dia',
   'todayReadinessEmptyHint': 'Registre sono + humor',
   'todayReadinessStrong': 'Forte',

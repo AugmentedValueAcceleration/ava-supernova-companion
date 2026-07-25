@@ -183,6 +183,7 @@ export const koStrings: Record<StringKey, string> = {
   'progressWeight': '체중',
   'progressEmpty': '아직 표시할 것이 없습니다 — 훈련하고 먹고 기록하세요.',
   'progressNoLifts': '같은 운동을 두 번 기록하면 진행이 여기에 표시됩니다.',
+  'progressEmptyTitle': '여기에 진행 상황이 쌓입니다',
   'progressPlanDay': '일차',
   'todayReadinessEmptyHint': '수면 + 기분 기록',
   'todayReadinessStrong': '좋음',

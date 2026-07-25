@@ -183,6 +183,7 @@ export const zhTWStrings: Record<StringKey, string> = {
   'progressWeight': '體重',
   'progressEmpty': '暫無內容 — 訓練、進食並記錄後會顯示。',
   'progressNoLifts': '同一動作記錄兩次後，進展會顯示在這裡。',
+  'progressEmptyTitle': '你的進展會在這裡累積',
   'progressPlanDay': '第',
   'todayReadinessEmptyHint': '記錄睡眠 + 心情',
   'todayReadinessStrong': '極佳',

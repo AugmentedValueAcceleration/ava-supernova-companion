@@ -43,7 +43,12 @@ function TodayProfilePage({ token }: { token?: string | null }) {
         <TabButton active={tab === 'progress'} onClick={() => setTab('progress')}>{t('progressTab')}</TabButton>
         <TabButton active={tab === 'profile'}  onClick={() => setTab('profile')}>{t('wellbeingTabProfile')}</TabButton>
       </div>
-      <div className="flex-1 min-h-0">
+      {/* Must be a flex COLUMN. Each tab's root is `flex-1 overflow-y-auto`,
+          and flex-1 resolves to nothing unless its parent is a flex container —
+          so the child sized to its content, overflow-y-auto had no bounded
+          height to scroll within, and long tabs simply ran off the screen.
+          Profile showed it worst because its form is the tallest. */}
+      <div className="flex-1 min-h-0 flex flex-col">
         {tab === 'today' ? <TodayView token={token} />
           : tab === 'progress' ? <ProgressView />
           : <ProfileView token={token} />}

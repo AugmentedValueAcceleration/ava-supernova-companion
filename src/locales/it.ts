@@ -183,6 +183,7 @@ export const itStrings: Record<StringKey, string> = {
   'progressWeight': 'Peso',
   'progressEmpty': 'Ancora nulla da mostrare — allenati, mangia e registra.',
   'progressNoLifts': 'Registra un esercizio due volte e il progresso apparirà qui.',
+  'progressEmptyTitle': 'Qui si costruiscono i tuoi progressi',
   'progressPlanDay': 'Giorno',
   'todayReadinessEmptyHint': 'Registra sonno + umore',
   'todayReadinessStrong': 'Forte',

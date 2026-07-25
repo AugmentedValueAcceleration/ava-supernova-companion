@@ -183,6 +183,7 @@ export const hiStrings: Record<StringKey, string> = {
   'progressWeight': 'वज़न',
   'progressEmpty': 'अभी दिखाने को कुछ नहीं — प्रशिक्षण करें, खाएं और दर्ज करें।',
   'progressNoLifts': 'किसी लिफ्ट को दो बार दर्ज करें, प्रगति यहाँ दिखेगी।',
+  'progressEmptyTitle': 'आपकी प्रगति यहाँ बनती है',
   'progressPlanDay': 'दिन',
   'todayReadinessEmptyHint': 'नींद + मूड दर्ज करें',
   'todayReadinessStrong': 'मज़बूत',

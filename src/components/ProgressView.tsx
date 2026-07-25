@@ -19,11 +19,40 @@ export function ProgressView() {
   const today = todayIso();
   const p = useMemo(() => computeProgress(today), [today]);
 
+  // Empty state shows the SHAPE of what's coming rather than an apology in a
+  // void. A blank screen with one grey line tells someone nothing about what
+  // the tab is for or how to fill it; the real tiles at zero plus a list of
+  // what appears does both, and the page stops looking broken.
   if (!p.has_any_data) {
     return (
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto w-full px-4 py-16 text-center">
-          <p className="text-[13px] text-gray-500">{t('progressEmpty')}</p>
+        <div className="max-w-3xl mx-auto w-full px-4 py-5 pb-28">
+          <div className="grid grid-cols-3 gap-2.5 opacity-50">
+            <Stat label={t('progressAdherence')} value="—" />
+            <Stat label={t('progressStreak')} value="0" hint={t('progressDays')} />
+            <Stat label={t('progressSessions')} value="0" />
+          </div>
+
+          <div className="mt-4 rounded-xl border border-ava-border bg-ava-surface px-5 py-7 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-ava-purple/30 bg-ava-purple/10">
+              <svg className="h-6 w-6 text-ava-purple-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l5-5 3 3 5-6 5 5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-[15px] font-light text-white">{t('progressEmptyTitle')}</h3>
+            <p className="mx-auto mt-2 max-w-xs text-[12px] leading-relaxed text-gray-500">{t('progressEmpty')}</p>
+
+            {/* What will live here, using the same labels the filled view uses
+                — so the empty screen is a preview, not a placeholder. */}
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {[t('progressLifts'), t('progressIntake'), t('progressWeight')].map(label => (
+                <span key={label} className="rounded-full border border-ava-border px-3 py-1 text-[10px] text-gray-500">
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

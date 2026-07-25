@@ -183,6 +183,7 @@ export const ukStrings: Record<StringKey, string> = {
   'progressWeight': 'Вага',
   'progressEmpty': 'Поки нема чого показати — тренуйтеся, їжте та записуйте.',
   'progressNoLifts': 'Запишіть вправу двічі, і прогрес з’явиться тут.',
+  'progressEmptyTitle': 'Тут накопичується ваш прогрес',
   'progressPlanDay': 'День',
   'todayReadinessEmptyHint': 'Записати сон + настрій',
   'todayReadinessStrong': 'Сильно',

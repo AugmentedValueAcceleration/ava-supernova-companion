@@ -183,6 +183,7 @@ export const jaStrings: Record<StringKey, string> = {
   'progressWeight': '体重',
   'progressEmpty': 'まだ表示するものがありません — 記録すると表示されます。',
   'progressNoLifts': '同じ種目を2回記録すると進捗が表示されます。',
+  'progressEmptyTitle': 'ここに進捗が積み上がります',
   'progressPlanDay': '日目',
   'todayReadinessEmptyHint': '睡眠と気分を記録',
   'todayReadinessStrong': '良好',

@@ -183,6 +183,7 @@ export const arStrings: Record<StringKey, string> = {
   'progressWeight': 'الوزن',
   'progressEmpty': 'لا شيء لعرضه بعد — تدرّب وكُل وسجّل.',
   'progressNoLifts': 'سجّل تمرينًا مرتين ليظهر تقدمه هنا.',
+  'progressEmptyTitle': 'يتراكم تقدمك هنا',
   'progressPlanDay': 'اليوم',
   'todayReadinessEmptyHint': 'سجّل النوم + المزاج',
   'todayReadinessStrong': 'قوي',

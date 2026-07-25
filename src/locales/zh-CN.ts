@@ -183,6 +183,7 @@ export const zhCNStrings: Record<StringKey, string> = {
   'progressWeight': '体重',
   'progressEmpty': '暂无内容 — 训练、进食并记录后会显示。',
   'progressNoLifts': '同一动作记录两次后，进展会显示在这里。',
+  'progressEmptyTitle': '你的进展会在这里累积',
   'progressPlanDay': '第',
   'todayReadinessEmptyHint': '记录睡眠 + 心情',
   'todayReadinessStrong': '极佳',

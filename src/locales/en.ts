@@ -263,6 +263,7 @@ export const enStrings = {
   'progressWeight': 'Weight',
   'progressEmpty': 'Nothing to show yet — train, eat and log, and this fills in.',
   'progressNoLifts': 'Log a lift twice and its progress appears here.',
+  'progressEmptyTitle': 'Your progress builds here',
   'progressPlanDay': 'Day',
   'todayReadinessEmptyHint': 'Log sleep + mood',
   'todayReadinessStrong': 'Strong',
