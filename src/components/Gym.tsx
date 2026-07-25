@@ -17,6 +17,7 @@ import {
 } from '@/lib/gym-session-store';
 import { freshGymSession, gymExerciseFromPlan } from '@/lib/gym-types';
 import { todayIso } from '@/lib/health-day-store';
+import { refreshPlanCompletion } from '@/lib/health-today';
 import type { GymSession } from '@/lib/gym-types';
 import type { HealthPlan, HealthPlanDay, HealthPlanExercise } from '@/lib/health-types';
 
@@ -247,6 +248,9 @@ export function GymView() {
     s.completed_at = new Date().toISOString();
     s.notes = `Mode: ${mode} · Duration: ${formatTime(finalSec)}`;
     saveSession(s);
+    // Tell the plan what happened. Recomputed from the logs, so it stays true
+    // even if the session is later cleared or re-run.
+    refreshPlanCompletion(today);
   };
 
   // ── Tick list (finished panel) state

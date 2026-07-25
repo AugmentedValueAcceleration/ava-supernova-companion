@@ -7,12 +7,12 @@
 // HealthDashboard — same compute logic, same honest empty states. The brief is
 // generated server-side (1 credit); everything else is local + offline.
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi } from '@/lib/api';
-import { deriveToday, todayMacros, type TodayDerived, type TodaySession } from '@/lib/health-today';
+import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession } from '@/lib/health-today';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog } from '@/lib/health-types';
 
 export function TodayView({ token }: { token?: string | null }) {
@@ -28,6 +28,16 @@ export function TodayView({ token }: { token?: string | null }) {
   const commit = useCallback((mutate: (log: HealthDailyLog) => HealthDailyLog) => {
     setPlan(prev => saveDay({ ...prev, log: mutate(prev.log) }));
   }, []);
+
+  // Push the day's roll-up back to the plan whenever the log changes.
+  //
+  // Deliberately an effect rather than a line after setPlan: the updater above
+  // runs during React's render phase, so anything called straight after the
+  // setPlan would read localStorage BEFORE saveDay had written to it and the
+  // roll-up would sit one change behind. An effect runs after commit, when the
+  // write has definitely landed. Safe to re-run — refreshPlanCompletion
+  // recomputes from the logs and no-ops when nothing changed.
+  useEffect(() => { refreshPlanCompletion(today); }, [today, plan]);
 
   const generateBrief = useCallback(async () => {
     if (!token) { setBriefErr('Sign in to let Ava write your brief.'); return; }

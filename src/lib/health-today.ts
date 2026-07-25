@@ -19,9 +19,10 @@
 
 import type {
   HealthPlan, HealthPlanDay, HealthPlanExercise, HealthPlanMeal, HealthDailyMeal,
+  HealthPlanDayProgress,
 } from './health-types';
 import type { GymSession, GymSessionStatus } from './gym-types';
-import { getAllPlans } from './health-plan-store';
+import { getAllPlans, getPlan, writePlanRaw } from './health-plan-store';
 import { loadDay } from './health-day-store';
 import { listSessionsForDate } from './gym-session-store';
 
@@ -134,6 +135,80 @@ export function deriveToday(date: string): TodayDerived {
     meals,
     extraMeals: day.log.meals.filter((m) => !claimed.has(m.id)),
   };
+}
+
+/**
+ * Write the day's roll-up back onto its plan(s).
+ *
+ * RECOMPUTED from the logs every time rather than patched incrementally. An
+ * incremental "mark it done" would drift the moment anything was undone — a
+ * meal deleted, a session cleared — and a stale roll-up is worse than none,
+ * because adherence would quietly overstate. Recomputing is idempotent: call it
+ * as often as you like and it converges on what the logs actually say.
+ *
+ * Call after anything that changes what happened on `date`.
+ *
+ * A rest day counts as done. There is nothing to fail at, and treating it as
+ * outstanding would score a perfectly followed week with four rest days at
+ * roughly 43% adherence — punishing someone for resting exactly as instructed.
+ */
+export function refreshPlanCompletion(date: string): void {
+  const derived = deriveToday(date);
+  if (!derived.hasPlan) return;
+
+  const byPlan = new Map<string, { dayIndex: number; training: HealthPlanDayProgress; nutrition: HealthPlanDayProgress }>();
+
+  for (const s of derived.sessions) {
+    const training: HealthPlanDayProgress =
+      s.kind !== 'training' || s.exercises.length === 0 ? 'done'
+      : s.status === 'completed' ? 'done'
+      : s.status === 'in-progress' ? 'partial'
+      : s.status === 'skipped' ? 'skipped'
+      : 'pending';
+    byPlan.set(s.plan_id, { dayIndex: s.day_index, training, nutrition: 'done' });
+  }
+
+  // Nutrition is judged per plan, because a combined plan and a meal plan can
+  // each own part of the day.
+  const mealsByPlan = new Map<string, TodayMeal[]>();
+  for (const m of derived.meals) {
+    mealsByPlan.set(m.plan_id, [...(mealsByPlan.get(m.plan_id) ?? []), m]);
+  }
+  for (const [planId, meals] of mealsByPlan) {
+    const settled = meals.filter((m) => m.status !== 'pending');
+    const nutrition: HealthPlanDayProgress =
+      settled.length === 0 ? 'pending'
+      : meals.every((m) => m.status === 'skipped') ? 'skipped'
+      : settled.length === meals.length ? 'done'
+      : 'partial';
+    const existing = byPlan.get(planId);
+    byPlan.set(planId, {
+      dayIndex: meals[0].day_index,
+      training: existing?.training ?? 'done', // meal-only plan: nothing to train
+      nutrition,
+    });
+  }
+
+  for (const [planId, next] of byPlan) {
+    const plan = getPlan(planId);
+    if (!plan) continue;
+    const day = plan.days.find((d) => d.day_index === next.dayIndex);
+    if (!day) continue;
+    const prev = day.completion;
+    const bothDone = next.training === 'done' && next.nutrition === 'done';
+    const completed_at = bothDone ? (prev?.completed_at ?? new Date().toISOString()) : null;
+    if (prev?.training === next.training && prev?.nutrition === next.nutrition && prev?.completed_at === completed_at) {
+      continue; // nothing changed — don't churn updated_at or fire listeners
+    }
+    writePlanRaw({
+      ...plan,
+      days: plan.days.map((d) =>
+        d.day_index === next.dayIndex
+          ? { ...d, completion: { training: next.training, nutrition: next.nutrition, completed_at } }
+          : d,
+      ),
+    });
+  }
 }
 
 /** Macro totals for the day: what the plan asks for, and what was actually
