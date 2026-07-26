@@ -7,7 +7,7 @@
 // fields (allergens, dietary, equipment) round-trip but aren't edited here yet
 // — they need the taxonomy pickers (a later refinement).
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile, saveProfile, syncProfile } from '@/lib/health-profile-store';
 import { CustomSelect } from './CustomSelect';
@@ -162,25 +162,98 @@ function NumberCell({ label, value, onChange, placeholder, step }: {
   );
 }
 
-// Height — canonical cm, with live ft + in cells (mirrors extension/IDE).
+// Height — canonical cm, chosen from a list in whichever unit you think in.
+//
+// Was three number boxes side by side (cm, ft, in) all live at once, which
+// asked you to know your height in both systems and left the other two boxes
+// arguing with the one you typed in. Height is a value from a short, fixed
+// range that never changes — a list you pick from is faster than typing, and
+// cannot be half-entered.
+//
+// Storage is unchanged: cm remains canonical, so nothing that reads a profile
+// has to care which unit was used to enter it. In imperial the list's own
+// values are INCHES, not centimetres, so switching units never has to find a
+// nearest match — 5'9" is 175 cm going one way and 69 inches coming back.
+
+type HeightUnit = 'cm' | 'imperial';
+
+const HEIGHT_UNIT_KEY = 'ava-health-height-unit';
+
+function readHeightUnit(): HeightUnit {
+  try { return localStorage.getItem(HEIGHT_UNIT_KEY) === 'imperial' ? 'imperial' : 'cm'; }
+  catch { return 'cm'; }
+}
+
+// Wide enough to cover every adult and most of childhood; a range that cuts
+// someone off is worse than a slightly longer scroll, and the list opens
+// already scrolled to whatever is selected.
+const CM_RANGE = { min: 100, max: 250 };
+const IN_RANGE = { min: 39, max: 98 };
+
 function HeightField({ cm, onChange }: { cm: number | null; onChange: (cm: number | null) => void }) {
-  let ft: number | null = null;
-  let inches: number | null = null;
-  if (cm != null && Number.isFinite(cm)) {
-    const totalIn = Math.round(cm / 2.54);
-    ft = Math.floor(totalIn / 12);
-    inches = totalIn % 12;
-  }
-  const setImperial = (newFt: number | null, newIn: number | null) => {
-    if (newFt == null && newIn == null) { onChange(null); return; }
-    onChange(Math.round(((newFt ?? 0) * 12 + (newIn ?? 0)) * 2.54));
+  const [unit, setUnit] = useState<HeightUnit>('cm');
+
+  // Read after mount: localStorage does not exist during the static export's
+  // prerender, and a value read at render time would not match the server's.
+  useEffect(() => { setUnit(readHeightUnit()); }, []);
+
+  const pickUnit = (u: HeightUnit) => {
+    setUnit(u);
+    try { localStorage.setItem(HEIGHT_UNIT_KEY, u); } catch { /* private mode */ }
   };
+
+  const options = useMemo(() => {
+    const blank = { value: '', label: '—' };
+    if (unit === 'cm') {
+      const out = [blank];
+      for (let v = CM_RANGE.min; v <= CM_RANGE.max; v++) out.push({ value: String(v), label: `${v} cm` });
+      return out;
+    }
+    const out = [blank];
+    for (let i = IN_RANGE.min; i <= IN_RANGE.max; i++) {
+      out.push({ value: String(i), label: `${Math.floor(i / 12)}′ ${i % 12}″` });
+    }
+    return out;
+  }, [unit]);
+
+  const value = cm == null || !Number.isFinite(cm)
+    ? ''
+    : unit === 'cm' ? String(Math.round(cm)) : String(Math.round(cm / 2.54));
+
+  const change = (v: string) => {
+    if (!v) { onChange(null); return; }
+    const n = Number(v);
+    onChange(unit === 'cm' ? n : Math.round(n * 2.54));
+  };
+
   return (
-    <div className="grid grid-cols-3 gap-2">
-      <NumberCell label="cm" value={cm} onChange={onChange} placeholder="178" />
-      <NumberCell label="ft" value={ft} onChange={v => setImperial(v, inches)} placeholder="5" />
-      <NumberCell label="in" value={inches} onChange={v => setImperial(ft, v)} placeholder="10" />
+    <div className="flex gap-2">
+      <div className="flex shrink-0 gap-1">
+        <UnitBtn label="cm" active={unit === 'cm'} onClick={() => pickUnit('cm')} />
+        <UnitBtn label="ft / in" active={unit === 'imperial'} onClick={() => pickUnit('imperial')} />
+      </div>
+      <CustomSelect
+        value={value}
+        onChange={change}
+        options={options}
+        placeholder={unit === 'cm' ? '178 cm' : '5′ 10″'}
+        className="flex-1 min-w-0"
+      />
     </div>
+  );
+}
+
+function UnitBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-lg border px-2.5 text-[11px] ${
+        active ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

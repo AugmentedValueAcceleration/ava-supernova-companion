@@ -20,7 +20,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { BottomSheet } from './BottomSheet';
-import { buildShoppingList, type ShoppingItem } from '@/lib/health-shopping-list';
+import { buildShoppingList, type ShoppingItem, type MissingMeal } from '@/lib/health-shopping-list';
 import { fillMissingIngredients } from '@/lib/health-shopping-fill';
 import { savePlan } from '@/lib/health-plan-store';
 import type { Aisle } from '@/lib/health-aisles';
@@ -71,6 +71,8 @@ export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
   useLocale();
   const [working, setWorking] = useState<HealthPlan>(plan);
   const [filling, setFilling] = useState(true);
+  const [offline, setOffline] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [week, setWeek] = useState(0);
   const [hideOptional, setHideOptional] = useState(false);
   const [ticks, setTicks] = useState<Set<string>>(() => readTicks(plan.id));
@@ -81,21 +83,23 @@ export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
   // ingredients; meals Ava generated only ever carried a slug.
   useEffect(() => {
     let live = true;
+    setFilling(true);
     (async () => {
-      const filled = await fillMissingIngredients(plan);
+      const { plan: filled, reachedLibrary } = await fillMissingIngredients(plan);
       if (!live) return;
       if (filled) {
         savePlan(filled);
         setWorking(filled);
         onPlanFilled?.(filled);
       }
+      setOffline(!reachedLibrary);
       setFilling(false);
     })();
     return () => { live = false; };
     // Deliberately keyed on the plan id alone: re-running because the plan
     // object changed identity would re-fetch on every save, and the fill
-    // itself saves.
-  }, [plan.id]);  // eslint-disable-line
+    // itself saves. `attempt` is here so Try again can force one.
+  }, [plan.id, attempt]);  // eslint-disable-line
 
   const days = useMemo(() => {
     if (weeks === 1) return working.days;
@@ -161,13 +165,18 @@ export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
             </div>
           </div>
 
-          {/* Named, never hidden. The list is short by exactly these meals. */}
-          {list.missing.length > 0 && (
-            <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2">
-              <div className="text-[11px] text-amber-300/90">{t('shoppingListIncomplete')}</div>
-              <div className="mt-1 text-[11px] text-gray-400">{list.missing.join(', ')}</div>
-            </div>
-          )}
+          {/* Named, never hidden — and the two reasons are kept apart, because
+              one is worth retrying and the other can only be fixed by swapping
+              the meal for a real recipe. */}
+          <Gap
+            meals={list.missing.filter(m => m.reason === 'lookup_failed')}
+            message={offline ? t('shoppingListOffline') : t('shoppingListIncomplete')}
+            onRetry={() => setAttempt(n => n + 1)}
+          />
+          <Gap
+            meals={list.missing.filter(m => m.reason === 'not_in_library')}
+            message={t('shoppingListNotInLibrary')}
+          />
 
           <div className="space-y-4">
             {list.groups.map(group => (
@@ -186,6 +195,25 @@ export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
         </>
       )}
     </BottomSheet>
+  );
+}
+
+/** What the list could not cover, and what can be done about it. Renders
+ *  nothing when there is no gap — an empty warning box is worse than none. */
+function Gap({ meals, message, onRetry }: {
+  meals: MissingMeal[]; message: string; onRetry?: () => void;
+}) {
+  if (!meals.length) return null;
+  return (
+    <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2">
+      <div className="text-[11px] text-amber-300/90">{message}</div>
+      <div className="mt-1 text-[11px] text-gray-400">{meals.map(m => m.name).join(', ')}</div>
+      {onRetry && (
+        <button onClick={onRetry} className="mt-1.5 text-[11px] text-ava-purple">
+          {t('shoppingListRetry')}
+        </button>
+      )}
+    </div>
   );
 }
 

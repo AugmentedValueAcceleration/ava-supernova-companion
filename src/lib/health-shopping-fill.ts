@@ -30,14 +30,29 @@ interface Bundle {
   defaultServings: Record<string, number | null>;
 }
 
+export interface FillResult {
+  /** The updated plan, when anything was actually filled. */
+  plan: HealthPlan | null;
+  /**
+   * Whether the library could be reached at all.
+   *
+   * Distinguished from "nothing to fill" on purpose. Returning a bare null for
+   * both meant a dead network and a plan of unlinked meals produced the same
+   * silence, and the first real report could not be read: four meals came back
+   * unshoppable with no way to tell which had happened.
+   */
+  reachedLibrary: boolean;
+}
+
 /**
- * Returns an updated plan, or null when there was nothing to fill or the
- * library could not be reached. Never throws: a shopping list that cannot be
- * completed should say so, not break the screen.
+ * Never throws: a shopping list that cannot be completed should say so, not
+ * break the screen it is on.
  */
-export async function fillMissingIngredients(plan: HealthPlan): Promise<HealthPlan | null> {
+export async function fillMissingIngredients(plan: HealthPlan): Promise<FillResult> {
   const needed = mealsNeedingIngredients(plan.days ?? []);
-  if (!needed.length) return null;
+  // Nothing to ask for is not a failure — every meal already has its lines, or
+  // none of them is a library recipe in the first place.
+  if (!needed.length) return { plan: null, reachedLibrary: true };
 
   let bundles: Record<string, Bundle>;
   try {
@@ -45,9 +60,8 @@ export async function fillMissingIngredients(plan: HealthPlan): Promise<HealthPl
     const res = await healthCatalogApi.ingredients(slugs);
     bundles = (res?.recipes ?? {}) as Record<string, Bundle>;
   } catch {
-    return null;
+    return { plan: null, reachedLibrary: false };
   }
-  if (!Object.keys(bundles).length) return null;
 
   let changed = false;
   const days = plan.days.map((day) => {
@@ -79,5 +93,5 @@ export async function fillMissingIngredients(plan: HealthPlan): Promise<HealthPl
     return { ...day, meals };
   });
 
-  return changed ? { ...plan, days } : null;
+  return { plan: changed ? { ...plan, days } : null, reachedLibrary: true };
 }

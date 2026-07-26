@@ -56,13 +56,31 @@ export interface ShoppingGroup {
   items: ShoppingItem[];
 }
 
+/**
+ * A meal the list could not shop for, and WHY.
+ *
+ * The two reasons need different words and different fixes, and collapsing
+ * them into one "could not be found" tells nobody anything — including me,
+ * when the first report came back and the cause could not be read off it.
+ *
+ *  - `not_in_library`: the meal has no library ref. Ava named a dish rather
+ *    than choosing a recipe, so there is no ingredient list in existence.
+ *    Nothing to retry; the meal has to be swapped for a real recipe.
+ *  - `lookup_failed`: it has a ref, but the ingredients are not here. That is
+ *    a network or library problem, and it is worth trying again.
+ */
+export interface MissingMeal {
+  name: string;
+  reason: 'not_in_library' | 'lookup_failed';
+}
+
 export interface ShoppingList {
   groups: ShoppingGroup[];
   itemCount: number;
   mealCount: number;
-  /** Names of meals in range whose ingredients are not captured. The list is
-   *  incomplete by exactly these meals and the UI must say so. */
-  missing: string[];
+  /** Meals in range the list could not cover. It is short by exactly these,
+   *  and the UI must say so rather than looking complete. */
+  missing: MissingMeal[];
 }
 
 /* ------------------------------------------------------------------ units - */
@@ -225,7 +243,7 @@ export function buildShoppingList(
   opts: ShoppingListOptions = {},
 ): ShoppingList {
   const buckets = new Map<string, Bucket>();
-  const missing: string[] = [];
+  const missing: MissingMeal[] = [];
   let mealCount = 0;
 
   for (const day of days) {
@@ -233,9 +251,11 @@ export function buildShoppingList(
       mealCount += 1;
       const lines = meal.meta?.ingredients;
       if (!lines || lines.length === 0) {
-        // Captured at add time; a meal from before that, or one the generator
-        // could not link to a catalogue recipe, genuinely has nothing to give.
-        if (!missing.includes(meal.name)) missing.push(meal.name);
+        // Ingredients are captured at add time. A meal without them is either
+        // one the generator never linked to a real recipe — in which case no
+        // ingredient list exists anywhere — or one whose lookup has not landed.
+        const reason = meal.ref?.slug ? 'lookup_failed' : 'not_in_library';
+        if (!missing.some((m) => m.name === meal.name)) missing.push({ name: meal.name, reason });
         continue;
       }
 
