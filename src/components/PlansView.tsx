@@ -118,9 +118,14 @@ export function PlansView({ token }: { token?: string | null }) {
     setOpen({ id: saved.id, day: 1 }); // flow straight into the builder to add days (matches extension/IDE)
   };
 
+  // The calendar is a fixed amount of content — a month is always a month — so
+  // it should sit on one screen rather than making someone scroll to see the
+  // end of it. Programs is a list and genuinely grows, so that one scrolls.
+  const fixedHeight = tab === 'calendar';
+
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl mx-auto w-full pb-28">
+    <div className={`flex-1 flex flex-col min-h-0 ${fixedHeight ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      <div className={`max-w-3xl mx-auto w-full flex flex-col min-h-0 ${fixedHeight ? 'flex-1 pb-2' : 'pb-28'}`}>
         <div className="px-4 py-3 border-b border-ava-border">
           <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
           {/* TWO DOORS, both visible. There used to be one button, "New", which
@@ -150,7 +155,9 @@ export function PlansView({ token }: { token?: string | null }) {
 
         {tab === 'programs'
           ? <Programs plans={plans} onActivate={activate} onRepeat={repeat} onDelete={del} onOpen={(id) => setOpen({ id, day: 1 })} />
-          : <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} onActivate={activate} />}
+          : <div className="flex-1 min-h-0">
+              <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} onActivate={activate} />
+            </div>}
       </div>
 
       {creating && <CreateSheet onCancel={() => setCreating(false)} onCreate={create} />}
@@ -420,10 +427,13 @@ function Calendar({ plans, onOpenDay, onActivate }: {
   onOpenDay: (id: string, day: number) => void;
   onActivate: (id: string) => void;
 }) {
-  // Every plan that's been placed on a date. A plan only gets a date when it
-  // STARTS, so drafts cannot be drawn on a grid of days — but they can be
-  // offered, which is the difference between an empty calendar that explains
-  // itself and one that just says no.
+  // Plans that have started, and plans that have not.
+  //
+  // A draft has no start date, and for a long time that meant it simply did not
+  // appear here — you could make a plan, open the calendar, and find nothing,
+  // which is indefensible however correct the data model is. A draft has an
+  // obvious provisional placement: from today, for its own length. So it is
+  // DRAWN, dashed and dimmed, as a proposal rather than a commitment.
   const dated = plans.filter(p => p.start_date);
   const undated = plans.filter(p => !p.start_date && p.status !== 'archived');
   const [month, setMonth] = useState(() => {
@@ -440,7 +450,23 @@ function Calendar({ plans, onOpenDay, onActivate }: {
   // for the plans that have been placed on a date at all.
   const marks = useMemo(() => {
     const todayKey = dateKey(new Date());
-    const map = new Map<string, { training: boolean; meals: boolean; done: boolean; missed: boolean }>();
+    const map = new Map<string, { training: boolean; meals: boolean; done: boolean; missed: boolean; proposed: boolean }>();
+
+    // Drafts first, so a real started plan overwrites a proposal on any day
+    // they share rather than the other way round.
+    for (const summary of undated) {
+      const plan = getPlan(summary.id);
+      if (!plan) continue;
+      const training = plan.type === 'fitness' || plan.type === 'combined';
+      const meals = plan.type === 'meal' || plan.type === 'combined';
+      const from = new Date();
+      for (let i = 0; i < plan.duration_days; i++) {
+        const d = new Date(from); d.setDate(d.getDate() + i);
+        const k = dateKey(d);
+        const prev = map.get(k) ?? { training: false, meals: false, done: false, missed: false, proposed: true };
+        map.set(k, { ...prev, training: prev.training || training, meals: prev.meals || meals, proposed: true });
+      }
+    }
 
     for (const summary of dated) {
       const plan = getPlan(summary.id);
@@ -462,7 +488,7 @@ function Calendar({ plans, onOpenDay, onActivate }: {
         // nothing and so can never be missed.
         const isMissed = !isDone && k < todayKey && day != null && day.kind !== 'rest';
 
-        const prev = map.get(k) ?? { training: false, meals: false, done: false, missed: false };
+        const prev = map.get(k) ?? { training: false, meals: false, done: false, missed: false, proposed: false };
         map.set(k, {
           training: prev.training || training,
           meals: prev.meals || meals,
@@ -470,6 +496,9 @@ function Calendar({ plans, onOpenDay, onActivate }: {
           // One plan kept and another missed on the same date is a miss worth
           // seeing, but never at the expense of showing the one that was kept.
           missed: prev.missed || isMissed,
+          // A real, started plan on this day settles it — it is no longer a
+          // proposal even if a draft also happens to cover the date.
+          proposed: false,
         });
       }
     }
@@ -483,7 +512,15 @@ function Calendar({ plans, onOpenDay, onActivate }: {
       const s = new Date(`${p.start_date}T00:00:00`).getTime();
       return !isNaN(s) && sel >= s && sel <= s + (p.duration_days - 1) * 86400000;
     });
-    if (covering.length === 0) return null;
+    if (covering.length === 0) {
+      // Nothing started covers this day — but a draft's provisional placement
+      // might, and tapping it should open that plan rather than do nothing.
+      const from = new Date(); from.setHours(0, 0, 0, 0);
+      const draft = undated.find(p =>
+        sel >= from.getTime() && sel <= from.getTime() + (p.duration_days - 1) * 86400000);
+      if (!draft) return null;
+      return { id: draft.id, day: Math.floor((sel - from.getTime()) / 86400000) + 1 };
+    }
     covering.sort((a, b) => {
       if ((a.status === 'active') !== (b.status === 'active')) return a.status === 'active' ? -1 : 1;
       return (b.updated_at ?? '').localeCompare(a.updated_at ?? '');
@@ -502,14 +539,24 @@ function Calendar({ plans, onOpenDay, onActivate }: {
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, m, d));
 
   return (
-    <div className="px-4 py-4">
-      <div className="flex items-center justify-between mb-3">
-        <button onClick={() => setMonth(new Date(year, m - 1, 1))} className="text-gray-400 px-2">‹</button>
+    // Column that fills the space it is given: the grid takes what is left
+    // after the month header and the legend, so a month always lands on one
+    // screen instead of running off the bottom.
+    <div className="px-4 py-3 h-full flex flex-col min-h-0">
+      <div className="shrink-0 flex items-center justify-between mb-2">
+        <button onClick={() => setMonth(new Date(year, m - 1, 1))} className="text-gray-400 px-3 py-1 text-lg leading-none">‹</button>
         <div className="text-sm text-white">{month.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</div>
-        <button onClick={() => setMonth(new Date(year, m + 1, 1))} className="text-gray-400 px-2">›</button>
+        <button onClick={() => setMonth(new Date(year, m + 1, 1))} className="text-gray-400 px-3 py-1 text-lg leading-none">›</button>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <div key={i} className="text-[9px] text-gray-600 py-1">{d}</div>)}
+      {/* auto-rows-fr divides the leftover height evenly between the week rows,
+          so the grid grows or shrinks to whatever is left instead of forcing
+          square cells and pushing the legend off the bottom. */}
+      <div className="grid grid-cols-7 gap-1 text-center flex-1 min-h-0 auto-rows-fr">
+        {/* The weekday header is a label, not a row of the month — kept to its
+            own height so it does not take a seventh of the grid. */}
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+          <div key={i} className="text-[9px] text-gray-600 row-span-1 max-h-4 flex items-center justify-center">{d}</div>
+        ))}
         {cells.map((date, i) => {
           if (!date) return <div key={i} />;
           const mk = marks.get(dateKey(date));
@@ -523,10 +570,13 @@ function Calendar({ plans, onOpenDay, onActivate }: {
               key={i}
               onClick={() => { const t = planForDate(date); if (t) onOpenDay(t.id, t.day); }}
               disabled={!mk}
-              className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[11px] transition ${
+              className={`min-h-0 rounded-lg flex flex-col items-center justify-center text-[11px] transition ${
                 isToday ? 'ring-1 ring-ava-purple/60' : ''
               } ${
                 !mk ? 'cursor-default text-gray-300'
+                  // Dashed and dimmed: a proposal, not a commitment. It is
+                  // where this draft WOULD run if you started it today.
+                  : mk.proposed ? 'border border-dashed border-ava-purple/40 text-gray-400 active:scale-95'
                   : mk.done ? 'bg-emerald-500/15 border border-emerald-400/40 text-emerald-100 active:scale-95'
                   : mk.missed ? 'bg-ava-surface border border-amber-400/40 text-amber-100/80 active:scale-95'
                   : 'bg-ava-surface border border-ava-border text-gray-300 active:scale-95'
@@ -553,16 +603,35 @@ function Calendar({ plans, onOpenDay, onActivate }: {
           );
         })}
       </div>
-      {dated.length > 0
+      {/* Drafts are drawn now, so the legend and the start prompt both belong
+          whenever there is ANY plan — not only a started one. */}
+      {dated.length > 0 || undated.length > 0
         ? (
-          <div className="mt-4 space-y-1.5 text-[10px] text-gray-500">
+          <div className="shrink-0 mt-3 space-y-1.5 text-[10px] text-gray-500">
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-ava-purple" /> {t('plansCalendarLegendTraining')}</span>
               <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> {t('plansCalendarLegendMeals')}</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500/25 border border-emerald-400/40" /> {t('plansCalendarLegendDone')}</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm border border-amber-400/40" /> {t('plansCalendarLegendMissed')}</span>
+              {undated.length > 0 && (
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm border border-dashed border-ava-purple/50" /> {t('plansCalendarLegendProposed')}</span>
+              )}
             </div>
             <div>{t('plansCalendarTapDayHint')}</div>
+
+            {/* Still offered, because a dashed day is not a running plan. */}
+            {undated.length > 0 && (
+              <div className="mt-3 space-y-2 max-w-xs mx-auto">
+                {undated.slice(0, 3).map(p => (
+                  <div key={p.id} className="flex items-center gap-2 rounded-lg border border-ava-border bg-ava-surface px-3 py-2">
+                    <span className="flex-1 min-w-0 truncate text-left text-[12px] text-white">{p.title}</span>
+                    <Button variant="primary" size="sm" onClick={() => onActivate(p.id)}>
+                      {t('plansCalendarStartIt')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )
         : (
@@ -571,25 +640,9 @@ function Calendar({ plans, onOpenDay, onActivate }: {
           // somebody who has already created one is both wrong and a dead end —
           // it names the thing they have just done and leaves them to find the
           // other tab. If there are plans waiting, start one from here.
-          <div className="mt-4 text-center">
-            {undated.length === 0 ? (
-              <p className="text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>
-            ) : (
-              <>
-                <p className="text-[11px] text-gray-500">{t('plansCalendarNotStarted')}</p>
-                <div className="mt-3 space-y-2 max-w-xs mx-auto">
-                  {undated.slice(0, 3).map(p => (
-                    <div key={p.id} className="flex items-center gap-2 rounded-lg border border-ava-border bg-ava-surface px-3 py-2">
-                      <span className="flex-1 min-w-0 truncate text-left text-[12px] text-white">{p.title}</span>
-                      <Button variant="primary" size="sm" onClick={() => onActivate(p.id)}>
-                        {t('plansCalendarStartIt')}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          // Reached only when there is genuinely nothing — drafts are drawn on
+          // the grid above and handled there.
+          <p className="mt-4 text-center text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>
         )}
     </div>
   );

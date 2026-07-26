@@ -256,6 +256,7 @@ export const plStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Dotknij dnia, aby otworzyć plan',
   'plansCalendarEmptyState': 'Brak jeszcze planów. Zapytaj Ava o jeden lub stwórz własny — oba u góry.',
   'plansCalendarNotStarted': 'Nic jeszcze nie działa. Plan pojawia się w kalendarzu dopiero po jego rozpoczęciu.',
+  'plansCalendarLegendProposed': 'Nierozpoczęte',
   'plansCalendarStartIt': 'Rozpocznij',
   'plansCardSessions': 'Sesje',
   'plansCardMeals': 'Posiłki',

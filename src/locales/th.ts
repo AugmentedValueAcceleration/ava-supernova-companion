@@ -256,6 +256,7 @@ export const thStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'แตะที่วันเพื่อเปิดแผนนั้น',
   'plansCalendarEmptyState': 'ยังไม่มีแผนใด ๆ เลย ถาม Ava เพื่อขอแผน หรือสร้างเองก็ได้ — ทั้งสองตัวเลือกอยู่ด้านบน',
   'plansCalendarNotStarted': 'ยังไม่มีอะไรกำลังดำเนินการอยู่ แผนจะถูกเพิ่มลงในปฏิทินก็ต่อเมื่อเริ่มใช้งานแล้ว',
+  'plansCalendarLegendProposed': 'ยังไม่เริ่ม',
   'plansCalendarStartIt': 'เริ่ม',
   'plansCardSessions': 'เซสชัน',
   'plansCardMeals': 'มื้ออาหาร',

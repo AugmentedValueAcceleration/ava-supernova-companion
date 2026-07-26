@@ -256,6 +256,7 @@ export const nlStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Tik op een dag om het plan te openen',
   'plansCalendarEmptyState': 'Nog geen plannen. Vraag Ava om er een, of maak je eigen — beide hierboven.',
   'plansCalendarNotStarted': 'Nog niets actief. Een plan verschijnt pas op de kalender zodra deze start.',
+  'plansCalendarLegendProposed': 'Niet gestart',
   'plansCalendarStartIt': 'Starten',
   'plansCardSessions': 'sessies',
   'plansCardMeals': 'maaltijden',

@@ -256,6 +256,7 @@ export const ukStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Торкніться дня, щоб відкрити план',
   'plansCalendarEmptyState': 'Поки що немає планів. Попросіть у Ava один або створіть свій — обидва зверху.',
   'plansCalendarNotStarted': 'Ще нічого не запущено. План з\'являється в календарі лише після запуску.',
+  'plansCalendarLegendProposed': 'Не розпочато',
   'plansCalendarStartIt': 'Старт',
   'plansCardSessions': 'Заняття',
   'plansCardMeals': 'Прийоми їжі',

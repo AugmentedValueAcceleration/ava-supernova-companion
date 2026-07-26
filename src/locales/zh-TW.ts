@@ -256,6 +256,7 @@ export const zhTWStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': '點擊某天打開其計畫',
   'plansCalendarEmptyState': '目前尚無計劃。可向 Ava 詢問，或自行建立 —— 兩者都在上方。',
   'plansCalendarNotStarted': '暫時沒有任何進行中的項目。計劃僅在啟動後才會顯示於日曆上。',
+  'plansCalendarLegendProposed': '未開始',
   'plansCalendarStartIt': '開始',
   'plansCardSessions': '訓練',
   'plansCardMeals': '餐點',

@@ -256,6 +256,7 @@ export const koStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': '날짜를 탭하여 플랜 열기',
   'plansCalendarEmptyState': '아직 계획이 없어요. Ava 에게 요청하거나 직접 만들어 보세요 — 둘 다 상단에서 할 수 있어요.',
   'plansCalendarNotStarted': '아직 진행 중인 계획이 없어요. 계획은 시작될 때만 달력에 표시돼요.',
+  'plansCalendarLegendProposed': '시작하지 않음',
   'plansCalendarStartIt': '시작',
   'plansCardSessions': '세션',
   'plansCardMeals': '식사',

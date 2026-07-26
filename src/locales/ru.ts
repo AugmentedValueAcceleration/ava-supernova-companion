@@ -256,6 +256,7 @@ export const ruStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Нажмите на день, чтобы открыть план',
   'plansCalendarEmptyState': 'Планов пока нет. Попросите Ava создать один или создайте свой — оба варианта сверху.',
   'plansCalendarNotStarted': 'Пока ничего не запущено. План появляется в календаре только после начала.',
+  'plansCalendarLegendProposed': 'Не начато',
   'plansCalendarStartIt': 'Начать',
   'plansCardSessions': 'сессии',
   'plansCardMeals': 'приёмы пищи',

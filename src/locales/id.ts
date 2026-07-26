@@ -256,6 +256,7 @@ export const idStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Ketuk hari untuk membuka rencananya',
   'plansCalendarEmptyState': 'Belum ada rencana. Minta Ava buatkan, atau buat sendiri — keduanya tersedia di bagian atas.',
   'plansCalendarNotStarted': 'Belum ada yang berjalan. Sebuah rencana hanya akan muncul di kalender setelah dimulai.',
+  'plansCalendarLegendProposed': 'Belum dimulai',
   'plansCalendarStartIt': 'Mulai',
   'plansCardSessions': 'sesi',
   'plansCardMeals': 'makanan',

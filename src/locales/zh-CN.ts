@@ -256,6 +256,7 @@ export const zhCNStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': '点击某天打开其计划',
   'plansCalendarEmptyState': '暂无计划。向 Ava 询问一个，或自己创建——都在上方。',
   'plansCalendarNotStarted': '暂无运行中的计划。计划只有在开始后才会显示在日历上。',
+  'plansCalendarLegendProposed': '未开始',
   'plansCalendarStartIt': '开始',
   'plansCardSessions': '训练',
   'plansCardMeals': '餐',

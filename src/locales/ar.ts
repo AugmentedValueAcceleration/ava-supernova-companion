@@ -256,6 +256,7 @@ export const arStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'انقر على يوم لفتح خطته',
   'plansCalendarEmptyState': 'لا توجد خطط حتى الآن. اسأل Ava للحصول على واحدة، أو أنشئ واحدة بنفسك — كليهما في الأعلى.',
   'plansCalendarNotStarted': 'لا يوجد شيء نشط حتى الآن. لن تظهر الخطة في التقويم إلا عند البدء.',
+  'plansCalendarLegendProposed': 'لم يبدأ بعد',
   'plansCalendarStartIt': 'ابدأ',
   'plansCardSessions': 'جلسات',
   'plansCardMeals': 'وجبات',

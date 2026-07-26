@@ -256,6 +256,7 @@ export const hiStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'योजना खोलने के लिए दिन पर टैप करें',
   'plansCalendarEmptyState': 'अभी कोई प्लान नहीं है। Ava से एक मांगें, या खुद बनाएं — दोनों ऊपर हैं।',
   'plansCalendarNotStarted': 'अभी कुछ चल रहा नहीं है। प्लान तभी कैलेंडर पर आता है जब वह शुरू होता है।',
+  'plansCalendarLegendProposed': 'शुरू नहीं हुआ',
   'plansCalendarStartIt': 'शुरू करें',
   'plansCardSessions': 'सत्र',
   'plansCardMeals': 'भोजन',

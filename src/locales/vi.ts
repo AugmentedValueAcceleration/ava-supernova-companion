@@ -256,6 +256,7 @@ export const viStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Chạm vào một ngày để mở kế hoạch của ngày đó',
   'plansCalendarEmptyState': 'Chưa có kế hoạch nào. Hãy hỏi Ava hoặc tự tạo — cả hai đều ở phía trên.',
   'plansCalendarNotStarted': 'Chưa có gì đang hoạt động. Kế hoạch chỉ xuất hiện trên lịch khi bắt đầu.',
+  'plansCalendarLegendProposed': 'Chưa bắt đầu',
   'plansCalendarStartIt': 'Bắt đầu',
   'plansCardSessions': 'buổi tập',
   'plansCardMeals': 'bữa ăn',

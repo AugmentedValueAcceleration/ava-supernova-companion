@@ -256,6 +256,7 @@ export const jaStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': '日をタップしてプランを開く',
   'plansCalendarEmptyState': 'まだプランはありません。Ava に頼むか、自分で作る — どちらも上部にあります。',
   'plansCalendarNotStarted': 'まだ実行中のプランはありません。開始されるとカレンダーに表示されます。',
+  'plansCalendarLegendProposed': '未着手',
   'plansCalendarStartIt': '開始',
   'plansCardSessions': 'セッション',
   'plansCardMeals': '食事',

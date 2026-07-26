@@ -338,6 +338,7 @@ export const enStrings = {
   // Shown when plans EXIST but none has started. Telling someone who has just
   // made a plan to "create one" is both wrong and a dead end.
   'plansCalendarNotStarted': 'Nothing running yet. A plan only lands on the calendar once it starts.',
+  'plansCalendarLegendProposed': 'Not started',
   'plansCalendarStartIt': 'Start',
   // The card says what the plan IS. It used to read "Tap to build" — authoring
   // language on a card for a plan that is already built — and told you nothing

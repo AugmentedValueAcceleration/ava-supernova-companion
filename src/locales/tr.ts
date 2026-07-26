@@ -256,6 +256,7 @@ export const trStrings: Record<StringKey, string> = {
   'plansCalendarTapDayHint': 'Planı açmak için bir güne dokun',
   'plansCalendarEmptyState': 'Henüz plan yok. Ava\'dan bir tane iste ya da kendi planını oluştur — ikisi de yukarıda.',
   'plansCalendarNotStarted': 'Henüz hiçbir şey başlamadı. Bir plan ancak başladığında takvimde yer alır.',
+  'plansCalendarLegendProposed': 'Başlanmadı',
   'plansCalendarStartIt': 'Başlat',
   'plansCardSessions': 'Oturumlar',
   'plansCardMeals': 'Öğünler',
