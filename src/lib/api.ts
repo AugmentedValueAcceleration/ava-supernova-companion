@@ -122,6 +122,40 @@ export const healthCatalogApi = {
 // combined plan), so it needs the account key — unlike the read-only catalogue
 // above. Returns a PROPOSAL; nothing is saved until the user accepts it.
 export const healthAssistApi = {
+  /**
+   * A WHOLE plan, generated from the person's profile and the filtered library.
+   *
+   * The same endpoint the extension uses. The companion previously had no route
+   * to it at all: asking Ava in chat produced a skeleton with empty days, so
+   * everything the generator knows — allergens excluded, injuries screened,
+   * calories targeted — reached one surface and not the other. A plan should be
+   * a plan wherever you ask for it.
+   */
+  plan: (token: string, payload: {
+    type: 'fitness' | 'meal' | 'combined';
+    duration_days: number;
+    title?: string;
+    goal?: string | null;
+    profile?: unknown;
+  }) =>
+    fetch(`${API_BASE}/health/generate/plan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    }).then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body?.error || `Request failed (${r.status})`);
+      return body as {
+        type: string; title: string; goal: string | null; duration_days: number;
+        days: unknown[]; credits_charged: number;
+        filtering: {
+          exercises_available: number; recipes_available: number;
+          excluded: Record<string, number>;
+          unverifiable_allergens: string[];
+        } | null;
+      };
+    }),
+
   day: (token: string, payload: {
     type: 'fitness' | 'meal' | 'combined';
     goal?: string | null;

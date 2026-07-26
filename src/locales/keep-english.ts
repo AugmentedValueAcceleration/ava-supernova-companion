@@ -65,6 +65,7 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'planBuilderNutritionSection',     // Nutrition
   'duplicateSheetWeekWord',          // Week — Dutch keeps it
   'assistAvaSays',                   // Ava — her name, never translated
+  'generateKnowsTraining',           // Training — German keeps it
   'planBuilderMacroProtein',         // Protein
   'mealSheetProtein',                // Protein
   'mealSheetTotal',                  // Total

@@ -19,6 +19,8 @@ import { todayIso } from '@/lib/health-day-store';
 import { listSessions } from '@/lib/gym-session-store';
 import { progressPlan, summarise } from '@/lib/health-plan-progression';
 import { planCardState } from '@/lib/health-today';
+import { loadProfile } from '@/lib/health-profile-store';
+import { GenerateSheet, Sparkle } from './GenerateSheet';
 import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
@@ -67,6 +69,7 @@ export function PlansView({ token }: { token?: string | null }) {
   const [tab, setTab] = useState<'programs' | 'calendar'>('programs');
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState<{ id: string; day: number } | null>(null);
+  const [generating, setGenerating] = useState(false);
   const [repeating, setRepeating] = useState<ProgressionResult | null>(null);
 
   const refresh = useCallback(() => setPlans(listPlans()), []);
@@ -116,9 +119,28 @@ export function PlansView({ token }: { token?: string | null }) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto w-full pb-28">
-        <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-ava-border">
           <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
-          <Button onClick={() => setCreating(true)} size="sm">{t('plansNewButton')}</Button>
+          {/* TWO DOORS, both visible. There used to be one button, "New", which
+              meant manual — so there was no separation between building a plan
+              yourself and asking Ava, because there was no visible choice at
+              all. Ava leads because it is the better answer for most people;
+              building by hand is right there and free. */}
+          <div className="mt-2.5 flex gap-2">
+            <button onClick={() => setGenerating(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-ava-purple/40 bg-ava-purple/10 py-2.5 text-[12px] text-ava-purple-light">
+              <Sparkle className="w-3.5 h-3.5" />
+              {t('plansAskAvaButton')}
+            </button>
+            <button onClick={() => setCreating(true)}
+              className="flex-1 rounded-lg border border-ava-border py-2.5 text-[12px] text-gray-300">
+              {t('plansBuildOwnButton')}
+            </button>
+          </div>
+          <div className="mt-1.5 flex gap-2 text-[10px] text-gray-600">
+            <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
+            <span className="flex-1 text-center">{t('plansBuildOwnHint')}</span>
+          </div>
         </div>
 
         <div className="flex gap-1 border-b border-ava-border px-2">
@@ -132,6 +154,14 @@ export function PlansView({ token }: { token?: string | null }) {
       </div>
 
       {creating && <CreateSheet onCancel={() => setCreating(false)} onCreate={create} />}
+      {generating && (
+        <GenerateSheet
+          token={token ?? null}
+          profile={loadProfile()}
+          onAccept={p => { const saved = savePlan(p); refresh(); syncPlans(token).catch(() => {}); setOpen({ id: saved.id, day: 1 }); }}
+          onClose={() => setGenerating(false)}
+        />
+      )}
       {repeating && (
         <RepeatSheet result={repeating} onConfirm={confirmRepeat} onCancel={() => setRepeating(null)} />
       )}
@@ -475,9 +505,12 @@ function CreateSheet({ onCancel, onCreate }: {
   const [activate, setActivate] = useState(false);
 
   return (
-    <div className="md:hidden fixed inset-0 z-[55]" onClick={onCancel}>
+    // Was md:hidden, which made the create button do NOTHING on a desktop-width
+    // browser — and the companion is a PWA people open on a laptop. A dead
+    // button is worse than a missing one.
+    <div className="fixed inset-0 z-[55]" onClick={onCancel}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-t border-ava-border bg-ava-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" onClick={e => e.stopPropagation()}>
+      <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-lg rounded-t-3xl border-t border-ava-border bg-ava-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" onClick={e => e.stopPropagation()}>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-ava-border" />
         <h3 className="text-white font-semibold text-sm mb-4">{t('plansCreateSheetHeading')}</h3>
 
