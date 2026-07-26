@@ -148,7 +148,7 @@ export function SwapSheet({ plan, kind, row, dayIndex, profile, onApply, onClose
   const multi = occurrences.length > 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
       <div
         className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[85vh] flex flex-col"
         onClick={e => e.stopPropagation()}

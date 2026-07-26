@@ -83,7 +83,7 @@ export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
       <div className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[88vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">

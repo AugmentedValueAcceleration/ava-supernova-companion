@@ -193,7 +193,7 @@ function RepeatSheet({ result, onConfirm, onCancel }: {
         : 'border-ava-border bg-ava-bg';
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60" onClick={onCancel}>
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onCancel}>
       <div className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[85vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">

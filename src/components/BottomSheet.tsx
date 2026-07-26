@@ -47,7 +47,7 @@ export function BottomSheet({ title, subtitle, onClose, children, footer }: {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
       <div
         ref={panel}
         onClick={e => e.stopPropagation()}
