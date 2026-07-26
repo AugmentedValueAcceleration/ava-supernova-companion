@@ -397,7 +397,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
 
       {shopping && (
         <ShoppingListSheet
-          plan={plan}
+          source={{ kind: 'plan', plan }}
           // The sheet fills in ingredients the plan never captured and saves
           // them; take the filled copy so this screen is not left holding the
           // version without them.

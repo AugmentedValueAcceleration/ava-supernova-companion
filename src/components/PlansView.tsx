@@ -11,7 +11,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
-import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
+import { listPlans, getAllPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
 import type { HealthPlanSummary, HealthPlanType, HealthPlanStatus } from '@/lib/health-types';
 import { PlanBuilder } from './PlanBuilder';
@@ -23,6 +23,7 @@ import { loadProfile } from '@/lib/health-profile-store';
 import { GenerateSheet, Sparkle } from './GenerateSheet';
 import { LibraryThumb } from './LibraryThumb';
 import { useLibraryImages } from '@/lib/use-library-images';
+import { ShoppingListSheet } from './ShoppingListSheet';
 import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
@@ -73,6 +74,8 @@ export function PlansView({ token }: { token?: string | null }) {
   const [open, setOpen] = useState<{ id: string; day: number } | null>(null);
   const [generating, setGenerating] = useState(false);
   const [repeating, setRepeating] = useState<ProgressionResult | null>(null);
+  // Shopping for a WEEK rather than for a plan — see the note by the button.
+  const [shoppingWeek, setShoppingWeek] = useState(false);
 
   const refresh = useCallback(() => setPlans(listPlans()), []);
   useEffect(() => {
@@ -146,6 +149,22 @@ export function PlansView({ token }: { token?: string | null }) {
             <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
             <span className="flex-1 text-center">{t('plansBuildOwnHint')}</span>
           </div>
+          {/* One shop, not one per plan. Activation only archives other active
+              plans of the SAME type, so a meal plan and a combined plan can
+              both be live across the same seven days — and the per-plan list,
+              opened from inside a plan, cannot see across them. Only offered
+              when something is actually placed in time to shop for. */}
+          {plans.some(p => p.start_date && p.status !== 'archived') && (
+            <button
+              onClick={() => setShoppingWeek(true)}
+              className="mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-lg border border-ava-border py-2 text-[11px] text-gray-300 active:scale-[0.99]"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12A1.125 1.125 0 0 1 19.75 21.75H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+              </svg>
+              {t('shoppingListShopWeek')}
+            </button>
+          )}
         </div>
 
         <div className="flex gap-1 border-b border-ava-border px-2">
@@ -159,6 +178,16 @@ export function PlansView({ token }: { token?: string | null }) {
               <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} onActivate={activate} />
             </div>}
       </div>
+
+      {shoppingWeek && (
+        <ShoppingListSheet
+          // Full plans, not the summaries this screen lists: the list needs
+          // days and meals, which a summary deliberately does not carry.
+          source={{ kind: 'week', plans: getAllPlans() }}
+          onPlanFilled={refresh}
+          onClose={() => setShoppingWeek(false)}
+        />
+      )}
 
       {creating && <CreateSheet onCancel={() => setCreating(false)} onCreate={create} />}
       {generating && (

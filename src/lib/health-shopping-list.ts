@@ -24,7 +24,7 @@
  *    complete would send someone home without dinner.
  */
 import { aisleFor, normaliseIngredientName, isNotShopped, AISLE_ORDER, type Aisle } from './health-aisles';
-import type { HealthPlanDay, HealthPlanMeal, PlanIngredient } from './health-types';
+import type { HealthPlan, HealthPlanDay, HealthPlanMeal, PlanIngredient } from './health-types';
 
 /** A quantity in one unit family. An item may carry more than one. */
 export interface ShoppingAmount {
@@ -49,6 +49,14 @@ export interface ShoppingItem {
   optional: boolean;
   /** Which planned meals need it — the answer to "why is this on my list?" */
   meals: string[];
+  /**
+   * Which plans contributed it, when the list spans more than one.
+   *
+   * Empty for a single-plan list, where naming the plan on every row would be
+   * noise. More than one entry is the interesting case: two plans both
+   * wanting onions is exactly the situation a per-plan list hid.
+   */
+  plans: string[];
 }
 
 export interface ShoppingGroup {
@@ -177,6 +185,19 @@ interface Bucket {
   optionalLines: number;
   totalLines: number;
   meals: Set<string>;
+  plans: Set<string>;
+}
+
+/**
+ * A day to shop for, and which plan it came from.
+ *
+ * The plan title travels with the day rather than being looked up later,
+ * because once days from several plans are in one pile there is nothing left
+ * on a day to say where it came from.
+ */
+export interface PlanDaySource {
+  day: HealthPlanDay;
+  planTitle?: string | null;
 }
 
 /**
@@ -213,6 +234,7 @@ function mergeMeasureNouns(buckets: Map<string, Bucket>): void {
     head.optionalLines += b.optionalLines;
     head.totalLines += b.totalLines;
     for (const m of b.meals) head.meals.add(m);
+    for (const p of b.plans) head.plans.add(p);
     // Names are deliberately NOT merged: the plain form is the better label by
     // construction. "garlic — 8 cloves" beats "garlic clove — 8 cloves".
     buckets.delete(key);
@@ -238,15 +260,37 @@ export function servingScale(meal: HealthPlanMeal): number {
   return want / base;
 }
 
+/** One plan's days. What you get when you open a plan and tap Shopping list. */
 export function buildShoppingList(
   days: HealthPlanDay[],
+  opts: ShoppingListOptions = {},
+): ShoppingList {
+  return buildFrom(days.map((day) => ({ day })), opts);
+}
+
+/**
+ * Days from several plans at once — a week, not a plan.
+ *
+ * You do one shop, not one shop per plan, and activation only archives other
+ * active plans of the SAME type, so a meal plan and a combined plan can both
+ * be live in the same week with meals on both.
+ */
+export function buildShoppingListAcross(
+  sources: PlanDaySource[],
+  opts: ShoppingListOptions = {},
+): ShoppingList {
+  return buildFrom(sources, opts);
+}
+
+function buildFrom(
+  sources: PlanDaySource[],
   opts: ShoppingListOptions = {},
 ): ShoppingList {
   const buckets = new Map<string, Bucket>();
   const missing: MissingMeal[] = [];
   let mealCount = 0;
 
-  for (const day of days) {
+  for (const { day, planTitle } of sources) {
     for (const meal of day.meals ?? []) {
       mealCount += 1;
       const lines = meal.meta?.ingredients;
@@ -269,7 +313,8 @@ export function buildShoppingList(
         if (!b) {
           b = {
             key, names: new Map(), grams: 0, ml: 0, counts: new Map(),
-            looseLines: 0, optionalLines: 0, totalLines: 0, meals: new Set(),
+            looseLines: 0, optionalLines: 0, totalLines: 0,
+            meals: new Set(), plans: new Set(),
           };
           buckets.set(key, b);
         }
@@ -277,6 +322,7 @@ export function buildShoppingList(
         b.totalLines += 1;
         if (line.optional) b.optionalLines += 1;
         b.meals.add(meal.name);
+        if (planTitle) b.plans.add(planTitle);
         b.names.set(line.name, (b.names.get(line.name) ?? 0) + 1);
 
         const qty = line.quantity;
@@ -318,6 +364,7 @@ export function buildShoppingList(
       looseLines: b.looseLines,
       optional: b.optionalLines === b.totalLines,
       meals: [...b.meals],
+      plans: [...b.plans],
     });
   }
 
@@ -332,6 +379,68 @@ export function buildShoppingList(
   }
 
   return { groups, itemCount: items.length, mealCount, missing };
+}
+
+/* ---------------------------------------------------------------- a week - */
+
+/**
+ * The days from every plan that land inside a date range, inclusive.
+ *
+ * Only DATED plans can be in a week — a draft with no start date has no
+ * position in time, and guessing one would put food on a list for a week
+ * nobody has committed to. The calendar draws such drafts as dashed proposals
+ * precisely because they are not real yet; a shopping list is not the place to
+ * pretend otherwise.
+ *
+ * Archived plans are excluded: they were superseded, and their meals are not
+ * what anyone is cooking.
+ */
+export function daysInRange(
+  plans: HealthPlan[],
+  fromIso: string,
+  toIso: string,
+): PlanDaySource[] {
+  const from = Date.parse(`${fromIso}T00:00:00Z`);
+  const to = Date.parse(`${toIso}T00:00:00Z`);
+  if (Number.isNaN(from) || Number.isNaN(to)) return [];
+
+  const out: PlanDaySource[] = [];
+  for (const plan of plans) {
+    if (!plan.start_date || plan.status === 'archived') continue;
+    const start = Date.parse(`${plan.start_date}T00:00:00Z`);
+    if (Number.isNaN(start)) continue;
+
+    for (const day of plan.days ?? []) {
+      const at = start + (day.day_index - 1) * 86_400_000;
+      if (at < from || at > to) continue;
+      out.push({ day, planTitle: plan.title });
+    }
+  }
+  return out;
+}
+
+/** Monday of the week containing `iso`, and the Sunday six days later. A week
+ *  that starts on the day you happen to open the app is not a week anyone
+ *  shops for. */
+export function weekBounds(iso: string): { from: string; to: string } {
+  const t = Date.parse(`${iso}T00:00:00Z`);
+  if (Number.isNaN(t)) return { from: iso, to: iso };
+  const dow = new Date(t).getUTCDay();          // 0 = Sunday
+  const back = (dow + 6) % 7;                    // days since Monday
+  const from = t - back * 86_400_000;
+  return {
+    from: new Date(from).toISOString().slice(0, 10),
+    to: new Date(from + 6 * 86_400_000).toISOString().slice(0, 10),
+  };
+}
+
+/** Shift a week window by whole weeks. */
+export function shiftWeek(bounds: { from: string; to: string }, by: number): { from: string; to: string } {
+  const from = Date.parse(`${bounds.from}T00:00:00Z`) + by * 7 * 86_400_000;
+  return {
+    from: new Date(from).toISOString().slice(0, 10),
+    to: new Date(from + 6 * 86_400_000).toISOString().slice(0, 10),
+  };
 }
 
 /** Every meal in the plan that has no captured ingredients, with the slug

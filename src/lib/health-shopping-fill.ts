@@ -49,10 +49,28 @@ export interface FillResult {
  * break the screen it is on.
  */
 export async function fillMissingIngredients(plan: HealthPlan): Promise<FillResult> {
-  const needed = mealsNeedingIngredients(plan.days ?? []);
+  const { plans, reachedLibrary } = await fillMissingIngredientsMany([plan]);
+  return { plan: plans[0] ?? null, reachedLibrary };
+}
+
+export interface FillManyResult {
+  /** Only the plans that actually changed, in the order given. */
+  plans: HealthPlan[];
+  reachedLibrary: boolean;
+}
+
+/**
+ * The same fill across several plans, in ONE request.
+ *
+ * A week can be covered by more than one plan, and asking the library
+ * separately for each would be several round trips for one screen — and would
+ * fetch the same recipe twice when two plans share a meal.
+ */
+export async function fillMissingIngredientsMany(all: HealthPlan[]): Promise<FillManyResult> {
+  const needed = all.flatMap((p) => mealsNeedingIngredients(p.days ?? []));
   // Nothing to ask for is not a failure — every meal already has its lines, or
   // none of them is a library recipe in the first place.
-  if (!needed.length) return { plan: null, reachedLibrary: true };
+  if (!needed.length) return { plans: [], reachedLibrary: true };
 
   let bundles: Record<string, Bundle>;
   try {
@@ -60,9 +78,15 @@ export async function fillMissingIngredients(plan: HealthPlan): Promise<FillResu
     const res = await healthCatalogApi.ingredients(slugs);
     bundles = (res?.recipes ?? {}) as Record<string, Bundle>;
   } catch {
-    return { plan: null, reachedLibrary: false };
+    return { plans: [], reachedLibrary: false };
   }
 
+  const filled = all.map((p) => applyBundles(p, bundles)).filter((p): p is HealthPlan => p !== null);
+  return { plans: filled, reachedLibrary: true };
+}
+
+/** Returns the plan with lines written in, or null when nothing changed. */
+function applyBundles(plan: HealthPlan, bundles: Record<string, Bundle>): HealthPlan | null {
   let changed = false;
   const days = plan.days.map((day) => {
     const meals = day.meals.map((meal) => {
@@ -93,5 +117,5 @@ export async function fillMissingIngredients(plan: HealthPlan): Promise<FillResu
     return { ...day, meals };
   });
 
-  return { plan: changed ? { ...plan, days } : null, reachedLibrary: true };
+  return changed ? { ...plan, days } : null;
 }

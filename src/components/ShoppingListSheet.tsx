@@ -20,8 +20,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { BottomSheet } from './BottomSheet';
-import { buildShoppingList, type ShoppingItem, type MissingMeal } from '@/lib/health-shopping-list';
-import { fillMissingIngredients } from '@/lib/health-shopping-fill';
+import {
+  buildShoppingListAcross, daysInRange, weekBounds, shiftWeek,
+  type ShoppingItem, type MissingMeal,
+} from '@/lib/health-shopping-list';
+import { fillMissingIngredientsMany } from '@/lib/health-shopping-fill';
+import { todayIso } from '@/lib/health-day-store';
 import { savePlan } from '@/lib/health-plan-store';
 import type { Aisle } from '@/lib/health-aisles';
 import type { HealthPlan } from '@/lib/health-types';
@@ -61,92 +65,135 @@ function writeTicks(planId: string, ticks: Set<string>): void {
 
 /* ------------------------------------------------------------------ sheet - */
 
-export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
-  plan: HealthPlan;
+/**
+ * What is being shopped for.
+ *
+ * A plan when you are looking at one, a week when you are not. The week case
+ * is not a nicety: activation only archives other active plans of the SAME
+ * type, so a meal plan and a combined plan can both be live across the same
+ * seven days — and you make one trip to the shop, not one per plan.
+ */
+export type ShoppingSource =
+  | { kind: 'plan'; plan: HealthPlan }
+  | { kind: 'week'; plans: HealthPlan[] };
+
+export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
+  source: ShoppingSource;
   onClose: () => void;
-  /** The fill writes ingredients onto the plan; the builder needs to know so
-   *  it is not holding a stale copy. */
+  /** The fill writes ingredients onto the plans; whoever opened this needs to
+   *  know so it is not left holding a stale copy. */
   onPlanFilled?: (next: HealthPlan) => void;
 }) {
   useLocale();
-  const [working, setWorking] = useState<HealthPlan>(plan);
+  const single = source.kind === 'plan' ? source.plan : null;
+  const [working, setWorking] = useState<HealthPlan[]>(
+    () => (source.kind === 'plan' ? [source.plan] : source.plans),
+  );
   const [filling, setFilling] = useState(true);
   const [offline, setOffline] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [week, setWeek] = useState(0);
   const [hideOptional, setHideOptional] = useState(false);
-  const [ticks, setTicks] = useState<Set<string>>(() => readTicks(plan.id));
 
-  const weeks = Math.max(1, Math.ceil((working.duration_days || 1) / 7));
+  // A week's ticks belong to that week, not to a plan: the same onion is a
+  // different errand next Tuesday. A plan's ticks stay keyed to the plan, so
+  // nothing already ticked is lost.
+  const bounds = useMemo(() => shiftWeek(weekBounds(todayIso()), week), [week]);
+  const tickScope = single ? single.id : `week-${bounds.from}`;
+  const [ticks, setTicks] = useState<Set<string>>(() => readTicks(tickScope));
+  useEffect(() => { setTicks(readTicks(tickScope)); }, [tickScope]);
 
-  // One look-up per plan, on open. Meals added by hand already carry their
-  // ingredients; meals Ava generated only ever carried a slug.
+  const planWeeks = single ? Math.max(1, Math.ceil((single.duration_days || 1) / 7)) : 0;
+
+  // One look-up on open, batched across every plan in scope — asking per plan
+  // would fetch the same recipe twice when two plans share a meal.
   useEffect(() => {
     let live = true;
     setFilling(true);
     (async () => {
-      const { plan: filled, reachedLibrary } = await fillMissingIngredients(plan);
+      const { plans: filled, reachedLibrary } = await fillMissingIngredientsMany(
+        source.kind === 'plan' ? [source.plan] : source.plans,
+      );
       if (!live) return;
-      if (filled) {
-        savePlan(filled);
-        setWorking(filled);
-        onPlanFilled?.(filled);
+      for (const p of filled) { savePlan(p); onPlanFilled?.(p); }
+      if (filled.length) {
+        setWorking(prev => prev.map(p => filled.find(f => f.id === p.id) ?? p));
       }
       setOffline(!reachedLibrary);
       setFilling(false);
     })();
     return () => { live = false; };
-    // Deliberately keyed on the plan id alone: re-running because the plan
-    // object changed identity would re-fetch on every save, and the fill
-    // itself saves. `attempt` is here so Try again can force one.
-  }, [plan.id, attempt]);  // eslint-disable-line
+    // Keyed on identity of the scope, not the plan objects: re-running because
+    // a plan changed identity would re-fetch on every save, and the fill saves.
+  }, [single?.id, source.kind, attempt]);  // eslint-disable-line
 
-  const days = useMemo(() => {
-    if (weeks === 1) return working.days;
-    return working.days.filter(d => d.day_index > week * 7 && d.day_index <= (week + 1) * 7);
-  }, [working, week, weeks]);
+  const sources = useMemo(() => {
+    if (single) {
+      const days = planWeeks === 1
+        ? working[0].days
+        : working[0].days.filter(d => d.day_index > week * 7 && d.day_index <= (week + 1) * 7);
+      return days.map(day => ({ day }));
+    }
+    return daysInRange(working, bounds.from, bounds.to);
+  }, [working, week, planWeeks, single, bounds]);
 
   const list = useMemo(
-    () => buildShoppingList(days, { excludeOptional: hideOptional }),
-    [days, hideOptional],
+    () => buildShoppingListAcross(sources, { excludeOptional: hideOptional }),
+    [sources, hideOptional],
   );
 
   const toggle = useCallback((key: string) => {
     setTicks(prev => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key); else next.add(key);
-      writeTicks(working.id, next);
+      writeTicks(tickScope, next);
       return next;
     });
-  }, [working.id]);
+  }, [tickScope]);
 
   const clear = useCallback(() => {
     setTicks(new Set());
-    writeTicks(working.id, new Set());
-  }, [working.id]);
+    writeTicks(tickScope, new Set());
+  }, [tickScope]);
 
   const got = list.groups.flatMap(g => g.items).filter(i => ticks.has(i.key)).length;
 
   return (
     <BottomSheet
       title={t('shoppingListTitle')}
-      subtitle={working.title}
+      subtitle={single ? single.title : rangeLabel(bounds.from, bounds.to)}
       onClose={onClose}
     >
       {filling ? (
         <div className="py-10 text-center text-sm text-gray-500">{t('shoppingListLooking')}</div>
       ) : list.itemCount === 0 && list.missing.length === 0 ? (
-        <div className="py-10 text-center text-sm text-gray-500">{t('shoppingListNoMeals')}</div>
+        <div className="py-10 text-center text-sm text-gray-500">
+          {single ? t('shoppingListNoMeals') : t('shoppingListNoMealsWeek')}
+        </div>
       ) : (
         <>
-          {weeks > 1 && (
+          {/* A plan's own weeks are numbered; a calendar week is a date, and
+              you can walk forwards to shop ahead or back to check what you
+              already bought. */}
+          {single ? planWeeks > 1 && (
             <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-3">
-              {Array.from({ length: weeks }, (_, w) => (
+              {Array.from({ length: planWeeks }, (_, w) => (
                 <button key={w} onClick={() => setWeek(w)}
                   className={`shrink-0 rounded-full px-3 py-1 text-[11px] border ${w === week ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple' : 'border-ava-border text-gray-400'}`}>
                   {t('shoppingListWeek')} {w + 1}
                 </button>
               ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between mb-3">
+              <Step dir="prev" onClick={() => setWeek(w => w - 1)} />
+              <button
+                onClick={() => setWeek(0)}
+                className={`text-[11px] ${week === 0 ? 'text-gray-500' : 'text-ava-purple'}`}
+              >
+                {week === 0 ? t('shoppingListThisWeek') : t('shoppingListBackToThisWeek')}
+              </button>
+              <Step dir="next" onClick={() => setWeek(w => w + 1)} />
             </div>
           )}
 
@@ -195,6 +242,26 @@ export function ShoppingListSheet({ plan, onClose, onPlanFilled }: {
         </>
       )}
     </BottomSheet>
+  );
+}
+
+/** "27 Jul – 2 Aug", in the reader's own conventions. Uses Intl rather than a
+ *  translated template so it needs no key in twenty locales to say a date. */
+function rangeLabel(from: string, to: string): string {
+  try {
+    const fmt = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    return `${fmt.format(new Date(`${from}T00:00:00Z`))} – ${fmt.format(new Date(`${to}T00:00:00Z`))}`;
+  } catch { return `${from} – ${to}`; }
+}
+
+function Step({ dir, onClick }: { dir: 'prev' | 'next'; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="p-1.5 text-gray-400 active:scale-90" aria-label={dir}>
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d={dir === 'prev' ? 'M15.75 19.5L8.25 12l7.5-7.5' : 'M8.25 4.5l7.5 7.5-7.5 7.5'} />
+      </svg>
+    </button>
   );
 }
 
@@ -250,6 +317,13 @@ function Row({ item, ticked, onToggle }: {
           {(amount || notes) && (
             <span className={`block text-[11px] ${ticked ? 'text-gray-700' : 'text-gray-500'}`}>
               {amount}{amount && notes ? ' · ' : ''}{notes}
+            </span>
+          )}
+          {/* Only when two plans want the same thing — the case a per-plan
+              list hid, and the one where "why do I need this much" matters. */}
+          {item.plans.length > 1 && (
+            <span className={`block text-[10px] ${ticked ? 'text-gray-700' : 'text-ava-purple/70'}`}>
+              {item.plans.join(' + ')}
             </span>
           )}
         </span>
