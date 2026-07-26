@@ -143,40 +143,61 @@ export function checkExercise(exercise: CheckableExercise, profile: HealthProfil
 }
 
 /**
- * Which "free from" flag positively proves a recipe is clear of an allergen.
+ * The fourteen allergens, their synonyms, and the flag that proves each absent.
  *
- * The library has an allergens table and a recipe_allergens join, and checking
- * the real data found it holds 2 rows across 824 published recipes — recipes
- * with "peanut" in the title are untagged. An allergen filter reading only that
- * table excludes nothing while looking like it works, which is worse than
- * having no filter at all.
+ * Two sources of truth, used together. `recipe_allergens` is derived from the
+ * dish's own ingredient list and says what it CONTAINS. A free-from dietary
+ * flag is a claim that it does not — and 3% of those claims are contradicted by
+ * their own ingredients (Churros flagged dairy-free with butter in it; Keftedes
+ * flagged dairy-free with milk and feta). So the ingredient-derived tag leads,
+ * and the flag is a second confirmation where one exists.
  *
- * The dietary flags ARE populated — 98% of versions carry at least one, and the
- * six free-from flags run from 38% (shellfish) to 84% (nut). So safety is
- * derived from the field that exists rather than the one that is empty.
+ * The polarity is deliberately the cautious way round: a flag is a positive
+ * assertion of ABSENCE. "Marked dairy-free" means safe; not marked means
+ * UNKNOWN, and unknown is treated as unsafe. That over-excludes, which costs
+ * someone a few recipes. The other direction costs them a reaction.
  *
- * The polarity matters and it is deliberately the cautious way round: a flag is
- * a positive assertion of ABSENCE. "Marked dairy-free" means safe; not marked
- * means UNKNOWN, and unknown is treated as unsafe. That over-excludes, which
- * costs someone a few recipes. The other direction costs them a reaction.
+ * Matched EXACTLY, against a closed list of synonyms — deliberately not with
+ * refersToSame. That helper treats one string containing the other as a match,
+ * which is right for injuries ("left knee" and "knee" are one problem) and
+ * wrong here, because "shellfish" contains "fish". It was checking a FISH
+ * allergy against the SHELLFISH flag: two different allergens that merely share
+ * letters. Mirrors ALLERGEN_SYNONYMS in the web package's plan-pools; both
+ * copies must move together.
  */
-export const ALLERGEN_FREE_FROM_FLAG: Record<string, string> = {
-  peanut: 'nut_free',
-  'tree nuts': 'nut_free',
-  gluten: 'gluten_free',
-  dairy: 'dairy_free',
-  egg: 'egg_free',
-  soy: 'soy_free',
-  shellfish: 'shellfish_free',
-};
+export const ALLERGEN_SYNONYMS: Array<{ names: string[]; flag: string | null }> = [
+  { names: ['peanut', 'peanuts', 'groundnut', 'groundnuts', 'arachis'], flag: 'nut_free' },
+  { names: ['tree nut', 'tree nuts', 'treenut', 'treenuts', 'nuts', 'nut'], flag: 'nut_free' },
+  { names: ['gluten', 'wheat'], flag: 'gluten_free' },
+  { names: ['dairy', 'milk', 'lactose'], flag: 'dairy_free' },
+  { names: ['egg', 'eggs'], flag: 'egg_free' },
+  { names: ['soy', 'soya', 'soybean', 'soybeans'], flag: 'soy_free' },
+  { names: ['shellfish', 'crustacean', 'crustaceans', 'prawn', 'prawns', 'shrimp', 'crab'], flag: 'shellfish_free' },
+  // No free-from flag exists for these. They are still excluded on the
+  // ingredient-derived tag; there is just no second, independent confirmation.
+  { names: ['fish'], flag: null },
+  { names: ['sesame'], flag: null },
+  { names: ['sulphite', 'sulphites', 'sulfite', 'sulfites'], flag: null },
+  { names: ['celery', 'celeriac'], flag: null },
+  { names: ['mustard'], flag: null },
+  { names: ['lupin', 'lupins', 'lupine'], flag: null },
+  { names: ['mollusc', 'molluscs', 'mollusk', 'mollusks'], flag: null },
+];
 
-/** Look up the proving flag for a free-text allergen, e.g. "peanuts" → nut_free. */
+/** True when two allergen names mean the same allergen. Exact, not fuzzy. */
+export function sameAllergen(a0: string, b0: string): boolean {
+  const a = a0.trim().toLowerCase();
+  const b = b0.trim().toLowerCase();
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return ALLERGEN_SYNONYMS.some(g => g.names.includes(a) && g.names.includes(b));
+}
+
+/** The flag that positively proves this allergen absent, or null when the
+ *  library has no such flag for it. */
 export function freeFromFlagFor(allergen: string): string | null {
   const a = allergen.trim().toLowerCase();
-  for (const [key, flag] of Object.entries(ALLERGEN_FREE_FROM_FLAG)) {
-    if (refersToSame(a, key)) return flag;
-  }
-  return null;
+  return ALLERGEN_SYNONYMS.find(g => g.names.includes(a))?.flag ?? null;
 }
 
 /**
@@ -215,7 +236,7 @@ export function checkRecipe(
   for (const a of profile.constraints.allergens ?? []) {
     // An explicit tag is the strongest evidence there is — trust it first, on
     // the rare recipe that has one.
-    if (tagged.some(r => refersToSame(a, r))) { blocked_allergens.push(a); continue; }
+    if (tagged.some(r => sameAllergen(a, r))) { blocked_allergens.push(a); continue; }
     const flag = freeFromFlagFor(a);
     if (!flag) { unverifiable.push(a); continue; }
     if (!flags.has(flag)) blocked_allergens.push(a);
