@@ -325,7 +325,6 @@ export const enStrings = {
   'plansTabPrograms': 'Programs',
   'plansTabCalendar': 'Calendar',
   'plansEmptyState': 'No plans yet.',
-  'plansEmptyStateButton': 'Create your first plan',
   'plansProgramsTapToBuild': 'tap to build',
   'plansStatusDraft': 'draft',
   'plansStatusActive': 'active',
@@ -549,6 +548,9 @@ export const enStrings = {
   'generateEditableHint': 'Nothing is fixed — swap anything, or ask Ava to change a day, once it is saved.',
   'generateAgain': 'Try again',
   'generateKeep': 'Keep it',
+  // The empty state points AT the two doors above rather than carrying a third
+  // button that silently meant "manual".
+  'plansEmptyStateHint': 'Ask Ava to write one, or build your own — both up top.',
 
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",

@@ -245,7 +245,6 @@ export const zhTWStrings: Record<StringKey, string> = {
   'plansTabPrograms': '程序',
   'plansTabCalendar': '日曆',
   'plansEmptyState': '還沒有計畫。',
-  'plansEmptyStateButton': '建立你的第一個計畫',
   'plansProgramsTapToBuild': '點擊以建立',
   'plansStatusDraft': '草稿',
   'plansStatusActive': '進行中',
@@ -436,6 +435,7 @@ export const zhTWStrings: Record<StringKey, string> = {
   'generateEditableHint': '內容並非固定 — 保存後可替換任何項目，或請 Ava 調整某一天。',
   'generateAgain': '再試一次',
   'generateKeep': '保留',
+  'plansEmptyStateHint': '請 Ava 幫你撰寫一份，或自行建立——兩者皆在上方。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',

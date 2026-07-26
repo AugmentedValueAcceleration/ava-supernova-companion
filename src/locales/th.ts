@@ -245,7 +245,6 @@ export const thStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'โปรแกรม',
   'plansTabCalendar': 'ปฏิทิน',
   'plansEmptyState': 'ยังไม่มีแผน',
-  'plansEmptyStateButton': 'สร้างแผนแรกของคุณ',
   'plansProgramsTapToBuild': 'แตะเพื่อสร้าง',
   'plansStatusDraft': 'ฉบับร่าง',
   'plansStatusActive': 'ใช้งาน',
@@ -436,6 +435,7 @@ export const thStrings: Record<StringKey, string> = {
   'generateEditableHint': 'ทุกอย่างปรับแก้ได้ — สลับอะไรก็ได้ หรือขอให้อาวาเปลี่ยนวัน เมื่อบันทึกแล้ว',
   'generateAgain': 'ลองอีกครั้ง',
   'generateKeep': 'เก็บไว้',
+  'plansEmptyStateHint': 'ให้ Ava ช่วยเขียนให้ หรือสร้างเองก็ได้ — ทั้งสองอย่างอยู่ด้านบน',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

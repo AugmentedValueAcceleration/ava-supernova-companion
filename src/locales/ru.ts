@@ -245,7 +245,6 @@ export const ruStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Программы',
   'plansTabCalendar': 'Календарь',
   'plansEmptyState': 'Планов пока нет.',
-  'plansEmptyStateButton': 'Создать первый план',
   'plansProgramsTapToBuild': 'нажмите, чтобы построить',
   'plansStatusDraft': 'черновик',
   'plansStatusActive': 'активный',
@@ -436,6 +435,7 @@ export const ruStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Ничего не зафиксировано — меняйте что угодно или попросите Ava изменить день после сохранения.',
   'generateAgain': 'Попробовать снова',
   'generateKeep': 'Сохранить',
+  'plansEmptyStateHint': 'Попросите Ava написать план или создайте свой — оба варианта сверху.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

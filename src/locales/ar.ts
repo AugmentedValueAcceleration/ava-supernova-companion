@@ -245,7 +245,6 @@ export const arStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'البرامج',
   'plansTabCalendar': 'التقويم',
   'plansEmptyState': 'لا توجد خطط بعد.',
-  'plansEmptyStateButton': 'أنشئ خطتك الأولى',
   'plansProgramsTapToBuild': 'انقر للإنشاء',
   'plansStatusDraft': 'مسودة',
   'plansStatusActive': 'نشطة',
@@ -436,6 +435,7 @@ export const arStrings: Record<StringKey, string> = {
   'generateEditableHint': 'لا شيء ثابت — يمكنك التبديل بأي شيء، أو طلب من Ava تغيير يوم، بمجرد حفظه.',
   'generateAgain': 'حاول مرة أخرى',
   'generateKeep': 'احتفظ بها',
+  'plansEmptyStateHint': 'اطلب من Ava إنشاء واحدة، أو أنشئها بنفسك — كلاهما في الأعلى.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',

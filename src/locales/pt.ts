@@ -245,7 +245,6 @@ export const ptStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Programas',
   'plansTabCalendar': 'Calendário',
   'plansEmptyState': 'Ainda sem planos.',
-  'plansEmptyStateButton': 'Crie seu primeiro plano',
   'plansProgramsTapToBuild': 'toque para construir',
   'plansStatusDraft': 'rascunho',
   'plansStatusActive': 'ativo',
@@ -436,6 +435,7 @@ export const ptStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Nada é fixo — troque qualquer coisa, ou peça à Ava para mudar um dia, depois de salvo.',
   'generateAgain': 'Tentar novamente',
   'generateKeep': 'Manter',
+  'plansEmptyStateHint': 'Peça à Ava para criar um, ou crie o seu próprio — ambos no topo.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Não foi possível carregar — toque para tentar novamente.',

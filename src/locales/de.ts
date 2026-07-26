@@ -245,7 +245,6 @@ export const deStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Programme',
   'plansTabCalendar': 'Kalender',
   'plansEmptyState': 'Noch keine Pläne.',
-  'plansEmptyStateButton': 'Erstelle deinen ersten Plan',
   'plansProgramsTapToBuild': 'tippen zum Erstellen',
   'plansStatusDraft': 'Entwurf',
   'plansStatusActive': 'aktiv',
@@ -436,6 +435,7 @@ export const deStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Nichts ist festgelegt – tausche alles aus oder bitte Ava, einen Tag zu ändern, sobald er gespeichert ist.',
   'generateAgain': 'Nochmal versuchen',
   'generateKeep': 'Behalten',
+  'plansEmptyStateHint': 'Bitte Ava, einen zu erstellen, oder erstelle deinen eigenen – beides ganz oben.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

@@ -245,7 +245,6 @@ export const jaStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'プログラム',
   'plansTabCalendar': 'カレンダー',
   'plansEmptyState': 'まだプランがありません。',
-  'plansEmptyStateButton': '最初のプランを作成',
   'plansProgramsTapToBuild': 'タップして作成',
   'plansStatusDraft': '下書き',
   'plansStatusActive': '有効',
@@ -436,6 +435,7 @@ export const jaStrings: Record<StringKey, string> = {
   'generateEditableHint': '内容は固定されていません — 保存後なら、何でも交換したり、Ava に日付の変更を依頼したりできます',
   'generateAgain': 'もう一度試す',
   'generateKeep': 'このままにする',
+  'plansEmptyStateHint': 'Ava に作成を依頼するか、ご自身で作成するか — どちらも上部にあります。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

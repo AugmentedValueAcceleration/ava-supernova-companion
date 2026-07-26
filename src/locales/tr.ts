@@ -245,7 +245,6 @@ export const trStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Programlar',
   'plansTabCalendar': 'Takvim',
   'plansEmptyState': 'Henüz plan yok.',
-  'plansEmptyStateButton': 'İlk planını oluştur',
   'plansProgramsTapToBuild': 'oluşturmak için dokun',
   'plansStatusDraft': 'taslak',
   'plansStatusActive': 'etkin',
@@ -436,6 +435,7 @@ export const trStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Hiçbir şey sabit değil — kaydedildikten sonra her şeyi değiştirebilir veya Ava\'dan bir günü değiştirmesini isteyebilirsiniz.',
   'generateAgain': 'Tekrar Dene',
   'generateKeep': 'Böyle Kalsın',
+  'plansEmptyStateHint': 'Ava\'dan birini yazmasını isteyin ya da kendiniz oluşturun — her ikisi de yukarıda.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

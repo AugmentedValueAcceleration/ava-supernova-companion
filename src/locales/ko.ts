@@ -245,7 +245,6 @@ export const koStrings: Record<StringKey, string> = {
   'plansTabPrograms': '프로그램',
   'plansTabCalendar': '캘린더',
   'plansEmptyState': '아직 플랜이 없습니다.',
-  'plansEmptyStateButton': '첫 플랜 만들기',
   'plansProgramsTapToBuild': '탭하여 만들기',
   'plansStatusDraft': '초안',
   'plansStatusActive': '활성',
@@ -436,6 +435,7 @@ export const koStrings: Record<StringKey, string> = {
   'generateEditableHint': '고정된 내용은 없어요 — 저장 후 아무거나 바꾸거나, Ava 에게 하루를 변경해 달라고 요청할 수 있어요.',
   'generateAgain': '다시 시도',
   'generateKeep': '이대로 유지',
+  'plansEmptyStateHint': 'Ava 에게 작성해 달라고 하거나 직접 만들어 보세요 — 위쪽에 모두 있습니다.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '불러오지 못했습니다 — 탭하여 다시 시도하세요.',

@@ -9,7 +9,6 @@
 // day from the catalogue — lands in 4a-ii.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
 import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
@@ -149,7 +148,7 @@ export function PlansView({ token }: { token?: string | null }) {
         </div>
 
         {tab === 'programs'
-          ? <Programs plans={plans} onActivate={activate} onRepeat={repeat} onDelete={del} onNew={() => setCreating(true)} onOpen={(id) => setOpen({ id, day: 1 })} />
+          ? <Programs plans={plans} onActivate={activate} onRepeat={repeat} onDelete={del} onOpen={(id) => setOpen({ id, day: 1 })} />
           : <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} />}
       </div>
 
@@ -305,14 +304,18 @@ function TabBtn({ label, active, onClick }: { label: string; active: boolean; on
 
 // ── Programs list ────────────────────────────────────────────────────────────
 
-function Programs({ plans, onActivate, onRepeat, onDelete, onNew, onOpen }: {
-  plans: HealthPlanSummary[]; onActivate: (id: string) => void; onRepeat: (id: string) => void; onDelete: (id: string) => void; onNew: () => void; onOpen: (id: string) => void;
+function Programs({ plans, onActivate, onRepeat, onDelete, onOpen }: {
+  plans: HealthPlanSummary[]; onActivate: (id: string) => void; onRepeat: (id: string) => void; onDelete: (id: string) => void; onOpen: (id: string) => void;
 }) {
   if (plans.length === 0) {
+    // No button here. It used to carry a "Create your first plan" that went
+    // straight to the MANUAL flow — left over from when that was the only way
+    // in. With the two doors above it, that made three buttons for two actions
+    // and quietly steered every new user away from Ava without saying so.
     return (
       <div className="px-4 py-16 text-center">
         <p className="text-sm text-gray-400">{t('plansEmptyState')}</p>
-        <Button onClick={onNew} variant="secondary" className="mt-3">{t('plansEmptyStateButton')}</Button>
+        <p className="mt-1.5 text-[12px] text-gray-600">{t('plansEmptyStateHint')}</p>
       </div>
     );
   }

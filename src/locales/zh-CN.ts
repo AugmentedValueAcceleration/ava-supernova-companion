@@ -245,7 +245,6 @@ export const zhCNStrings: Record<StringKey, string> = {
   'plansTabPrograms': '程序',
   'plansTabCalendar': '日历',
   'plansEmptyState': '还没有计划。',
-  'plansEmptyStateButton': '创建你的第一个计划',
   'plansProgramsTapToBuild': '点击以构建',
   'plansStatusDraft': '草稿',
   'plansStatusActive': '活动中',
@@ -436,6 +435,7 @@ export const zhCNStrings: Record<StringKey, string> = {
   'generateEditableHint': '内容并非固定 — 保存后，可交换任意内容，或让 Ava 修改某一天。',
   'generateAgain': '重试',
   'generateKeep': '保留',
+  'plansEmptyStateHint': '请 Ava 生成一个，或自己创建——两者都在顶部。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '无法加载 — 点击重试。',

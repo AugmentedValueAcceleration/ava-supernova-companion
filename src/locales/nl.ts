@@ -245,7 +245,6 @@ export const nlStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Programma\'s',
   'plansTabCalendar': 'Kalender',
   'plansEmptyState': 'Nog geen plannen.',
-  'plansEmptyStateButton': 'Maak je eerste plan',
   'plansProgramsTapToBuild': 'tik om te bouwen',
   'plansStatusDraft': 'concept',
   'plansStatusActive': 'actief',
@@ -436,6 +435,7 @@ export const nlStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Niets is vast — wissel alles om, of vraag Ava om een dag aan te passen, zodra het is opgeslagen.',
   'generateAgain': 'Probeer opnieuw',
   'generateKeep': 'Bewaren',
+  'plansEmptyStateHint': 'Vraag Ava om er een te maken, of maak je eigen — beide vind je bovenin.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

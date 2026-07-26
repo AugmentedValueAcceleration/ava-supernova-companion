@@ -245,7 +245,6 @@ export const idStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Program',
   'plansTabCalendar': 'Kalender',
   'plansEmptyState': 'Belum ada rencana.',
-  'plansEmptyStateButton': 'Buat rencana pertamamu',
   'plansProgramsTapToBuild': 'ketuk untuk membangun',
   'plansStatusDraft': 'draf',
   'plansStatusActive': 'aktif',
@@ -436,6 +435,7 @@ export const idStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Tidak ada yang kaku — tukar apa saja, atau minta Ava mengubah satu hari setelah disimpan.',
   'generateAgain': 'Coba Lagi',
   'generateKeep': 'Simpan',
+  'plansEmptyStateHint': 'Minta Ava membuatnya, atau buat sendiri — keduanya ada di atas.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',

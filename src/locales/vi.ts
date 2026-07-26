@@ -245,7 +245,6 @@ export const viStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Chương trình',
   'plansTabCalendar': 'Lịch',
   'plansEmptyState': 'Chưa có kế hoạch nào.',
-  'plansEmptyStateButton': 'Tạo kế hoạch đầu tiên',
   'plansProgramsTapToBuild': 'chạm để xây dựng',
   'plansStatusDraft': 'bản nháp',
   'plansStatusActive': 'đang hoạt động',
@@ -436,6 +435,7 @@ export const viStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Không có gì là cố định — hãy hoán đổi bất cứ thứ gì, hoặc yêu cầu Ava thay đổi một ngày sau khi đã lưu.',
   'generateAgain': 'Thử lại',
   'generateKeep': 'Giữ lại',
+  'plansEmptyStateHint': 'Nhờ Ava viết một bản, hoặc tự tạo — cả hai đều ở phía trên.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

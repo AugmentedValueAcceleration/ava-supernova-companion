@@ -245,7 +245,6 @@ export const hiStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'कार्यक्रम',
   'plansTabCalendar': 'कैलेंडर',
   'plansEmptyState': 'अभी कोई योजना नहीं।',
-  'plansEmptyStateButton': 'अपनी पहली योजना बनाएँ',
   'plansProgramsTapToBuild': 'बनाने के लिए टैप करें',
   'plansStatusDraft': 'मसौदा',
   'plansStatusActive': 'सक्रिय',
@@ -436,6 +435,7 @@ export const hiStrings: Record<StringKey, string> = {
   'generateEditableHint': 'कुछ भी निश्चित नहीं है — किसी भी चीज़ को बदलें, या Ava से एक दिन बदलने के लिए कहें, एक बार सहेजने के बाद।',
   'generateAgain': 'फिर से कोशिश करें',
   'generateKeep': 'इसे रखें',
+  'plansEmptyStateHint': 'Ava से एक लिखने को कहें, या खुद बनाएं — दोनों ऊपर हैं।',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

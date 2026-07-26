@@ -245,7 +245,6 @@ export const ukStrings: Record<StringKey, string> = {
   'plansTabPrograms': 'Програми',
   'plansTabCalendar': 'Календар',
   'plansEmptyState': 'Планів поки немає.',
-  'plansEmptyStateButton': 'Створити перший план',
   'plansProgramsTapToBuild': 'торкніться, щоб побудувати',
   'plansStatusDraft': 'чернетка',
   'plansStatusActive': 'активний',
@@ -436,6 +435,7 @@ export const ukStrings: Record<StringKey, string> = {
   'generateEditableHint': 'Нічого не фіксовано — міняйте будь-що або попросіть Ava змінити день після збереження.',
   'generateAgain': 'Спробувати ще раз',
   'generateKeep': 'Зберегти',
+  'plansEmptyStateHint': 'Попросіть Ava написати один, або створіть власний — обидва зверху.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',
