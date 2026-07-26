@@ -493,6 +493,18 @@ export const enStrings = {
   // "the plan forgot about today" and invites training through it.
   'todayRestDayTitle': 'Rest day',
   'planBuilderRestDayHint': 'No training today by design. Switch this day to Training above if you want to add some.',
+  'todayLogDone': 'Done',
+  // The calendar shows what HAPPENED, not just where a plan was placed —
+  // a month of kept training used to look identical to a month of intentions.
+  'plansCalendarLegendDone': 'Done',
+  'plansCalendarLegendMissed': 'Missed',
+  // A session has a shape a coach would recognise. The library records which
+  // job each exercise does; one flat list threw that away.
+  'sessionGroupWarmup': 'Warm-up',
+  'sessionGroupMain': 'Main lifts',
+  'sessionGroupAccessory': 'Accessory',
+  'sessionGroupFinisher': 'Finisher',
+  'sessionGroupCooldown': 'Cool-down',
 
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",

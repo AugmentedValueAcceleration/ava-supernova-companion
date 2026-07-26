@@ -388,6 +388,14 @@ export const zhTWStrings: Record<StringKey, string> = {
   'plansCardToday': '今天：',
   'todayRestDayTitle': '休息日',
   'planBuilderRestDayHint': '今日設計為休息日。若需增加訓練，請將上方此日切換為訓練。',
+  'todayLogDone': '完成',
+  'plansCalendarLegendDone': '完成',
+  'plansCalendarLegendMissed': '錯過',
+  'sessionGroupWarmup': '熱身',
+  'sessionGroupMain': '主要訓練',
+  'sessionGroupAccessory': '輔助訓練',
+  'sessionGroupFinisher': '收尾訓練',
+  'sessionGroupCooldown': '緩和運動',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',

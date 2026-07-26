@@ -388,6 +388,14 @@ export const nlStrings: Record<StringKey, string> = {
   'plansCardToday': 'Vandaag:',
   'todayRestDayTitle': 'Rustdag',
   'planBuilderRestDayHint': 'Vandaag is er geen training ingepland. Schakel deze dag hierboven om naar Training als je toch wilt trainen.',
+  'todayLogDone': 'Gedaan',
+  'plansCalendarLegendDone': 'Voltooid',
+  'plansCalendarLegendMissed': 'Gemist',
+  'sessionGroupWarmup': 'Opwarming',
+  'sessionGroupMain': 'Hoofdoefeningen',
+  'sessionGroupAccessory': 'Hulpoefeningen',
+  'sessionGroupFinisher': 'Afrundering',
+  'sessionGroupCooldown': 'Afwarming',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

@@ -388,6 +388,14 @@ export const deStrings: Record<StringKey, string> = {
   'plansCardToday': 'Heute:',
   'todayRestDayTitle': 'Ruhetag',
   'planBuilderRestDayHint': 'Heute ist bewusst kein Training eingeplant. Wechseln Sie diesen Tag oben auf Training, falls Sie doch etwas hinzufügen möchten.',
+  'todayLogDone': 'Erledigt',
+  'plansCalendarLegendDone': 'Erledigt',
+  'plansCalendarLegendMissed': 'Verpasst',
+  'sessionGroupWarmup': 'Aufwärmen',
+  'sessionGroupMain': 'Hauptübungen',
+  'sessionGroupAccessory': 'Zusatzübungen',
+  'sessionGroupFinisher': 'Abschluss',
+  'sessionGroupCooldown': 'Abkühlphase',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

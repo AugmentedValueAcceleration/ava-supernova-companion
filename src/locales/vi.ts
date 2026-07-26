@@ -388,6 +388,14 @@ export const viStrings: Record<StringKey, string> = {
   'plansCardToday': 'Hôm nay:',
   'todayRestDayTitle': 'Ngày nghỉ',
   'planBuilderRestDayHint': 'Hôm nay không có tập luyện theo thiết kế. Chuyển ngày này thành Tập luyện ở trên nếu bạn muốn thêm.',
+  'todayLogDone': 'Hoàn thành',
+  'plansCalendarLegendDone': 'Hoàn thành',
+  'plansCalendarLegendMissed': 'Bỏ lỡ',
+  'sessionGroupWarmup': 'Khởi động',
+  'sessionGroupMain': 'Bài chính',
+  'sessionGroupAccessory': 'Phụ trợ',
+  'sessionGroupFinisher': 'Kết thúc',
+  'sessionGroupCooldown': 'Hạ nhiệt',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

@@ -388,6 +388,14 @@ export const arStrings: Record<StringKey, string> = {
   'plansCardToday': 'اليوم:',
   'todayRestDayTitle': 'يوم راحة',
   'planBuilderRestDayHint': 'لا توجد تمارين مخططة لهذا اليوم. يمكنك تغيير هذا اليوم إلى تدريب من الأعلى إذا أردت إضافة بعض التمارين.',
+  'todayLogDone': 'تم',
+  'plansCalendarLegendDone': 'تم',
+  'plansCalendarLegendMissed': 'فائت',
+  'sessionGroupWarmup': 'إحماء',
+  'sessionGroupMain': 'الرفعات الأساسية',
+  'sessionGroupAccessory': 'التكميلية',
+  'sessionGroupFinisher': 'إنهاء',
+  'sessionGroupCooldown': 'تبريد',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',

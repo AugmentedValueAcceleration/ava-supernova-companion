@@ -326,18 +326,45 @@ function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay:
   });
 
   // Mark every day each plan spans — training dot for fitness/combined, meal
-  // dot for meal/combined — so all created plans are visible at a glance.
+  // dot for meal/combined — plus what actually HAPPENED on it.
+  //
+  // The grid used to show placement only, so a month of perfectly kept training
+  // looked identical to a month of intentions. Reading completion needs the
+  // full plan rather than the summary, which is a handful of localStorage reads
+  // for the plans that have been placed on a date at all.
   const marks = useMemo(() => {
-    const map = new Map<string, { training: boolean; meals: boolean }>();
-    for (const p of dated) {
-      const start = new Date(`${p.start_date}T00:00:00`);
+    const todayKey = dateKey(new Date());
+    const map = new Map<string, { training: boolean; meals: boolean; done: boolean; missed: boolean }>();
+
+    for (const summary of dated) {
+      const plan = getPlan(summary.id);
+      if (!plan) continue;
+      const start = new Date(`${plan.start_date}T00:00:00`);
       if (isNaN(start.getTime())) continue;
-      const training = p.type === 'fitness' || p.type === 'combined';
-      const meals = p.type === 'meal' || p.type === 'combined';
-      for (let i = 0; i < p.duration_days; i++) {
+
+      const training = plan.type === 'fitness' || plan.type === 'combined';
+      const meals = plan.type === 'meal' || plan.type === 'combined';
+
+      for (let i = 0; i < plan.duration_days; i++) {
         const d = new Date(start); d.setDate(d.getDate() + i);
-        const k = dateKey(d); const prev = map.get(k) ?? { training: false, meals: false };
-        map.set(k, { training: prev.training || training, meals: prev.meals || meals });
+        const k = dateKey(d);
+        const day = plan.days.find(x => x.day_index === i + 1) ?? null;
+
+        const recorded = [day?.completion?.training, day?.completion?.nutrition].filter(Boolean) as string[];
+        const isDone = recorded.length > 0 && recorded.every(m => m === 'done');
+        // Passed, asked for something, recorded nothing. A rest day asks for
+        // nothing and so can never be missed.
+        const isMissed = !isDone && k < todayKey && day != null && day.kind !== 'rest';
+
+        const prev = map.get(k) ?? { training: false, meals: false, done: false, missed: false };
+        map.set(k, {
+          training: prev.training || training,
+          meals: prev.meals || meals,
+          done: prev.done || isDone,
+          // One plan kept and another missed on the same date is a miss worth
+          // seeing, but never at the expense of showing the one that was kept.
+          missed: prev.missed || isMissed,
+        });
       }
     }
     return map;
@@ -382,17 +409,38 @@ function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay:
           const mk = marks.get(dateKey(date));
           const isToday = dateKey(date) === todayK;
           return (
+            // Done fills the cell, missed outlines it. Filled reads as
+            // "banked" at a glance across a month, which is the thing worth
+            // seeing; missed is an outline rather than a fill so a bad week
+            // does not turn the calendar into a wall of alarm.
             <button
               key={i}
               onClick={() => { const t = planForDate(date); if (t) onOpenDay(t.id, t.day); }}
               disabled={!mk}
-              className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[11px] text-gray-300 ${isToday ? 'ring-1 ring-ava-purple/60' : ''} ${mk ? 'bg-ava-surface border border-ava-border active:scale-95 transition' : 'cursor-default'}`}
+              className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[11px] transition ${
+                isToday ? 'ring-1 ring-ava-purple/60' : ''
+              } ${
+                !mk ? 'cursor-default text-gray-300'
+                  : mk.done ? 'bg-emerald-500/15 border border-emerald-400/40 text-emerald-100 active:scale-95'
+                  : mk.missed ? 'bg-ava-surface border border-amber-400/40 text-amber-100/80 active:scale-95'
+                  : 'bg-ava-surface border border-ava-border text-gray-300 active:scale-95'
+              }`}
             >
               <span>{date.getDate()}</span>
               {mk && (
-                <span className="mt-0.5 flex gap-0.5">
-                  {mk.training && <span className="h-1 w-1 rounded-full bg-ava-purple" />}
-                  {mk.meals && <span className="h-1 w-1 rounded-full bg-amber-400" />}
+                <span className="mt-0.5 flex gap-0.5 items-center h-1">
+                  {/* A finished day has said what it needs to; the type dots
+                      would only add noise to a cell that is already green. */}
+                  {mk.done ? (
+                    <svg className="h-2 w-2 text-emerald-300" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={2.4}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 6.4 4.8 8.7 9.5 3.6" />
+                    </svg>
+                  ) : (
+                    <>
+                      {mk.training && <span className="h-1 w-1 rounded-full bg-ava-purple" />}
+                      {mk.meals && <span className="h-1 w-1 rounded-full bg-amber-400" />}
+                    </>
+                  )}
                 </span>
               )}
             </button>
@@ -401,10 +449,14 @@ function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay:
       </div>
       {dated.length > 0
         ? (
-          <div className="mt-4 flex gap-4 text-[10px] text-gray-500">
-            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-ava-purple" /> {t('plansCalendarLegendTraining')}</span>
-            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> {t('plansCalendarLegendMeals')}</span>
-            <span className="ml-auto">{t('plansCalendarTapDayHint')}</span>
+          <div className="mt-4 space-y-1.5 text-[10px] text-gray-500">
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-ava-purple" /> {t('plansCalendarLegendTraining')}</span>
+              <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> {t('plansCalendarLegendMeals')}</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500/25 border border-emerald-400/40" /> {t('plansCalendarLegendDone')}</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm border border-amber-400/40" /> {t('plansCalendarLegendMissed')}</span>
+            </div>
+            <div>{t('plansCalendarTapDayHint')}</div>
           </div>
         )
         : <p className="mt-4 text-center text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>}

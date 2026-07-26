@@ -388,6 +388,14 @@ export const hiStrings: Record<StringKey, string> = {
   'plansCardToday': 'आज:',
   'todayRestDayTitle': 'विश्राम दिन',
   'planBuilderRestDayHint': 'आज कोई प्रशिक्षण नहीं है, यह योजना के अनुसार है। यदि आप कुछ जोड़ना चाहते हैं, तो इस दिन को ऊपर \'प्रशिक्षण\' में बदलें।',
+  'todayLogDone': 'पूर्ण',
+  'plansCalendarLegendDone': 'पूर्ण',
+  'plansCalendarLegendMissed': 'छूट गया',
+  'sessionGroupWarmup': 'वॉर्म-अप',
+  'sessionGroupMain': 'मुख्य भार उठाने',
+  'sessionGroupAccessory': 'सहायक',
+  'sessionGroupFinisher': 'अंतिम चरण',
+  'sessionGroupCooldown': 'कूल-डाउन',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

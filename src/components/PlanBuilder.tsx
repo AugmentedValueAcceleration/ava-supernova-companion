@@ -21,7 +21,8 @@ import { t, useLocale } from '@/lib/i18n';
 import { getPlan, savePlan } from '@/lib/health-plan-store';
 import { loadProfile, PROFILE_CHANGED_EVENT } from '@/lib/health-profile-store';
 import { healthCatalogApi } from '@/lib/api';
-import { planExerciseFrom, planMealFrom, rescaleMeal, dayInsights, dateForPlanDay } from '@/lib/health-plan-insights';
+import { planExerciseFrom, planMealFrom, rescaleMeal, dayInsights, dateForPlanDay, groupSession, mealsInOrder } from '@/lib/health-plan-insights';
+import type { SessionGroupKey } from '@/lib/health-plan-insights';
 import type { DayInsights, ExerciseInsight, MealInsight } from '@/lib/health-plan-insights';
 import type { BalanceFinding } from '@/lib/health-balance';
 import { CustomSelect } from './CustomSelect';
@@ -43,6 +44,17 @@ function kindLabel(k: HealthPlanDay['kind']): string {
     case 'training':         return t('planBuilderTrainingKind');
     case 'active_recovery':  return t('planBuilderRecoveryKind');
     case 'rest':             return t('planBuilderRestKind');
+  }
+}
+
+function sessionGroupLabel(k: SessionGroupKey): string {
+  switch (k) {
+    case 'warmup':    return t('sessionGroupWarmup');
+    case 'main':      return t('sessionGroupMain');
+    case 'accessory': return t('sessionGroupAccessory');
+    case 'finisher':  return t('sessionGroupFinisher');
+    case 'cooldown':  return t('sessionGroupCooldown');
+    case 'other':     return '';
   }
 }
 
@@ -234,12 +246,26 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               <Group title={t('planBuilderTrainingSection')} onAdd={() => setPicker('exercise')} busy={adding}>
                 {day.training.length === 0
                   ? <Empty>{t('planBuilderNoExercises')}</Empty>
-                  : day.training.map(ex => <ExerciseRow key={ex.id} ex={ex}
-                      image={images.exercise(ex.ref?.slug)}
-                      insight={insights?.exercises.find(i => i.exercise.id === ex.id) ?? null}
-                      onSwap={ex.ref?.slug ? () => setSwapping({ kind: 'exercise', row: ex }) : null}
-                      onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
-                      onRemove={() => setDay(d => ({ ...d, training: d.training.filter(x => x.id !== ex.id) }))} />)}
+                  // Grouped by the job each exercise does — warm up, the hard
+                  // thing, the supporting work, finish. The library records the
+                  // role; rendering one flat list threw it away and made a
+                  // well-ordered session look like a pile. Order INSIDE a group
+                  // is the author's and is never rearranged.
+                  : groupSession(day.training).map(group => (
+                      <div key={group.key} className="space-y-2">
+                        {group.key !== 'other' && (
+                          <div className="text-[9px] uppercase tracking-wider text-gray-600 pt-1">
+                            {sessionGroupLabel(group.key)}
+                          </div>
+                        )}
+                        {group.items.map(ex => <ExerciseRow key={ex.id} ex={ex}
+                          image={images.exercise(ex.ref?.slug)}
+                          insight={insights?.exercises.find(i => i.exercise.id === ex.id) ?? null}
+                          onSwap={ex.ref?.slug ? () => setSwapping({ kind: 'exercise', row: ex }) : null}
+                          onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
+                          onRemove={() => setDay(d => ({ ...d, training: d.training.filter(x => x.id !== ex.id) }))} />)}
+                      </div>
+                    ))}
               </Group>
             )}
 
@@ -249,8 +275,13 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               <Group title={t('planBuilderMealsSection')} onAdd={() => setPicker('recipe')} busy={adding}>
                 {day.meals.length === 0
                   ? <Empty>{t('planBuilderNoMeals')}</Empty>
-                  : day.meals.map(ml => <MealRow key={ml.id} ml={ml}
+                  // In eating order, each carrying the running total to that
+                  // point — "700 kcal" says nothing, "1,850 of 2,195 by dinner"
+                  // tells you whether the snack is needed.
+                  : mealsInOrder(day.meals).map(({ meal: ml, runningCalories }) => <MealRow key={ml.id} ml={ml}
                       image={images.recipe(ml.ref?.slug)}
+                      running={runningCalories}
+                      target={insights?.targets.target_calories ?? null}
                       insight={insights?.meals.find(i => i.meal.id === ml.id) ?? null}
                       onSwap={ml.ref?.slug ? () => setSwapping({ kind: 'recipe', row: ml }) : null}
                       onChange={patch => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? { ...x, ...patch } : x) }))}
@@ -491,8 +522,11 @@ function ExerciseRow({ ex, image, insight, onSwap, onChange, onRemove }: {
   );
 }
 
-function MealRow({ ml, image, insight, onSwap, onChange, onServings, onRemove }: {
+function MealRow({ ml, image, running, target, insight, onSwap, onChange, onServings, onRemove }: {
   ml: HealthPlanMeal; image: string | null; insight: MealInsight | null;
+  /** Calories to this point in the day, including this meal. */
+  running: number;
+  target: number | null;
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanMeal>) => void;
   onServings: (v: number | null) => void;
@@ -519,9 +553,19 @@ function MealRow({ ml, image, insight, onSwap, onChange, onServings, onRemove }:
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {onSwap && <SwapButton onClick={onSwap} />}
-          <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className="flex items-center gap-2">
+            {onSwap && <SwapButton onClick={onSwap} />}
+            <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
+          </div>
+          {/* The running total to this point. This is the number that makes a
+              target legible — you can see at dinner whether the snack is
+              needed, instead of adding four figures up in your head. */}
+          {running > 0 && (
+            <span className="text-[10px] tabular-nums text-gray-600">
+              {Math.round(running)}{target ? `/${target}` : ''}
+            </span>
+          )}
         </div>
       </div>
 

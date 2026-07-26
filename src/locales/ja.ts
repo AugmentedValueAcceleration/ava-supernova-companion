@@ -388,6 +388,14 @@ export const jaStrings: Record<StringKey, string> = {
   'plansCardToday': '今日：',
   'todayRestDayTitle': '休養日',
   'planBuilderRestDayHint': '本日は意図的にトレーニングが設定されていません。追加したい場合は、上の設定をトレーニングに変更してください。',
+  'todayLogDone': '完了',
+  'plansCalendarLegendDone': '完了',
+  'plansCalendarLegendMissed': '未実施',
+  'sessionGroupWarmup': 'ウォームアップ',
+  'sessionGroupMain': 'メイン種目',
+  'sessionGroupAccessory': 'アクセサリ',
+  'sessionGroupFinisher': 'フィニッシャー',
+  'sessionGroupCooldown': 'クールダウン',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

@@ -388,6 +388,14 @@ export const trStrings: Record<StringKey, string> = {
   'plansCardToday': 'Bugün:',
   'todayRestDayTitle': 'Dinlenme Günü',
   'planBuilderRestDayHint': 'Bugün program gereği antrenman yok. Eklemek isterseniz bu günü yukarıda Antrenman olarak değiştirin.',
+  'todayLogDone': 'Tamamlandı',
+  'plansCalendarLegendDone': 'Tamamlandı',
+  'plansCalendarLegendMissed': 'Yapılmadı',
+  'sessionGroupWarmup': 'Isınma',
+  'sessionGroupMain': 'Ana Hareketler',
+  'sessionGroupAccessory': 'Ek Hareketler',
+  'sessionGroupFinisher': 'Bitirici',
+  'sessionGroupCooldown': 'Soğuma',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

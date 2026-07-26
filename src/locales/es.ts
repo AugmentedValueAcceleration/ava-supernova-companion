@@ -388,6 +388,14 @@ export const esStrings: Record<StringKey, string> = {
   'plansCardToday': 'Hoy:',
   'todayRestDayTitle': 'Día de descanso',
   'planBuilderRestDayHint': 'No hay entrenamiento hoy por diseño. Cambia este día a Entrenamiento arriba si quieres agregar alguno.',
+  'todayLogDone': 'Completado',
+  'plansCalendarLegendDone': 'Completado',
+  'plansCalendarLegendMissed': 'Omitido',
+  'sessionGroupWarmup': 'Calentamiento',
+  'sessionGroupMain': 'Levantamientos principales',
+  'sessionGroupAccessory': 'Accesorios',
+  'sessionGroupFinisher': 'Finalizador',
+  'sessionGroupCooldown': 'Enfriamiento',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'No se pudo cargar — toca para reintentar.',

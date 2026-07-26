@@ -388,6 +388,14 @@ export const ruStrings: Record<StringKey, string> = {
   'plansCardToday': 'Сегодня:',
   'todayRestDayTitle': 'День отдыха',
   'planBuilderRestDayHint': 'Сегодня по плану нет тренировок. Переключите этот день на «Тренировка» выше, если хотите добавить.',
+  'todayLogDone': 'Готово',
+  'plansCalendarLegendDone': 'Выполнено',
+  'plansCalendarLegendMissed': 'Пропущено',
+  'sessionGroupWarmup': 'Разминка',
+  'sessionGroupMain': 'Основные упражнения',
+  'sessionGroupAccessory': 'Вспомогательные',
+  'sessionGroupFinisher': 'Завершающие',
+  'sessionGroupCooldown': 'Заминка',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

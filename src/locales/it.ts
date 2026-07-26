@@ -388,6 +388,14 @@ export const itStrings: Record<StringKey, string> = {
   'plansCardToday': 'Oggi:',
   'todayRestDayTitle': 'Giorno di riposo',
   'planBuilderRestDayHint': 'Nessun allenamento oggi per impostazione. Passa questo giorno ad Allenamento in alto se ne vuoi aggiungere.',
+  'todayLogDone': 'Completato',
+  'plansCalendarLegendDone': 'Completato',
+  'plansCalendarLegendMissed': 'Mancato',
+  'sessionGroupWarmup': 'Riscaldamento',
+  'sessionGroupMain': 'Sollevamenti principali',
+  'sessionGroupAccessory': 'Accessori',
+  'sessionGroupFinisher': 'Finale',
+  'sessionGroupCooldown': 'Defaticamento',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Impossibile caricare — tocca per riprovare.',

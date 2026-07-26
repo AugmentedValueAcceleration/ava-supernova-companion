@@ -388,6 +388,14 @@ export const koStrings: Record<StringKey, string> = {
   'plansCardToday': '오늘:',
   'todayRestDayTitle': '휴식일',
   'planBuilderRestDayHint': '오늘은 휴식일로 설정되어 있습니다. 훈련을 추가하고 싶다면 위쪽에서 이 날을 \'훈련\'으로 변경하세요.',
+  'todayLogDone': '완료',
+  'plansCalendarLegendDone': '완료',
+  'plansCalendarLegendMissed': '미완료',
+  'sessionGroupWarmup': '워밍업',
+  'sessionGroupMain': '주요 운동',
+  'sessionGroupAccessory': '보조 운동',
+  'sessionGroupFinisher': '피니셔',
+  'sessionGroupCooldown': '쿨다운',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '불러오지 못했습니다 — 탭하여 다시 시도하세요.',

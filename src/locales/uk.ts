@@ -388,6 +388,14 @@ export const ukStrings: Record<StringKey, string> = {
   'plansCardToday': 'Сьогодні:',
   'todayRestDayTitle': 'День відпочинку',
   'planBuilderRestDayHint': 'Сьогодні тренувань не заплановано. Якщо хочете додати, перемкніть цей день на «Тренування» вище.',
+  'todayLogDone': 'Готово',
+  'plansCalendarLegendDone': 'Виконано',
+  'plansCalendarLegendMissed': 'Пропущено',
+  'sessionGroupWarmup': 'Розминка',
+  'sessionGroupMain': 'Основні вправи',
+  'sessionGroupAccessory': 'Додаткові вправи',
+  'sessionGroupFinisher': 'Фінішер',
+  'sessionGroupCooldown': 'Заминка',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',

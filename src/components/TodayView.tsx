@@ -18,6 +18,7 @@ import type { HealthProfile, HealthDailyPlan, HealthDailyLog, RecipeCard } from 
 import { CataloguePicker } from './CataloguePicker';
 import { WeekStrip, ViewingBanner } from './WeekStrip';
 import { LibraryThumb } from './LibraryThumb';
+import { BottomSheet, SheetConfirm } from './BottomSheet';
 import { useLibraryImages } from '@/lib/use-library-images';
 
 export function TodayView({ token }: { token?: string | null }) {
@@ -525,46 +526,74 @@ function computeTraining(plan: HealthDailyPlan): Figure {
 type LogKind = 'meal' | 'water' | 'sleep' | 'mood';
 const MOOD_FACE: Record<number, string> = { 1: '😔', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
 
+/**
+ * Quick log.
+ *
+ * Each button now opens the SAME bottom sheet the meal flow uses, rather than
+ * expanding a cramped panel inline that shoved the page around and sat under
+ * the keyboard on a phone. Field focused, one confirm, always in the same place.
+ */
 function QuickLog({ log, commit }: { log: HealthDailyLog; commit: (m: (l: HealthDailyLog) => HealthDailyLog) => void }) {
   const [open, setOpen] = useState<LogKind | null>(null);
-  const toggle = (k: LogKind) => setOpen(o => (o === k ? null : k));
+  const close = useCallback(() => setOpen(null), []);
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <LogBtn label={log.meals.length > 0 ? `${log.meals.length} ${t('todayLogMealsButton')}` : t('todayLogAddMealButton')} active={open === 'meal'} onClick={() => toggle('meal')} />
-        <LogBtn label={log.water_ml > 0 ? fmtWater(log.water_ml) : t('todayLogWaterButton')} active={open === 'water'} onClick={() => toggle('water')} />
-        <LogBtn label={log.sleep_hours != null ? fmtH(log.sleep_hours) : t('todayLogSleepButton')} active={open === 'sleep'} onClick={() => toggle('sleep')} />
-        <LogBtn label={log.mood != null ? MOOD_FACE[log.mood] : t('todayLogMoodButton')} active={open === 'mood'} onClick={() => toggle('mood')} />
+        <LogBtn label={log.meals.length > 0 ? `${log.meals.length} ${t('todayLogMealsButton')}` : t('todayLogAddMealButton')} active={open === 'meal'} onClick={() => setOpen('meal')} />
+        <LogBtn label={log.water_ml > 0 ? fmtWater(log.water_ml) : t('todayLogWaterButton')} active={open === 'water'} onClick={() => setOpen('water')} />
+        <LogBtn label={log.sleep_hours != null ? fmtH(log.sleep_hours) : t('todayLogSleepButton')} active={open === 'sleep'} onClick={() => setOpen('sleep')} />
+        <LogBtn label={log.mood != null ? MOOD_FACE[log.mood] : t('todayLogMoodButton')} active={open === 'mood'} onClick={() => setOpen('mood')} />
       </div>
-      {open && (
-        <div className="mt-2 rounded-lg border border-ava-purple/30 bg-ava-purple/5 px-4 py-3">
-          {open === 'meal' && <MealEditor log={log} commit={commit} />}
-          {open === 'water' && (
-            <Chips>
-              {[250, 500].map(ml => <Chip key={ml} onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml + ml) }))}>+{ml}ml</Chip>)}
-              <Chip onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml - 250) }))} disabled={log.water_ml <= 0}>−250ml</Chip>
-              <Chip onClick={() => commit(l => ({ ...l, water_ml: 0 }))} disabled={log.water_ml <= 0}>{t('todayLogWaterReset')}</Chip>
-            </Chips>
-          )}
-          {open === 'sleep' && (
-            <Chips>
-              <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.max(0, round1((l.sleep_hours ?? 7.5) - 0.5)) }))}>−30m</Chip>
-              <span className="min-w-[3.5rem] text-center text-[13px] text-white">{fmtH(log.sleep_hours ?? 7.5)}</span>
-              <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.min(14, round1((l.sleep_hours ?? 7.5) + 0.5)) }))}>+30m</Chip>
-              {log.sleep_hours != null && <Chip onClick={() => commit(l => ({ ...l, sleep_hours: null }))}>{t('todayLogSleepClear')}</Chip>}
-            </Chips>
-          )}
-          {open === 'mood' && (
-            <div className="flex gap-2">
-              {([1, 2, 3, 4, 5] as const).map(m => (
-                <button key={m} onClick={() => commit(l => ({ ...l, mood: m }))}
-                  className={`flex-1 rounded-lg border py-2 text-[18px] transition ${log.mood === m ? 'border-ava-purple/60 bg-ava-purple/10' : 'border-ava-border'}`}>
-                  {MOOD_FACE[m]}
-                </button>
-              ))}
+
+      {open === 'meal' && (
+        <BottomSheet title={t('todayLogAddMealButton')} onClose={close}
+          subtitle={log.meals.length > 0 ? `${log.meals.length} ${t('todayLogMealsButton')}` : undefined}>
+          <MealEditor log={log} commit={commit} onDone={close} />
+        </BottomSheet>
+      )}
+
+      {open === 'water' && (
+        <BottomSheet title={t('todayLogWaterButton')} subtitle={fmtWater(log.water_ml)} onClose={close}
+          footer={<SheetConfirm label={t('todayLogDone')} onClick={close} />}>
+          <div className="flex flex-wrap items-center gap-2">
+            {[250, 500].map(ml => (
+              <Chip key={ml} onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml + ml) }))}>+{ml}ml</Chip>
+            ))}
+            <Chip onClick={() => commit(l => ({ ...l, water_ml: Math.max(0, l.water_ml - 250) }))} disabled={log.water_ml <= 0}>−250ml</Chip>
+            <Chip onClick={() => commit(l => ({ ...l, water_ml: 0 }))} disabled={log.water_ml <= 0}>{t('todayLogWaterReset')}</Chip>
+          </div>
+        </BottomSheet>
+      )}
+
+      {open === 'sleep' && (
+        <BottomSheet title={t('todayLogSleepButton')} onClose={close}
+          footer={<SheetConfirm label={t('todayLogDone')} onClick={close} />}>
+          <div className="flex items-center justify-center gap-4 py-2">
+            <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.max(0, round1((l.sleep_hours ?? 7.5) - 0.5)) }))}>−30m</Chip>
+            <span className="min-w-[5rem] text-center text-[22px] font-light text-white tabular-nums">{fmtH(log.sleep_hours ?? 7.5)}</span>
+            <Chip onClick={() => commit(l => ({ ...l, sleep_hours: Math.min(14, round1((l.sleep_hours ?? 7.5) + 0.5)) }))}>+30m</Chip>
+          </div>
+          {log.sleep_hours != null && (
+            <div className="mt-2 text-center">
+              <Chip onClick={() => commit(l => ({ ...l, sleep_hours: null }))}>{t('todayLogSleepClear')}</Chip>
             </div>
           )}
-        </div>
+        </BottomSheet>
+      )}
+
+      {open === 'mood' && (
+        // No confirm: choosing the face IS the action, so asking for a second
+        // tap to agree with the one just made would be ceremony.
+        <BottomSheet title={t('todayLogMoodButton')} onClose={close}>
+          <div className="flex gap-2 py-2">
+            {([1, 2, 3, 4, 5] as const).map(m => (
+              <button key={m} onClick={() => { commit(l => ({ ...l, mood: m })); close(); }}
+                className={`flex-1 rounded-lg border py-4 text-[26px] transition ${log.mood === m ? 'border-ava-purple/60 bg-ava-purple/10' : 'border-ava-border'}`}>
+                {MOOD_FACE[m]}
+              </button>
+            ))}
+          </div>
+        </BottomSheet>
       )}
     </div>
   );
@@ -578,14 +607,16 @@ function LogBtn({ label, active, onClick }: { label: string; active: boolean; on
   );
 }
 
-function Chips({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-wrap items-center gap-2">{children}</div>;
-}
 function Chip({ children, onClick, disabled }: { children: React.ReactNode; onClick: () => void; disabled?: boolean }) {
   return <button onClick={onClick} disabled={disabled} className="rounded-md border border-ava-border bg-ava-surface px-2.5 py-1 text-[11px] text-gray-300 disabled:opacity-40">{children}</button>;
 }
 
-function MealEditor({ log, commit }: { log: HealthDailyLog; commit: (m: (l: HealthDailyLog) => HealthDailyLog) => void }) {
+function MealEditor({ log, commit, onDone }: {
+  log: HealthDailyLog;
+  commit: (m: (l: HealthDailyLog) => HealthDailyLog) => void;
+  /** Present when hosted in a sheet — adding is the confirm, so it closes. */
+  onDone?: () => void;
+}) {
   const [desc, setDesc] = useState('');
   const [kcal, setKcal] = useState('');
   const [protein, setProtein] = useState('');
@@ -604,6 +635,9 @@ function MealEditor({ log, commit }: { log: HealthDailyLog; commit: (m: (l: Heal
       }],
     }));
     setDesc(''); setKcal(''); setProtein('');
+    // In a sheet, adding the meal IS the confirm — leaving it open on an empty
+    // form makes it unclear whether the meal landed.
+    onDone?.();
   };
   const fc = 'rounded-md border border-ava-border bg-ava-surface px-3 py-1.5 text-[12px] text-white placeholder-gray-500 focus:border-ava-purple focus:outline-none';
   return (

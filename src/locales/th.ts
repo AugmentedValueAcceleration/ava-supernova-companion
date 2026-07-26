@@ -388,6 +388,14 @@ export const thStrings: Record<StringKey, string> = {
   'plansCardToday': 'วันนี้:',
   'todayRestDayTitle': 'วันพัก',
   'planBuilderRestDayHint': 'ไม่มีตารางฝึกในวันนี้โดยตั้งใจ หากต้องการเพิ่มการฝึก ให้เปลี่ยนวันนี้เป็นการฝึกซ้อมด้านบน',
+  'todayLogDone': 'เสร็จแล้ว',
+  'plansCalendarLegendDone': 'เสร็จแล้ว',
+  'plansCalendarLegendMissed': 'พลาด',
+  'sessionGroupWarmup': 'วอร์มอัพ',
+  'sessionGroupMain': 'ท่าหลัก',
+  'sessionGroupAccessory': 'ท่าเสริม',
+  'sessionGroupFinisher': 'เฟินิชเชอร์',
+  'sessionGroupCooldown': 'คูลดาวน์',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

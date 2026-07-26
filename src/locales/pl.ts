@@ -388,6 +388,14 @@ export const plStrings: Record<StringKey, string> = {
   'plansCardToday': 'Dziś:',
   'todayRestDayTitle': 'Dzień wolny',
   'planBuilderRestDayHint': 'Dziś nie ma treningu z założenia. Jeśli chcesz dodać trening, przełącz ten dzień na Trening powyżej.',
+  'todayLogDone': 'Zrobione',
+  'plansCalendarLegendDone': 'Zrobione',
+  'plansCalendarLegendMissed': 'Pominięte',
+  'sessionGroupWarmup': 'Rozgrzewka',
+  'sessionGroupMain': 'Główne ćwiczenia',
+  'sessionGroupAccessory': 'Ćwiczenia dodatkowe',
+  'sessionGroupFinisher': 'Finał',
+  'sessionGroupCooldown': 'Rozciąganie',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Nie udało się załadować — dotknij, aby spróbować ponownie.',

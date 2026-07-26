@@ -303,3 +303,101 @@ export function dayInsights(
       || calorieVerdict?.ok === false || protein?.ok === false,
   };
 }
+
+// ─── Shape ──────────────────────────────────────────────────────────────────
+//
+// A session is not a flat list. It has a shape a coach would recognise —
+// warm up, do the hard thing, do the supporting work, finish — and the library
+// records which role every exercise plays. Rendering it as one undifferentiated
+// list throws that away and makes a well-ordered session look like a pile.
+//
+// The same is true of a day's food: breakfast, lunch, dinner, snack is an
+// order, not a set, and a running total is what makes a target legible.
+
+export type SessionGroupKey = 'warmup' | 'main' | 'accessory' | 'finisher' | 'cooldown' | 'other';
+
+const ROLE_TO_GROUP: Record<string, SessionGroupKey> = {
+  warmup: 'warmup',
+  mobility: 'warmup',
+  main: 'main',
+  accessory: 'accessory',
+  finisher: 'finisher',
+  cooldown: 'cooldown',
+};
+
+/** Presentation order. Anything the library has no role for sorts last, under
+ *  no heading — inventing a section for it would be a guess. */
+export const SESSION_GROUP_ORDER: SessionGroupKey[] = [
+  'warmup', 'main', 'accessory', 'finisher', 'cooldown', 'other',
+];
+
+export interface SessionGroup<T> {
+  key: SessionGroupKey;
+  items: T[];
+}
+
+/**
+ * Group a day's training by the job each exercise does.
+ *
+ * PRESERVES THE AUTHOR'S ORDER inside each group, and never reorders across
+ * groups — this describes a session, it does not rewrite one. Someone who
+ * deliberately put a finisher in the middle keeps it there; the ordering
+ * checker already tells them if that looks wrong, and being told is different
+ * from being overruled.
+ *
+ * Returns a single unlabelled group when no exercise carries a role, so a plan
+ * of free-text entries renders as the plain list it always was rather than
+ * sprouting empty headings.
+ */
+export function groupSession<T extends { meta?: PlanExerciseMeta | null }>(
+  exercises: T[],
+): Array<SessionGroup<T>> {
+  const anyRole = exercises.some(e => !!ROLE_TO_GROUP[e.meta?.session_role ?? '']);
+  if (!anyRole) return exercises.length ? [{ key: 'other', items: exercises }] : [];
+
+  const buckets = new Map<SessionGroupKey, T[]>();
+  for (const ex of exercises) {
+    const key = ROLE_TO_GROUP[ex.meta?.session_role ?? ''] ?? 'other';
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key)!.push(ex);
+  }
+
+  return SESSION_GROUP_ORDER
+    .filter(k => buckets.has(k))
+    .map(k => ({ key: k, items: buckets.get(k)! }));
+}
+
+/** Meal slots in the order a day is actually eaten. */
+export const MEAL_SLOT_ORDER: Array<HealthPlanMeal['slot']> = ['breakfast', 'lunch', 'dinner', 'snack'];
+
+export interface MealWithRunning {
+  meal: HealthPlanMeal;
+  /** Calories consumed up to AND INCLUDING this meal. */
+  runningCalories: number;
+  runningProtein: number;
+}
+
+/**
+ * A day's meals in eating order, each carrying the running total to that point.
+ *
+ * The total is what makes a target mean anything: "700 kcal" tells you nothing,
+ * "1,850 of 2,195 by dinner" tells you whether the snack is needed. Snacks sort
+ * last within the day rather than being interleaved, because their time is the
+ * least predictable and putting them at the end keeps the three fixed meals
+ * reading as the spine of the day.
+ */
+export function mealsInOrder(meals: HealthPlanMeal[]): MealWithRunning[] {
+  const rank = (m: HealthPlanMeal) => {
+    const i = MEAL_SLOT_ORDER.indexOf(m.slot);
+    return i === -1 ? MEAL_SLOT_ORDER.length : i;
+  };
+  const sorted = [...meals].sort((a, b) => rank(a) - rank(b));
+
+  let kcal = 0;
+  let protein = 0;
+  return sorted.map(meal => {
+    kcal += meal.calories ?? 0;
+    protein += meal.protein_g ?? 0;
+    return { meal, runningCalories: kcal, runningProtein: protein };
+  });
+}

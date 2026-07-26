@@ -388,6 +388,14 @@ export const idStrings: Record<StringKey, string> = {
   'plansCardToday': 'Hari ini:',
   'todayRestDayTitle': 'Hari Istirahat',
   'planBuilderRestDayHint': 'Tidak ada latihan hari ini sesuai rencana. Ubah hari ini menjadi Latihan di atas jika Anda ingin menambahkannya.',
+  'todayLogDone': 'Selesai',
+  'plansCalendarLegendDone': 'Selesai',
+  'plansCalendarLegendMissed': 'Terlewat',
+  'sessionGroupWarmup': 'Pemanasan',
+  'sessionGroupMain': 'Latihan Utama',
+  'sessionGroupAccessory': 'Latihan Pendukung',
+  'sessionGroupFinisher': 'Latihan Penutup',
+  'sessionGroupCooldown': 'Pendinginan',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',
