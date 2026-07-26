@@ -436,6 +436,7 @@ export const esStrings: Record<StringKey, string> = {
   'generateAgain': 'Intentar de nuevo',
   'generateKeep': 'Mantenerlo',
   'plansEmptyStateHint': 'Pídele a Ava que escriba una, o crea la tuya propia — ambas arriba.',
+  'mealSheetViewRecipe': 'Ver receta',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'No se pudo cargar — toca para reintentar.',

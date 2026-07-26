@@ -436,6 +436,7 @@ export const ptStrings: Record<StringKey, string> = {
   'generateAgain': 'Tentar novamente',
   'generateKeep': 'Manter',
   'plansEmptyStateHint': 'Peça à Ava para criar um, ou crie o seu próprio — ambos no topo.',
+  'mealSheetViewRecipe': 'Ver receita',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Não foi possível carregar — toque para tentar novamente.',

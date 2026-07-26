@@ -18,6 +18,7 @@ import type { HealthProfile, HealthDailyPlan, HealthDailyLog, RecipeCard } from 
 import { CataloguePicker } from './CataloguePicker';
 import { WeekStrip, ViewingBanner } from './WeekStrip';
 import { LibraryThumb } from './LibraryThumb';
+import { ExerciseDetailView, RecipeDetailView } from './CatalogDetail';
 import { BottomSheet, SheetConfirm } from './BottomSheet';
 import { useLibraryImages } from '@/lib/use-library-images';
 
@@ -38,6 +39,10 @@ export function TodayView({ token }: { token?: string | null }) {
   const [briefErr, setBriefErr] = useState<string | null>(null);
   const [openMeal, setOpenMeal] = useState<TodayMeal | null>(null);
   const [swapFor, setSwapFor] = useState<TodayMeal | null>(null);
+  // Looking an exercise up. This is the screen you have open AT the rack, so
+  // "how do I actually do this" is a more likely question here than anywhere
+  // else in the product.
+  const [viewing, setViewing] = useState<null | { kind: 'exercise' | 'recipe'; slug: string }>(null);
 
   const profileEmpty = !profile || (profile.body.weight_kg == null && profile.body.height_cm == null && profile.goals.primary == null);
 
@@ -162,6 +167,15 @@ export function TodayView({ token }: { token?: string | null }) {
   const nutrition = useMemo(() => computeNutrition(profile, plan), [profile, plan]);
   const training = useMemo(() => computeTraining(plan), [plan]);
 
+  // Full-screen, matching the catalogue. Back returns to the same day you were
+  // looking at, because none of Today's state is touched.
+  if (viewing?.kind === 'exercise') {
+    return <ExerciseDetailView slug={viewing.slug} onBack={() => setViewing(null)} />;
+  }
+  if (viewing?.kind === 'recipe') {
+    return <RecipeDetailView slug={viewing.slug} onBack={() => setViewing(null)} />;
+  }
+
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Sticky, because it is navigation — scrolling down to log dinner should
@@ -210,7 +224,7 @@ export function TodayView({ token }: { token?: string | null }) {
         {/* Today's plan — derived from the active plan, never copied into the
             day store. Renders only when a plan actually covers today, so a
             user with no plan sees exactly what they saw before. */}
-        {derived.hasPlan && <TodayPlanSection derived={derived} onOpenMeal={setOpenMeal} />}
+        {derived.hasPlan && <TodayPlanSection derived={derived} onOpenMeal={setOpenMeal} onView={setViewing} />}
 
         {/* Status */}
         <section className="mt-7">
@@ -236,6 +250,7 @@ export function TodayView({ token }: { token?: string | null }) {
           onLog={logPlannedMeal}
           onUndo={undoPlannedMeal}
           onSwap={() => setSwapFor(openMeal)}
+          onViewRecipe={slug => { setOpenMeal(null); setViewing({ kind: 'recipe', slug }); }}
         />
       )}
 
@@ -260,12 +275,14 @@ export function TodayView({ token }: { token?: string | null }) {
 // So this is deliberately not a form. The numbers are already known; the only
 // thing the app doesn't know is whether you ate it, and how much.
 
-function MealSheet({ meal, onClose, onLog, onUndo, onSwap }: {
+function MealSheet({ meal, onClose, onLog, onUndo, onSwap, onViewRecipe }: {
   meal: TodayMeal;
   onClose: () => void;
   onLog: (m: TodayMeal, status: 'eaten' | 'skipped', servings: number) => void;
   onUndo: (m: TodayMeal) => void;
   onSwap: () => void;
+  /** Absent for a free-text meal — there is no recipe behind it. */
+  onViewRecipe?: (slug: string) => void;
 }) {
   // Default to what was actually logged if this is being revisited, else to
   // what the plan asked for.
@@ -283,7 +300,19 @@ function MealSheet({ meal, onClose, onLog, onUndo, onSwap }: {
     <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
       <div className="rounded-t-2xl border-t border-ava-border bg-ava-bg px-5 pb-8 pt-5" onClick={e => e.stopPropagation()}>
         <div className="text-[10px] uppercase tracking-wider text-gray-500">{meal.planned.slot}</div>
-        <h3 className="mt-1 text-[17px] font-light text-white">{meal.planned.name}</h3>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <h3 className="text-[17px] font-light text-white min-w-0 truncate">{meal.planned.name}</h3>
+          {/* The recipe lives HERE rather than on the row's tap, because the
+              row's job is eat / skip / swap and that is what people came for.
+              But at six o'clock the thing you actually need is how to cook it,
+              and it was unreachable from the plan entirely. */}
+          {meal.planned.ref?.slug && onViewRecipe && (
+            <button onClick={() => onViewRecipe(meal.planned.ref!.slug)}
+              className="shrink-0 text-[11px] text-ava-purple-light underline underline-offset-2">
+              {t('mealSheetViewRecipe')}
+            </button>
+          )}
+        </div>
 
         {meal.planned.calories != null && (
           <div className="mt-4 flex items-baseline gap-2">
@@ -364,7 +393,11 @@ function kindLabel(kind: TodaySession['kind']): string {
   return t('todayPlanTrainingLabel');
 }
 
-function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOpenMeal: (m: TodayMeal) => void }) {
+function TodayPlanSection({ derived, onOpenMeal, onView }: {
+  derived: TodayDerived;
+  onOpenMeal: (m: TodayMeal) => void;
+  onView: (v: { kind: 'exercise' | 'recipe'; slug: string }) => void;
+}) {
   const macros = useMemo(() => todayMacros(derived), [derived]);
   // One request for everything on the screen. This is the surface people open
   // every morning and it was rendering a workout and a day's food as two lists
@@ -391,12 +424,23 @@ function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOp
           {s.exercises.length > 0 ? (
             <ul className="mt-3 space-y-1.5">
               {s.exercises.map(ex => (
-                <li key={ex.id} className="flex items-center gap-2.5 text-[12px]">
-                  <LibraryThumb src={images.exercise(ex.ref?.slug)} kind="exercise" alt={ex.name} />
-                  <span className="flex-1 min-w-0 truncate text-gray-200">{ex.name}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-gray-500">
-                    {[ex.sets ? `${ex.sets}×${ex.reps ?? ''}` : ex.reps, ex.weight].filter(Boolean).join(' · ')}
-                  </span>
+                <li key={ex.id}>
+                  {/* Tapping opens the technique guide. This is the screen open
+                      AT the rack, so "how do I actually do this" is a more
+                      likely question here than anywhere else in the product. */}
+                  <button
+                    onClick={ex.ref?.slug ? () => onView({ kind: 'exercise', slug: ex.ref!.slug }) : undefined}
+                    disabled={!ex.ref?.slug}
+                    className="w-full flex items-center gap-2.5 text-[12px] text-left group disabled:cursor-default"
+                  >
+                    <LibraryThumb src={images.exercise(ex.ref?.slug)} kind="exercise" alt={ex.name} />
+                    <span className={`flex-1 min-w-0 truncate text-gray-200 ${ex.ref?.slug ? 'group-hover:text-ava-purple-light' : ''}`}>
+                      {ex.name}
+                    </span>
+                    <span className="shrink-0 font-mono text-[10px] text-gray-500">
+                      {[ex.sets ? `${ex.sets}×${ex.reps ?? ''}` : ex.reps, ex.weight].filter(Boolean).join(' · ')}
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>

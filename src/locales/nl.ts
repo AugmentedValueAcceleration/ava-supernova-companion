@@ -436,6 +436,7 @@ export const nlStrings: Record<StringKey, string> = {
   'generateAgain': 'Probeer opnieuw',
   'generateKeep': 'Bewaren',
   'plansEmptyStateHint': 'Vraag Ava om er een te maken, of maak je eigen — beide vind je bovenin.',
+  'mealSheetViewRecipe': 'Bekijk recept',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

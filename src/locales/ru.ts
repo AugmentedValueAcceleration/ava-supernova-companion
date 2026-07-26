@@ -436,6 +436,7 @@ export const ruStrings: Record<StringKey, string> = {
   'generateAgain': 'Попробовать снова',
   'generateKeep': 'Сохранить',
   'plansEmptyStateHint': 'Попросите Ava написать план или создайте свой — оба варианта сверху.',
+  'mealSheetViewRecipe': 'Посмотреть рецепт',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

@@ -436,6 +436,7 @@ export const trStrings: Record<StringKey, string> = {
   'generateAgain': 'Tekrar Dene',
   'generateKeep': 'Böyle Kalsın',
   'plansEmptyStateHint': 'Ava\'dan birini yazmasını isteyin ya da kendiniz oluşturun — her ikisi de yukarıda.',
+  'mealSheetViewRecipe': 'Tarifi Gör',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

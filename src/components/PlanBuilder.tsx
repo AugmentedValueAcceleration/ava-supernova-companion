@@ -31,6 +31,7 @@ import { SwapSheet } from './SwapSheet';
 import { DuplicateSheet } from './DuplicateSheet';
 import { AssistSheet } from './AssistSheet';
 import { LibraryThumb } from './LibraryThumb';
+import { ExerciseDetailView, RecipeDetailView } from './CatalogDetail';
 import { useLibraryImages } from '@/lib/use-library-images';
 import type {
   HealthPlan, HealthPlanDay, HealthPlanExercise, HealthPlanMeal, ExerciseCard, RecipeCard,
@@ -76,6 +77,11 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   const [picker, setPicker] = useState<null | 'exercise' | 'recipe'>(null);
   const [adding, setAdding] = useState(false);
   const [swapping, setSwapping] = useState<null | { kind: 'exercise' | 'recipe'; row: HealthPlanExercise | HealthPlanMeal }>(null);
+  // Looking something up. A plan row names an exercise and prescribes numbers,
+  // but "3×8-12 Bulgarian Split Squat" is only useful to someone who already
+  // knows what that is — and the library has the technique guide, the cues and
+  // the demonstration sitting behind the slug the row is already carrying.
+  const [viewing, setViewing] = useState<null | { kind: 'exercise' | 'recipe'; slug: string }>(null);
   const [duplicating, setDuplicating] = useState(false);
   const [assisting, setAssisting] = useState(false);
 
@@ -112,6 +118,15 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
     day?.training.map(e => e.ref?.slug) ?? [],
     day?.meals.map(m => m.ref?.slug) ?? [],
   );
+
+  // Full-screen, matching how the catalogue opens a detail — back returns to
+  // exactly the day you were editing, because the builder's state is untouched.
+  if (viewing?.kind === 'exercise') {
+    return <ExerciseDetailView slug={viewing.slug} onBack={() => setViewing(null)} />;
+  }
+  if (viewing?.kind === 'recipe') {
+    return <RecipeDetailView slug={viewing.slug} onBack={() => setViewing(null)} />;
+  }
 
   if (!plan) {
     return (
@@ -261,6 +276,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
                         {group.items.map(ex => <ExerciseRow key={ex.id} ex={ex}
                           image={images.exercise(ex.ref?.slug)}
                           insight={insights?.exercises.find(i => i.exercise.id === ex.id) ?? null}
+                          onView={ex.ref?.slug ? () => setViewing({ kind: 'exercise', slug: ex.ref!.slug }) : null}
                           onSwap={ex.ref?.slug ? () => setSwapping({ kind: 'exercise', row: ex }) : null}
                           onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
                           onRemove={() => setDay(d => ({ ...d, training: d.training.filter(x => x.id !== ex.id) }))} />)}
@@ -283,6 +299,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
                       running={runningCalories}
                       target={insights?.targets.target_calories ?? null}
                       insight={insights?.meals.find(i => i.meal.id === ml.id) ?? null}
+                      onView={ml.ref?.slug ? () => setViewing({ kind: 'recipe', slug: ml.ref!.slug }) : null}
                       onSwap={ml.ref?.slug ? () => setSwapping({ kind: 'recipe', row: ml }) : null}
                       onChange={patch => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? { ...x, ...patch } : x) }))}
                       onServings={v => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? rescaleMeal(x, v) : x) }))}
@@ -473,8 +490,10 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 const cellCls = 'bg-ava-bg border border-ava-border rounded px-2 py-1 text-[12px] text-white w-full focus:border-ava-purple focus:outline-none';
 
-function ExerciseRow({ ex, image, insight, onSwap, onChange, onRemove }: {
+function ExerciseRow({ ex, image, insight, onView, onSwap, onChange, onRemove }: {
   ex: HealthPlanExercise; image: string | null; insight: ExerciseInsight | null;
+  /** Null for a free-text row — there is no library entry to open. */
+  onView: (() => void) | null;
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanExercise>) => void; onRemove: () => void;
 }) {
@@ -487,8 +506,22 @@ function ExerciseRow({ ex, image, insight, onSwap, onChange, onRemove }: {
   return (
     <div className={`rounded-lg border bg-ava-surface p-3 ${avoid ? 'border-amber-500/40' : 'border-ava-border'}`}>
       <div className="flex items-center gap-2.5">
-        <LibraryThumb src={image} kind="exercise" alt={ex.name} />
-        <span className="flex-1 min-w-0 text-sm text-white truncate">{ex.name}</span>
+        {/* The picture and the name open the library entry — the technique
+            guide, the cues, the demonstration. A row that says "3×8-12
+            Bulgarian Split Squat" is only useful to someone who already knows
+            what that is, and the answer was one tap away behind a slug the row
+            was already carrying. */}
+        {onView ? (
+          <button onClick={onView} className="flex items-center gap-2.5 min-w-0 flex-1 text-left group">
+            <LibraryThumb src={image} kind="exercise" alt={ex.name} />
+            <span className="flex-1 min-w-0 text-sm text-white truncate group-hover:text-ava-purple-light">{ex.name}</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <LibraryThumb src={image} kind="exercise" alt={ex.name} />
+            <span className="flex-1 min-w-0 text-sm text-white truncate">{ex.name}</span>
+          </div>
+        )}
         <div className="flex items-center gap-2 shrink-0">
           {/* Only offered on a library-linked row — there is nothing to find
               alternatives to for a free-text entry. */}
@@ -522,11 +555,13 @@ function ExerciseRow({ ex, image, insight, onSwap, onChange, onRemove }: {
   );
 }
 
-function MealRow({ ml, image, running, target, insight, onSwap, onChange, onServings, onRemove }: {
+function MealRow({ ml, image, running, target, insight, onView, onSwap, onChange, onServings, onRemove }: {
   ml: HealthPlanMeal; image: string | null; insight: MealInsight | null;
   /** Calories to this point in the day, including this meal. */
   running: number;
   target: number | null;
+  /** Null for a free-text row — there is no recipe to open. */
+  onView: (() => void) | null;
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanMeal>) => void;
   onServings: (v: number | null) => void;
@@ -539,9 +574,17 @@ function MealRow({ ml, image, running, target, insight, onSwap, onChange, onServ
   return (
     <div className={`rounded-lg border bg-ava-surface p-3 ${blocked.length ? 'border-amber-500/40' : 'border-ava-border'}`}>
       <div className="flex items-center gap-2.5">
-        <LibraryThumb src={image} kind="recipe" alt={ml.name} />
+        {/* Tapping opens the recipe — ingredients, method, the three skill
+            levels. "Chicken Satay, 520 kcal" is a line in a plan; the thing you
+            actually need at six o'clock is how to cook it. */}
+        <button
+          onClick={onView ?? undefined}
+          disabled={!onView}
+          className="flex items-center gap-2.5 min-w-0 flex-1 text-left group disabled:cursor-default"
+        >
+          <LibraryThumb src={image} kind="recipe" alt={ml.name} />
         <div className="flex-1 min-w-0">
-          <div className="text-sm text-white truncate">{ml.name}</div>
+          <div className={`text-sm text-white truncate ${onView ? 'group-hover:text-ava-purple-light' : ''}`}>{ml.name}</div>
           {/* Macros come from the library, so they follow the servings. Sits
               under the name now rather than below the whole row, so the
               picture, the dish and its numbers read as one thing. */}
@@ -552,7 +595,8 @@ function MealRow({ ml, image, running, target, insight, onSwap, onChange, onServ
               {ml.meta?.total_time_minutes != null && ` · ${ml.meta.total_time_minutes} min`}
             </div>
           )}
-        </div>
+          </div>
+        </button>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className="flex items-center gap-2">
             {onSwap && <SwapButton onClick={onSwap} />}

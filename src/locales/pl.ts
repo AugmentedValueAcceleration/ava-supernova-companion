@@ -436,6 +436,7 @@ export const plStrings: Record<StringKey, string> = {
   'generateAgain': 'Spróbuj ponownie',
   'generateKeep': 'Zachowaj',
   'plansEmptyStateHint': 'Poproś Ava, aby napisała jeden, lub zbuduj własny — oba znajdziesz na górze.',
+  'mealSheetViewRecipe': 'Zobacz przepis',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Nie udało się załadować — dotknij, aby spróbować ponownie.',

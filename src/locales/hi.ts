@@ -436,6 +436,7 @@ export const hiStrings: Record<StringKey, string> = {
   'generateAgain': 'फिर से कोशिश करें',
   'generateKeep': 'इसे रखें',
   'plansEmptyStateHint': 'Ava से एक लिखने को कहें, या खुद बनाएं — दोनों ऊपर हैं।',
+  'mealSheetViewRecipe': 'रेसिपी देखें',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

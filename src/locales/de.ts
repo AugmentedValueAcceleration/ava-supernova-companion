@@ -436,6 +436,7 @@ export const deStrings: Record<StringKey, string> = {
   'generateAgain': 'Nochmal versuchen',
   'generateKeep': 'Behalten',
   'plansEmptyStateHint': 'Bitte Ava, einen zu erstellen, oder erstelle deinen eigenen – beides ganz oben.',
+  'mealSheetViewRecipe': 'Rezept anzeigen',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

@@ -436,6 +436,7 @@ export const zhCNStrings: Record<StringKey, string> = {
   'generateAgain': '重试',
   'generateKeep': '保留',
   'plansEmptyStateHint': '请 Ava 生成一个，或自己创建——两者都在顶部。',
+  'mealSheetViewRecipe': '查看食谱',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '无法加载 — 点击重试。',

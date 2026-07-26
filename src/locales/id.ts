@@ -436,6 +436,7 @@ export const idStrings: Record<StringKey, string> = {
   'generateAgain': 'Coba Lagi',
   'generateKeep': 'Simpan',
   'plansEmptyStateHint': 'Minta Ava membuatnya, atau buat sendiri — keduanya ada di atas.',
+  'mealSheetViewRecipe': 'Lihat resep',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',

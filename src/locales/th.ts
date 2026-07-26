@@ -436,6 +436,7 @@ export const thStrings: Record<StringKey, string> = {
   'generateAgain': 'ลองอีกครั้ง',
   'generateKeep': 'เก็บไว้',
   'plansEmptyStateHint': 'ให้ Ava ช่วยเขียนให้ หรือสร้างเองก็ได้ — ทั้งสองอย่างอยู่ด้านบน',
+  'mealSheetViewRecipe': 'ดูสูตร',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

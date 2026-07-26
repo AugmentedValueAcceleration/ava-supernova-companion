@@ -436,6 +436,7 @@ export const koStrings: Record<StringKey, string> = {
   'generateAgain': '다시 시도',
   'generateKeep': '이대로 유지',
   'plansEmptyStateHint': 'Ava 에게 작성해 달라고 하거나 직접 만들어 보세요 — 위쪽에 모두 있습니다.',
+  'mealSheetViewRecipe': '레시피 보기',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '불러오지 못했습니다 — 탭하여 다시 시도하세요.',

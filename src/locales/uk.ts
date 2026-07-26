@@ -436,6 +436,7 @@ export const ukStrings: Record<StringKey, string> = {
   'generateAgain': 'Спробувати ще раз',
   'generateKeep': 'Зберегти',
   'plansEmptyStateHint': 'Попросіть Ava написати один, або створіть власний — обидва зверху.',
+  'mealSheetViewRecipe': 'Переглянути рецепт',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',

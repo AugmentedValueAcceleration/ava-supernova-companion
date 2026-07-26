@@ -436,6 +436,7 @@ export const zhTWStrings: Record<StringKey, string> = {
   'generateAgain': '再試一次',
   'generateKeep': '保留',
   'plansEmptyStateHint': '請 Ava 幫你撰寫一份，或自行建立——兩者皆在上方。',
+  'mealSheetViewRecipe': '查看食譜',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',

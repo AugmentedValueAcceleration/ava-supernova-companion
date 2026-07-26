@@ -436,6 +436,7 @@ export const viStrings: Record<StringKey, string> = {
   'generateAgain': 'Thử lại',
   'generateKeep': 'Giữ lại',
   'plansEmptyStateHint': 'Nhờ Ava viết một bản, hoặc tự tạo — cả hai đều ở phía trên.',
+  'mealSheetViewRecipe': 'Xem công thức',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

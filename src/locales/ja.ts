@@ -436,6 +436,7 @@ export const jaStrings: Record<StringKey, string> = {
   'generateAgain': 'もう一度試す',
   'generateKeep': 'このままにする',
   'plansEmptyStateHint': 'Ava に作成を依頼するか、ご自身で作成するか — どちらも上部にあります。',
+  'mealSheetViewRecipe': 'レシピを見る',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

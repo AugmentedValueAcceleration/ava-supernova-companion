@@ -551,6 +551,9 @@ export const enStrings = {
   // The empty state points AT the two doors above rather than carrying a third
   // button that silently meant "manual".
   'plansEmptyStateHint': 'Ask Ava to write one, or build your own — both up top.',
+  // A plan row names a thing and prescribes numbers. The technique guide and
+  // the recipe were sitting behind the slug the row already carried.
+  'mealSheetViewRecipe': 'View recipe',
 
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",

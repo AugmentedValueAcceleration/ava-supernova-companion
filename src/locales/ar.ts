@@ -436,6 +436,7 @@ export const arStrings: Record<StringKey, string> = {
   'generateAgain': 'حاول مرة أخرى',
   'generateKeep': 'احتفظ بها',
   'plansEmptyStateHint': 'اطلب من Ava إنشاء واحدة، أو أنشئها بنفسك — كلاهما في الأعلى.',
+  'mealSheetViewRecipe': 'عرض الوصفة',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',
