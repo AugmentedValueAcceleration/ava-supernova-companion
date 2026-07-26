@@ -336,7 +336,11 @@ export const enStrings = {
   'plansCalendarLegendTraining': 'Training',
   'plansCalendarLegendMeals': 'Meals',
   'plansCalendarTapDayHint': 'Tap a day to open its plan',
-  'plansCalendarEmptyState': 'No plans on the calendar yet — create one and activate it to place it here.',
+  'plansCalendarEmptyState': 'No plans yet. Ask Ava for one, or build your own — both up top.',
+  // Shown when plans EXIST but none has started. Telling someone who has just
+  // made a plan to "create one" is both wrong and a dead end.
+  'plansCalendarNotStarted': 'Nothing running yet. A plan only lands on the calendar once it starts.',
+  'plansCalendarStartIt': 'Start',
   'plansCreateSheetHeading': 'New plan',
   'plansCreateTypeLabel': 'Type',
   'plansCreateDurationLabel': 'Duration',

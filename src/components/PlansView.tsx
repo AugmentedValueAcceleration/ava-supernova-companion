@@ -148,7 +148,7 @@ export function PlansView({ token }: { token?: string | null }) {
 
         {tab === 'programs'
           ? <Programs plans={plans} onActivate={activate} onRepeat={repeat} onDelete={del} onOpen={(id) => setOpen({ id, day: 1 })} />
-          : <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} />}
+          : <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} onActivate={activate} />}
       </div>
 
       {creating && <CreateSheet onCancel={() => setCreating(false)} onCreate={create} />}
@@ -344,10 +344,17 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onOpen }: {
 
 const dateKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay: (id: string, day: number) => void }) {
-  // Every plan that's been placed on a date — drafts that were never activated
-  // have no start_date and simply don't appear (they live in Programs).
+function Calendar({ plans, onOpenDay, onActivate }: {
+  plans: HealthPlanSummary[];
+  onOpenDay: (id: string, day: number) => void;
+  onActivate: (id: string) => void;
+}) {
+  // Every plan that's been placed on a date. A plan only gets a date when it
+  // STARTS, so drafts cannot be drawn on a grid of days — but they can be
+  // offered, which is the difference between an empty calendar that explains
+  // itself and one that just says no.
   const dated = plans.filter(p => p.start_date);
+  const undated = plans.filter(p => !p.start_date && p.status !== 'archived');
   const [month, setMonth] = useState(() => {
     const base = dated[0]?.start_date ? new Date(`${dated[0].start_date}T00:00:00`) : new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1);
@@ -487,7 +494,32 @@ function Calendar({ plans, onOpenDay }: { plans: HealthPlanSummary[]; onOpenDay:
             <div>{t('plansCalendarTapDayHint')}</div>
           </div>
         )
-        : <p className="mt-4 text-center text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>}
+        : (
+          // The calendar can only draw plans that have a DATE, and a plan only
+          // gets one when it starts. Saying "create one and activate it" to
+          // somebody who has already created one is both wrong and a dead end —
+          // it names the thing they have just done and leaves them to find the
+          // other tab. If there are plans waiting, start one from here.
+          <div className="mt-4 text-center">
+            {undated.length === 0 ? (
+              <p className="text-[11px] text-gray-500">{t('plansCalendarEmptyState')}</p>
+            ) : (
+              <>
+                <p className="text-[11px] text-gray-500">{t('plansCalendarNotStarted')}</p>
+                <div className="mt-3 space-y-2 max-w-xs mx-auto">
+                  {undated.slice(0, 3).map(p => (
+                    <div key={p.id} className="flex items-center gap-2 rounded-lg border border-ava-border bg-ava-surface px-3 py-2">
+                      <span className="flex-1 min-w-0 truncate text-left text-[12px] text-white">{p.title}</span>
+                      <Button variant="primary" size="sm" onClick={() => onActivate(p.id)}>
+                        {t('plansCalendarStartIt')}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
     </div>
   );
 }
