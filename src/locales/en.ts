@@ -325,12 +325,10 @@ export const enStrings = {
   'plansTabPrograms': 'Programs',
   'plansTabCalendar': 'Calendar',
   'plansEmptyState': 'No plans yet.',
-  'plansProgramsTapToBuild': 'tap to build',
   'plansStatusDraft': 'draft',
   'plansStatusActive': 'active',
   'plansStatusCompleted': 'completed',
   'plansStatusArchived': 'archived',
-  'plansActivateButton': 'Activate',
   'plansRepeatButton': 'Repeat',
   'plansDeleteButton': 'Delete',
   'plansCalendarLegendTraining': 'Training',
@@ -341,6 +339,15 @@ export const enStrings = {
   // made a plan to "create one" is both wrong and a dead end.
   'plansCalendarNotStarted': 'Nothing running yet. A plan only lands on the calendar once it starts.',
   'plansCalendarStartIt': 'Start',
+  // The card says what the plan IS. It used to read "Tap to build" — authoring
+  // language on a card for a plan that is already built — and told you nothing
+  // about what was inside, so a finished week and an empty shell looked alike.
+  'plansCardSessions': 'sessions',
+  'plansCardMeals': 'meals',
+  'plansCardKcalPerDay': 'kcal a day',
+  'plansCardEmpty': 'Nothing in it yet',
+  'plansCardEmptyHint': 'Add some days before starting it, or ask Ava to fill it in.',
+  'plansCardStartButton': 'Start it',
   'plansCreateSheetHeading': 'New plan',
   'plansCreateTypeLabel': 'Type',
   'plansCreateDurationLabel': 'Duration',

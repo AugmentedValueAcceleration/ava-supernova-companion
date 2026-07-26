@@ -21,6 +21,8 @@ import { progressPlan, summarise } from '@/lib/health-plan-progression';
 import { planCardState } from '@/lib/health-today';
 import { loadProfile } from '@/lib/health-profile-store';
 import { GenerateSheet, Sparkle } from './GenerateSheet';
+import { LibraryThumb } from './LibraryThumb';
+import { useLibraryImages } from '@/lib/use-library-images';
 import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
@@ -233,62 +235,6 @@ function RepeatSheet({ result, onConfirm, onCancel }: {
   );
 }
 
-/**
- * The line under a plan's title.
- *
- * It used to read "type · duration · tap to build", which describes AUTHORING —
- * something you do once — rather than DOING, which is what you come back for
- * every day. So a library of live programmes read like a folder of documents.
- *
- * A plan that has started says where you are in it and how it is going; one
- * that has not still says what it is, because that is genuinely all there is to
- * say about a draft.
- */
-function PlanCardLine({ plan }: { plan: HealthPlanSummary }) {
-  const state = useMemo(() => {
-    const full = getPlan(plan.id);
-    return full ? planCardState(full) : null;
-  }, [plan.id, plan.updated_at]);
-
-  const base = `${plan.type} · ${durationLabel(plan.duration_days)}`;
-
-  if (!state || state.dayIndex == null) {
-    return <div className="text-[11px] text-gray-500 mt-0.5 capitalize">{base} · {t('plansProgramsTapToBuild')}</div>;
-  }
-
-  const pct = state.adherence == null ? null : Math.round(state.adherence * 100);
-
-  return (
-    <div className="mt-0.5">
-      <div className="text-[11px] text-gray-500 capitalize">
-        {base} · {t('plansCardDayWord')} {state.dayIndex}/{state.duration}
-      </div>
-      <div className="mt-1 flex items-center gap-2">
-        {/* A thin bar rather than a number alone — "day 3 of 7" is a position,
-            and a position is easier to feel than to read. */}
-        <div className="h-1 flex-1 rounded-full bg-ava-bg overflow-hidden">
-          <div
-            className="h-full rounded-full bg-ava-purple/70"
-            style={{ width: `${Math.min(100, (state.dayIndex / Math.max(1, state.duration)) * 100)}%` }}
-          />
-        </div>
-        {pct != null && (
-          <span className={`text-[10px] tabular-nums shrink-0 ${
-            pct >= 80 ? 'text-emerald-300/80' : pct >= 50 ? 'text-gray-400' : 'text-amber-300/80'
-          }`}>
-            {pct}% {t('plansCardKept')}
-          </span>
-        )}
-      </div>
-      {state.today && (
-        <div className="mt-1 text-[11px] text-gray-400 capitalize truncate">
-          {t('plansCardToday')} {state.today}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function TabBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} className={`-mb-px border-b-2 px-4 py-2 text-xs transition ${active ? 'border-ava-purple text-ava-purple-light font-semibold' : 'border-transparent text-gray-400'}`}>
@@ -317,25 +263,150 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onOpen }: {
   return (
     <div className="px-4 py-4 space-y-3">
       {plans.map(p => (
-        <div key={p.id} className="rounded-xl border border-ava-border bg-ava-surface p-4">
-          <button onClick={() => onOpen(p.id)} className="flex items-start justify-between gap-3 w-full text-left">
-            <div className="min-w-0 flex-1">
-              <div className="text-white text-sm font-medium truncate">{p.title}</div>
-              <PlanCardLine plan={p} />
-            </div>
-            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] capitalize ${STATUS_CLS[p.status]}`}>{statusLabel(p.status)}</span>
-          </button>
-          <div className="mt-3 flex gap-2">
-            {p.status === 'draft' && (
-              <button onClick={() => onActivate(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">{t('plansActivateButton')}</button>
-            )}
-            {(p.status === 'completed' || p.status === 'archived') && (
-              <button onClick={() => onRepeat(p.id)} className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-300">{t('plansRepeatButton')}</button>
-            )}
-            <button onClick={() => onDelete(p.id)} className="rounded-full border border-ava-border px-3 py-1 text-[11px] text-gray-400 hover:text-red-300 hover:border-red-400/40">{t('plansDeleteButton')}</button>
-          </div>
-        </div>
+        <PlanCard key={p.id} summary={p}
+          onOpen={() => onOpen(p.id)}
+          onActivate={() => onActivate(p.id)}
+          onRepeat={() => onRepeat(p.id)}
+          onDelete={() => onDelete(p.id)} />
       ))}
+    </div>
+  );
+}
+
+/**
+ * A plan card that says what the plan IS.
+ *
+ * It used to read "Combined · 1 Day · Tap To Build" and offer a small Activate
+ * pill. Three things wrong with that. "Tap to build" is authoring language on a
+ * card for a plan that is already built. Nothing told you what was inside it —
+ * a finished week and an empty skeleton looked identical. And starting a plan,
+ * which is the one thing standing between a draft and it being any use, was the
+ * smallest control on the card.
+ */
+function PlanCard({ summary, onOpen, onActivate, onRepeat, onDelete }: {
+  summary: HealthPlanSummary;
+  onOpen: () => void; onActivate: () => void; onRepeat: () => void; onDelete: () => void;
+}) {
+  const plan = useMemo(() => getPlan(summary.id), [summary.id, summary.updated_at]);
+  const state = useMemo(() => (plan ? planCardState(plan) : null), [plan]);
+
+  // What is actually in it — the answer to "is this worth starting?".
+  const content = useMemo(() => {
+    if (!plan) return null;
+    const sessions = plan.days.filter(d => d.kind === 'training' && d.training.length > 0).length;
+    const meals = plan.days.reduce((n, d) => n + d.meals.length, 0);
+    const kcal = plan.days.reduce((n, d) => n + d.meals.reduce((m, x) => m + (x.calories ?? 0), 0), 0);
+    const days = plan.days.filter(d => d.meals.length > 0).length;
+    return { sessions, meals, perDayKcal: days > 0 ? Math.round(kcal / days) : 0 };
+  }, [plan]);
+
+  const images = useLibraryImages(
+    plan?.days.flatMap(d => d.training.map(e => e.ref?.slug)) ?? [],
+    plan?.days.flatMap(d => d.meals.map(m => m.ref?.slug)) ?? [],
+  );
+
+  // A few faces from inside the plan. Costs nothing — the same batch request
+  // the rest of the app already makes — and turns a row of text into a thing
+  // someone can recognise.
+  const thumbs = useMemo(() => {
+    if (!plan) return [];
+    const ex = plan.days.flatMap(d => d.training.map(e => e.ref?.slug)).filter(Boolean) as string[];
+    const rec = plan.days.flatMap(d => d.meals.map(m => m.ref?.slug)).filter(Boolean) as string[];
+    return [
+      ...[...new Set(ex)].slice(0, 3).map(s => ({ kind: 'exercise' as const, slug: s })),
+      ...[...new Set(rec)].slice(0, 3).map(s => ({ kind: 'recipe' as const, slug: s })),
+    ].slice(0, 5);
+  }, [plan]);
+
+  const empty = content != null && content.sessions === 0 && content.meals === 0;
+  const started = state?.dayIndex != null;
+  const pct = state?.adherence == null ? null : Math.round(state.adherence * 100);
+
+  return (
+    <div className="rounded-xl border border-ava-border bg-ava-surface p-4">
+      <button onClick={onOpen} className="w-full text-left">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-white text-sm font-medium truncate">{summary.title}</div>
+            <div className="text-[11px] text-gray-500 mt-0.5 capitalize">
+              {summary.type} · {durationLabel(summary.duration_days)}
+              {started && ` · ${t('plansCardDayWord')} ${state!.dayIndex}/${state!.duration}`}
+            </div>
+          </div>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] capitalize ${STATUS_CLS[summary.status]}`}>
+            {statusLabel(summary.status)}
+          </span>
+        </div>
+
+        {/* What is inside. An empty plan says so plainly rather than showing
+            zeroes and letting someone start a shell. */}
+        {content && (
+          <div className="mt-1.5 text-[11px] text-gray-400">
+            {empty ? (
+              <span className="italic text-gray-600">{t('plansCardEmpty')}</span>
+            ) : (
+              [
+                content.sessions > 0 ? `${content.sessions} ${t('plansCardSessions')}` : null,
+                content.meals > 0 ? `${content.meals} ${t('plansCardMeals')}` : null,
+                content.perDayKcal > 0 ? `${content.perDayKcal} ${t('plansCardKcalPerDay')}` : null,
+              ].filter(Boolean).join(' · ')
+            )}
+          </div>
+        )}
+
+        {thumbs.length > 0 && (
+          <div className="mt-2.5 flex gap-1.5">
+            {thumbs.map(x => (
+              <LibraryThumb
+                key={`${x.kind}-${x.slug}`}
+                src={x.kind === 'exercise' ? images.exercise(x.slug) : images.recipe(x.slug)}
+                kind={x.kind}
+                alt=""
+              />
+            ))}
+          </div>
+        )}
+
+        {started && (
+          <div className="mt-2.5 flex items-center gap-2">
+            <div className="h-1 flex-1 rounded-full bg-ava-bg overflow-hidden">
+              <div className="h-full rounded-full bg-ava-purple/70"
+                style={{ width: `${Math.min(100, (state!.dayIndex! / Math.max(1, state!.duration)) * 100)}%` }} />
+            </div>
+            {pct != null && (
+              <span className={`text-[10px] tabular-nums shrink-0 ${
+                pct >= 80 ? 'text-emerald-300/80' : pct >= 50 ? 'text-gray-400' : 'text-amber-300/80'
+              }`}>{pct}% {t('plansCardKept')}</span>
+            )}
+          </div>
+        )}
+
+        {started && state?.today && (
+          <div className="mt-1.5 text-[11px] text-gray-400 capitalize truncate">
+            {t('plansCardToday')} {state.today}
+          </div>
+        )}
+      </button>
+
+      {/* Starting it is the point of a draft, so it is the primary action and
+          full width — not a pill tucked next to Delete. */}
+      <div className="mt-3 flex gap-2">
+        {summary.status === 'draft' && (
+          <Button variant="primary" size="sm" block onClick={onActivate} disabled={empty}>
+            {t('plansCardStartButton')}
+          </Button>
+        )}
+        {(summary.status === 'completed' || summary.status === 'archived') && (
+          <Button variant="primary" size="sm" block onClick={onRepeat}>{t('plansRepeatButton')}</Button>
+        )}
+        <Button variant="ghost" size="sm" onClick={onDelete} className="shrink-0 hover:text-red-300">
+          {t('plansDeleteButton')}
+        </Button>
+      </div>
+
+      {summary.status === 'draft' && empty && (
+        <div className="mt-1.5 text-[10px] text-gray-600">{t('plansCardEmptyHint')}</div>
+      )}
     </div>
   );
 }
