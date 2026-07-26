@@ -375,6 +375,13 @@ export const zhCNStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': '保持原样',
   'assistDiscard': '放弃',
   'assistUseThis': '使用此方案',
+  'plansCreateCustomDays': '或天',
+  'plansCreateDurationHint': '短期计划会较快完成。完成后重复它，它将基于你实际记录的内容进行进阶。',
+  'repeatSheetTitle': '重复，已推进',
+  'repeatSheetSame': '相同',
+  'repeatSheetNoEvidence': '此计划下无任何记录，因此将原样重复。下次请记录你的组数，这样重复时就能基于你实际完成的内容进行进阶。',
+  'repeatSheetCancel': '取消',
+  'repeatSheetStart': '开始',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '无法加载 — 点击重试。',

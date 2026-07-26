@@ -375,6 +375,13 @@ export const deStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'unverändert belassen',
   'assistDiscard': 'Verwerfen',
   'assistUseThis': 'Dies verwenden',
+  'plansCreateCustomDays': 'oder Tage',
+  'plansCreateDurationHint': 'Kurze Pläne werden schnell abgeschlossen. Wiederhole einen, sobald er fertig ist, und er setzt sich dort fort, wo du tatsächlich protokolliert hast.',
+  'repeatSheetTitle': 'Wiederholung, Fortschritt',
+  'repeatSheetSame': 'unverändert',
+  'repeatSheetNoEvidence': 'Für diesen Plan wurden keine Einträge protokolliert, daher wird er exakt so wiederholt. Erfasse beim nächsten Mal deine Sätze, und die Wiederholung setzt dort an, wo du tatsächlich geblieben bist.',
+  'repeatSheetCancel': 'Abbrechen',
+  'repeatSheetStart': 'Starten',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

@@ -16,9 +16,22 @@ import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
 import type { HealthPlanSummary, HealthPlanType, HealthPlanStatus } from '@/lib/health-types';
 import { PlanBuilder } from './PlanBuilder';
 import { todayIso } from '@/lib/health-day-store';
+import { listSessions } from '@/lib/gym-session-store';
+import { progressPlan, summarise } from '@/lib/health-plan-progression';
+import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
-const DURATIONS: [number, string][] = [[1, '1 day'], [7, '1 week'], [28, '4 weeks'], [56, '8 weeks'], [84, '12 weeks']];
+/**
+ * Short on purpose. People finish a week; a twelve-week plan abandoned in week
+ * two taught nobody anything, and eleven of its weeks were written before we
+ * knew a single thing about how the person responded. Length comes from
+ * REPEATING a finished plan, which now advances it from what the log actually
+ * shows — so a programme is built out of evidence rather than assumption.
+ *
+ * Manual plans can still be any length: the field below accepts a number, for
+ * the 14- and 21-day blocks that were previously impossible to express.
+ */
+const DURATIONS: [number, string][] = [[1, '1 day'], [3, '3 days'], [7, '1 week']];
 
 const STATUS_CLS: Record<HealthPlanStatus, string> = {
   draft: 'bg-ava-border text-gray-400',
@@ -29,8 +42,13 @@ const STATUS_CLS: Record<HealthPlanStatus, string> = {
 
 function durationLabel(days: number): string {
   if (days <= 1) return '1 day';
-  const w = Math.round(days / 7);
-  return w === 1 ? '1 week' : `${w} weeks`;
+  // Only call it "weeks" when it actually is some. A 10-day plan rounded to
+  // "1 week" is a lie about a plan the user typed the length of themselves.
+  if (days % 7 === 0) {
+    const w = days / 7;
+    return w === 1 ? '1 week' : `${w} weeks`;
+  }
+  return `${days} days`;
 }
 
 function statusLabel(s: HealthPlanStatus): string {
@@ -48,6 +66,7 @@ export function PlansView({ token }: { token?: string | null }) {
   const [tab, setTab] = useState<'programs' | 'calendar'>('programs');
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState<{ id: string; day: number } | null>(null);
+  const [repeating, setRepeating] = useState<ProgressionResult | null>(null);
 
   const refresh = useCallback(() => setPlans(listPlans()), []);
   useEffect(() => {
@@ -69,12 +88,20 @@ export function PlansView({ token }: { token?: string | null }) {
     removePlan(id);
     syncPlanDeletion(token, id);
   };
-  // Repeat = re-run the same plan from today: force a fresh start date and
-  // re-activate (which archives any other active plan of the same type).
+  // Repeat used to re-run a plan IDENTICALLY, which is the one thing a training
+  // programme must not do — an unchanged week repeated for a month stops
+  // working. It now proposes the plan ADVANCED from what the log actually
+  // shows, and the user confirms it. Nothing is written until they do.
   const repeat = (id: string) => {
     const p = getPlan(id);
     if (!p) return;
-    savePlan({ ...p, status: 'active', start_date: todayIso() });
+    setRepeating(progressPlan(p, listSessions(), todayIso()));
+  };
+  const confirmRepeat = () => {
+    if (!repeating) return;
+    savePlan(repeating.plan);
+    setRepeating(null);
+    refresh();
     syncPlans(token).catch(() => {});
   };
   const create = (type: HealthPlanType, duration: number, title: string, status: HealthPlanStatus) => {
@@ -104,6 +131,79 @@ export function PlansView({ token }: { token?: string | null }) {
       </div>
 
       {creating && <CreateSheet onCancel={() => setCreating(false)} onCreate={create} />}
+      {repeating && (
+        <RepeatSheet result={repeating} onConfirm={confirmRepeat} onCancel={() => setRepeating(null)} />
+      )}
+    </div>
+  );
+}
+
+/**
+ * What repeating this plan will actually do.
+ *
+ * Shown before anything is written, because this changes the weight someone
+ * puts on a bar. Every line carries its reason — "you got 2 of 3 sets", "at RPE
+ * 9" — so the decision is arguable rather than magic. Holding is presented as a
+ * real decision, not a failure to progress, because it is one.
+ */
+function RepeatSheet({ result, onConfirm, onCancel }: {
+  result: ProgressionResult; onConfirm: () => void; onCancel: () => void;
+}) {
+  const order: Record<string, number> = {
+    progress_load: 0, progress_reps: 1, suggest_swap: 2, hold: 3, no_evidence: 4,
+  };
+  const changes = [...result.changes].sort((a, b) => (order[a.action] ?? 9) - (order[b.action] ?? 9));
+
+  const tone = (a: string) =>
+    a === 'progress_load' || a === 'progress_reps'
+      ? 'border-emerald-500/30 bg-emerald-500/5'
+      : a === 'suggest_swap'
+        ? 'border-amber-500/30 bg-amber-500/5'
+        : 'border-ava-border bg-ava-bg';
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60" onClick={onCancel}>
+      <div className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[85vh] flex flex-col"
+        onClick={e => e.stopPropagation()}>
+        <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />
+          <div className="text-[10px] uppercase tracking-wider text-gray-500">{t('repeatSheetTitle')}</div>
+          <div className="text-white text-sm font-medium">{result.plan.title}</div>
+          <div className="text-[11px] text-gray-500 mt-0.5">{summarise(result.changes)}</div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1.5">
+          {result.noEvidence && (
+            <div className="rounded-lg border border-ava-border bg-ava-surface px-3 py-2.5 text-[11px] text-gray-400 leading-snug mb-2">
+              {t('repeatSheetNoEvidence')}
+            </div>
+          )}
+          {changes.map(c => (
+            <div key={c.key} className={`rounded-lg border px-3 py-2 ${tone(c.action)}`}>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-[12px] text-white truncate">{c.name}</span>
+                <span className="text-[11px] text-gray-400 tabular-nums shrink-0">
+                  {c.action === 'progress_load' && c.from.weight !== c.to.weight
+                    ? `${c.from.weight} → ${c.to.weight}`
+                    : c.action === 'progress_reps' && c.from.reps !== c.to.reps
+                      ? `${c.from.reps} → ${c.to.reps}`
+                      : t('repeatSheetSame')}
+                </span>
+              </div>
+              <div className="mt-0.5 text-[10px] text-gray-500 leading-snug">{c.reason}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="shrink-0 border-t border-ava-border px-4 py-3 flex gap-2">
+          <button onClick={onCancel} className="flex-1 rounded-lg border border-ava-border py-2.5 text-sm text-gray-400">
+            {t('repeatSheetCancel')}
+          </button>
+          <button onClick={onConfirm} className="flex-1 rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white">
+            {t('repeatSheetStart')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,7 +361,7 @@ function CreateSheet({ onCancel, onCreate }: {
   onCancel: () => void; onCreate: (type: HealthPlanType, duration: number, title: string, status: HealthPlanStatus) => void;
 }) {
   const [type, setType] = useState<HealthPlanType>('fitness');
-  const [duration, setDuration] = useState(28);
+  const [duration, setDuration] = useState(7);
   const [title, setTitle] = useState('');
   const [activate, setActivate] = useState(false);
 
@@ -280,11 +380,29 @@ function CreateSheet({ onCancel, onCreate }: {
         </div>
 
         <Label>{t('plansCreateDurationLabel')}</Label>
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2 mb-1">
           {DURATIONS.map(([v, l]) => (
             <button key={v} onClick={() => setDuration(v)} className={`rounded-full border px-3 py-1.5 text-xs ${duration === v ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'}`}>{l}</button>
           ))}
+          {/* Any length you like — 14 and 21 days are common blocks and were
+              simply not expressible before. Capped at a year to stop a typo
+              generating a thousand empty days. */}
+          <input
+            inputMode="numeric"
+            value={DURATIONS.some(([v]) => v === duration) ? '' : String(duration)}
+            onChange={e => {
+              const n = Number(e.target.value.replace(/\D/g, ''));
+              if (Number.isFinite(n) && n > 0) setDuration(Math.min(365, n));
+            }}
+            placeholder={t('plansCreateCustomDays')}
+            className={`w-24 rounded-full border px-3 py-1.5 text-xs bg-transparent placeholder-gray-600 focus:outline-none ${
+              DURATIONS.some(([v]) => v === duration)
+                ? 'border-ava-border text-gray-400'
+                : 'border-ava-purple bg-ava-purple/10 text-ava-purple-light'
+            }`}
+          />
         </div>
+        <div className="text-[10px] text-gray-500 mb-4">{t('plansCreateDurationHint')}</div>
 
         <Label>{t('plansCreateTitleLabel')}</Label>
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder={type === 'meal' ? t('plansCreateMealPlanPlaceholder') : t('plansCreateFitnessPlanPlaceholder')}

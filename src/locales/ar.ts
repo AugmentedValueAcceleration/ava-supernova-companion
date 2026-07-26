@@ -375,6 +375,13 @@ export const arStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'تركت كما كانت',
   'assistDiscard': 'تجاهل',
   'assistUseThis': 'استخدم هذا',
+  'plansCreateCustomDays': 'أو أيام',
+  'plansCreateDurationHint': 'الخطط القصيرة تُنجز سريعًا. عند الانتهاء، كرر إحداها، وسيتقدم بناءً على ما سجلته فعليًا.',
+  'repeatSheetTitle': 'التكرار، تم التقدم',
+  'repeatSheetSame': 'نفسه',
+  'repeatSheetNoEvidence': 'لم يُسجّل أي شيء لهذه الخطة، لذا تتكرر تمامًا كما كانت. سجّل مجموعاتك في المرة القادمة، وستتكرر بناءً على ما فعلته فعليًا.',
+  'repeatSheetCancel': 'إلغاء',
+  'repeatSheetStart': 'ابدأها',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',

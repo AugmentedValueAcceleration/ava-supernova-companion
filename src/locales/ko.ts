@@ -375,6 +375,13 @@ export const koStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': '원래대로 유지됨',
   'assistDiscard': '버리기',
   'assistUseThis': '이것 사용',
+  'plansCreateCustomDays': '또는 일',
+  'plansCreateDurationHint': '짧은 계획은 금방 완료됩니다. 완료되면 반복하고, 실제 기록한 내용을 기준으로 다음 단계로 넘어갑니다.',
+  'repeatSheetTitle': '반복, 진행됨',
+  'repeatSheetSame': '동일하게',
+  'repeatSheetNoEvidence': '이 계획에 대한 기록이 없어 정확히 그대로 반복됩니다. 다음 번에는 세트를 기록해 주시면, 실제 수행한 내용을 기준으로 다음 단계로 넘어갑니다.',
+  'repeatSheetCancel': '취소',
+  'repeatSheetStart': '시작하기',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '불러오지 못했습니다 — 탭하여 다시 시도하세요.',

@@ -375,6 +375,13 @@ export const hiStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'वैसे ही छोड़ दिया गया',
   'assistDiscard': 'रद्द करें',
   'assistUseThis': 'इसे उपयोग करें',
+  'plansCreateCustomDays': 'या दिन',
+  'plansCreateDurationHint': 'छोटी योजनाएं जल्दी समाप्त हो जाती हैं। जब एक समाप्त हो जाए तो उसे दोहराएं; यह आपके वास्तविक लॉग के आधार पर आगे बढ़ेगा।',
+  'repeatSheetTitle': 'दोहराव, प्रगति',
+  'repeatSheetSame': 'वही',
+  'repeatSheetNoEvidence': 'इस योजना के लिए कुछ भी लॉग नहीं किया गया है, इसलिए यह ठीक वैसा ही दोहराया जाता है। अगली बार अपने सेट्स लॉग करें; तब दोहराव आपको वास्तव में किए गए कार्य के आधार पर आगे बढ़ाएगा।',
+  'repeatSheetCancel': 'रद्द करें',
+  'repeatSheetStart': 'शुरू करें',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

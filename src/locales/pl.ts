@@ -375,6 +375,13 @@ export const plStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'pozostawione bez zmian',
   'assistDiscard': 'Odrzuć',
   'assistUseThis': 'Użyj tego',
+  'plansCreateCustomDays': 'lub dni',
+  'plansCreateDurationHint': 'Krótkie plany szybko się kończą. Powtórz je po ukończeniu, a kolejne będą bazować na tym, co faktycznie zalogowałeś.',
+  'repeatSheetTitle': 'Powtórzenie, postęp',
+  'repeatSheetSame': 'Tak samo',
+  'repeatSheetNoEvidence': 'Nic nie zostało zalogowane w ramach tego planu, dlatego powtarza się dokładnie tak samo. Następnym razem zaloguj swoje serie, a powtórzenie będzie bazowało na tym, co faktycznie wykonałeś.',
+  'repeatSheetCancel': 'Anuluj',
+  'repeatSheetStart': 'Rozpocznij',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Nie udało się załadować — dotknij, aby spróbować ponownie.',

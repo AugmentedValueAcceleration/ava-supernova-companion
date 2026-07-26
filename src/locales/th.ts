@@ -375,6 +375,13 @@ export const thStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'คงไว้เหมือนเดิม',
   'assistDiscard': 'ทิ้ง',
   'assistUseThis': 'ใช้สิ่งนี้',
+  'plansCreateCustomDays': 'หรือวัน',
+  'plansCreateDurationHint': 'แผนระยะสั้นจะสำเร็จได้เร็ว ทำซ้ำเมื่อเสร็จสิ้น แล้วมันจะปรับขึ้นจากสิ่งที่บันทึกจริง',
+  'repeatSheetTitle': 'ทำซ้ำ, ก้าวหน้า',
+  'repeatSheetSame': 'เหมือนเดิม',
+  'repeatSheetNoEvidence': 'ไม่มีการบันทึกใด ๆ สำหรับแผนนี้ จึงทำให้ทำซ้ำเหมือนเดิมทุกประการ บันทึกเซ็ตของคุณในครั้งหน้า และการทำซ้ำจะช่วยให้คุณก้าวไปจากสิ่งที่ทำจริง',
+  'repeatSheetCancel': 'ยกเลิก',
+  'repeatSheetStart': 'เริ่มเลย',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

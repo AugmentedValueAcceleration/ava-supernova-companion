@@ -375,6 +375,13 @@ export const frStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'restés tels quels',
   'assistDiscard': 'Abandonner',
   'assistUseThis': 'Utiliser ceci',
+  'plansCreateCustomDays': 'ou jours',
+  'plansCreateDurationHint': 'Les plans courts se terminent. Répétez-en un une fois terminé ; il évoluera à partir de ce que vous avez réellement noté.',
+  'repeatSheetTitle': 'Répéter, progressé',
+  'repeatSheetSame': 'Même',
+  'repeatSheetNoEvidence': 'Rien n\'a été noté pour ce plan, donc il se répète exactement comme avant. Notez vos séries la prochaine fois et la répétition vous fera avancer par rapport à ce que vous avez réellement fait.',
+  'repeatSheetCancel': 'Annuler',
+  'repeatSheetStart': 'Démarrer',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Impossible de charger — touchez pour réessayer.',

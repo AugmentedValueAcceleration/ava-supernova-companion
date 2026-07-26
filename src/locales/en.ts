@@ -470,6 +470,18 @@ export const enStrings = {
   'assistDiscard': 'Discard',
   'assistUseThis': 'Use this',
 
+  // ── Repeat, progressed ────────────────────────────────────────────────
+  // Repeating used to re-run a plan identically, which is the one thing a
+  // training programme must not do. It now advances from the log, and shows
+  // its reasoning before changing the weight on anyone's bar.
+  'plansCreateCustomDays': 'or days',
+  'plansCreateDurationHint': 'Short plans get finished. Repeat one when it is done and it moves up from what you actually logged.',
+  'repeatSheetTitle': 'Repeat, progressed',
+  'repeatSheetSame': 'same',
+  'repeatSheetNoEvidence': 'Nothing was logged against this plan, so it repeats exactly as it was. Log your sets next time and the repeat will move you on from what you actually did.',
+  'repeatSheetCancel': 'Cancel',
+  'repeatSheetStart': 'Start it',
+
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",
   'catalogWorkoutsTitle': 'Workouts',

@@ -375,6 +375,13 @@ export const nlStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'ongewijzigd gelaten',
   'assistDiscard': 'Verwerpen',
   'assistUseThis': 'Gebruik dit',
+  'plansCreateCustomDays': 'of dagen',
+  'plansCreateDurationHint': 'Korte plannen zijn snel klaar. Herhaal er één wanneer het klaar is en deze past zich aan op basis van wat je daadwerkelijk hebt genoteerd.',
+  'repeatSheetTitle': 'Herhaling, met vooruitgang',
+  'repeatSheetSame': 'zelfde',
+  'repeatSheetNoEvidence': 'Er is niets geregistreerd voor dit plan, dus deze wordt exact zo herhaald. Noteer je sets de volgende keer en de herhaling zal je verder brengen dan wat je daadwerkelijk deed.',
+  'repeatSheetCancel': 'Annuleren',
+  'repeatSheetStart': 'Start het',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

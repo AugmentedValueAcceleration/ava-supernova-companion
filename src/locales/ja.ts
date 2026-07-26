@@ -375,6 +375,13 @@ export const jaStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'そのまま',
   'assistDiscard': '破棄',
   'assistUseThis': 'これを使用',
+  'plansCreateCustomDays': 'または日',
+  'plansCreateDurationHint': '短期プランはすぐに完了します。完了したら繰り返し、実際の記録に基づいて進捗します。',
+  'repeatSheetTitle': '繰り返し、進捗あり',
+  'repeatSheetSame': '同じ',
+  'repeatSheetNoEvidence': 'このプランには記録がありません。そのため、前回と同じ内容で繰り返されます。次回セットを記録すれば、実際の記録から先に進めます。',
+  'repeatSheetCancel': 'キャンセル',
+  'repeatSheetStart': '開始',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

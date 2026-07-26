@@ -375,6 +375,13 @@ export const idStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'tetap seperti semula',
   'assistDiscard': 'Buang',
   'assistUseThis': 'Gunakan ini',
+  'plansCreateCustomDays': 'atau hari',
+  'plansCreateDurationHint': 'Rencana pendek akan selesai. Ulangi saat selesai, dan ini akan bergerak maju dari apa yang sebenarnya Anda catat.',
+  'repeatSheetTitle': 'Ulangi, Progres',
+  'repeatSheetSame': 'Sama',
+  'repeatSheetNoEvidence': 'Tidak ada yang dicatat untuk rencana ini, jadi diulang persis seperti sebelumnya. Catat set Anda berikutnya dan pengulangan akan memajukan Anda dari apa yang sebenarnya Anda lakukan.',
+  'repeatSheetCancel': 'Batal',
+  'repeatSheetStart': 'Mulai',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',

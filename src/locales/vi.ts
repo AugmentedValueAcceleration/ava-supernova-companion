@@ -375,6 +375,13 @@ export const viStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'được giữ nguyên như cũ',
   'assistDiscard': 'Hủy',
   'assistUseThis': 'Áp dụng',
+  'plansCreateCustomDays': 'hoặc ngày',
+  'plansCreateDurationHint': 'Kế hoạch ngắn sẽ nhanh chóng hoàn thành. Khi xong, hãy lặp lại và nó sẽ tiếp tục từ mức cao hơn những gì bạn thực sự đã ghi nhận.',
+  'repeatSheetTitle': 'Lặp lại, Đã tiến bộ',
+  'repeatSheetSame': 'Như cũ',
+  'repeatSheetNoEvidence': 'Không có dữ liệu nào được ghi lại cho kế hoạch này, nên nó sẽ lặp lại y hệt như cũ. Lần sau hãy ghi lại các set, và việc lặp lại sẽ giúp bạn tiến bộ hơn những gì bạn thực sự đã làm.',
+  'repeatSheetCancel': 'Hủy',
+  'repeatSheetStart': 'Bắt đầu',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

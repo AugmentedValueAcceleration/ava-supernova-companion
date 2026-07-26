@@ -375,6 +375,13 @@ export const trStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'olduğu gibi bırakıldı',
   'assistDiscard': 'İptal Et',
   'assistUseThis': 'Bunu Kullan',
+  'plansCreateCustomDays': 'veya gün',
+  'plansCreateDurationHint': 'Kısa planlar tamamlanır. Bitince birini tekrar et ve bu, gerçekten kaydettiklerine göre ilerler.',
+  'repeatSheetTitle': 'Tekrar, İlerlemiş',
+  'repeatSheetSame': 'aynı',
+  'repeatSheetNoEvidence': 'Bu plana dair hiç kayıt yok, bu yüzden olduğu gibi tekrar eder. Bir sonraki sefer setlerini kaydet ve tekrar, gerçekten yaptıklarına göre ilerletir.',
+  'repeatSheetCancel': 'İptal',
+  'repeatSheetStart': 'Başlat',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

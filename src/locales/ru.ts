@@ -375,6 +375,13 @@ export const ruStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'оставлено без изменений',
   'assistDiscard': 'Отменить',
   'assistUseThis': 'Использовать это',
+  'plansCreateCustomDays': 'или дней',
+  'plansCreateDurationHint': 'Короткие планы быстро завершаются. Повторяйте их после завершения, и они будут прогрессировать от того, что вы фактически записали.',
+  'repeatSheetTitle': 'Повторение, прогресс',
+  'repeatSheetSame': 'как было',
+  'repeatSheetNoEvidence': 'По этому плану ничего не записано, поэтому он повторяется точно так же. В следующий раз зафиксируйте свои подходы, и повторение продвинет вас дальше на основе того, что вы реально сделали.',
+  'repeatSheetCancel': 'Отмена',
+  'repeatSheetStart': 'Начать',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

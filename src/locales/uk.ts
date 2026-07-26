@@ -375,6 +375,13 @@ export const ukStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'залишено без змін',
   'assistDiscard': 'Відхилити',
   'assistUseThis': 'Використати це',
+  'plansCreateCustomDays': 'або днів',
+  'plansCreateDurationHint': 'Короткі плани завершуються. Повторіть його, коли він буде завершений, і він просунеться далі від того, що ви фактично записали.',
+  'repeatSheetTitle': 'Повторення, прогрес',
+  'repeatSheetSame': 'Так само',
+  'repeatSheetNoEvidence': 'Щодо цього плану нічого не було записано, тому він повторюється точно так, як і раніше. Запишіть свої підходи наступного разу, і повторення просуне вас далі від того, що ви фактично виконали.',
+  'repeatSheetCancel': 'Скасувати',
+  'repeatSheetStart': 'Почати',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',

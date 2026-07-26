@@ -375,6 +375,13 @@ export const esStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'dejado como estaban',
   'assistDiscard': 'Descartar',
   'assistUseThis': 'Usar esto',
+  'plansCreateCustomDays': 'o días',
+  'plansCreateDurationHint': 'Los planes cortos finalizan. Repite uno cuando esté terminado y avanzará desde lo que realmente registraste.',
+  'repeatSheetTitle': 'Repetir, con progreso',
+  'repeatSheetSame': 'igual',
+  'repeatSheetNoEvidence': 'No se registró nada para este plan, así que se repite exactamente igual. Registra tus series la próxima vez y la repetición te hará avanzar desde lo que realmente hiciste.',
+  'repeatSheetCancel': 'Cancelar',
+  'repeatSheetStart': 'Iniciarla',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'No se pudo cargar — toca para reintentar.',

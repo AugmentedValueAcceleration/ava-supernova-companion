@@ -375,6 +375,13 @@ export const itStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': 'rimasti invariati',
   'assistDiscard': 'Scarta',
   'assistUseThis': 'Usa questo',
+  'plansCreateCustomDays': 'o giorni',
+  'plansCreateDurationHint': 'I piani brevi si completano. Ripetine uno quando è finito e partirà da quanto hai effettivamente registrato.',
+  'repeatSheetTitle': 'Ripeti, progressi',
+  'repeatSheetSame': 'uguale',
+  'repeatSheetNoEvidence': 'Non è stato registrato nulla per questo piano, quindi si ripete esattamente com\'era. Registra le tue serie la prossima volta e la ripetizione ti farà progredire da quanto hai effettivamente fatto.',
+  'repeatSheetCancel': 'Annulla',
+  'repeatSheetStart': 'Avvia',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Impossibile caricare — tocca per riprovare.',

@@ -375,6 +375,13 @@ export const zhTWStrings: Record<StringKey, string> = {
   'assistUnchangedSuffix': '維持原狀',
   'assistDiscard': '捨棄',
   'assistUseThis': '使用此項',
+  'plansCreateCustomDays': '或天數',
+  'plansCreateDurationHint': '短期計劃較快完成。完成後重複該計劃，它會根據你實際記錄的進度向上推進。',
+  'repeatSheetTitle': '重複，已進展',
+  'repeatSheetSame': '相同',
+  'repeatSheetNoEvidence': '此計劃尚未記錄任何內容，因此將完全按照原樣重複。下次請記錄你的組數，重複時將基於你實際完成的內容向上推進。',
+  'repeatSheetCancel': '取消',
+  'repeatSheetStart': '開始',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',
