@@ -21,6 +21,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { t, useLocale } from '@/lib/i18n';
+import { Button } from './Button';
 import { healthCatalogApi } from '@/lib/api';
 import { planExerciseFrom, planMealFrom } from '@/lib/health-plan-insights';
 import {
@@ -260,16 +261,13 @@ export function SwapSheet({ plan, kind, row, dayIndex, profile, onApply, onClose
         </div>
 
         <div className="shrink-0 border-t border-ava-border px-4 py-3">
-          <button
-            onClick={apply}
-            disabled={!picked || selected.size === 0 || applying}
-            className="w-full rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white disabled:opacity-40 disabled:bg-ava-surface disabled:text-gray-500"
-          >
+          <Button variant="primary" size="lg" block onClick={apply}
+            disabled={!picked || selected.size === 0 || applying}>
             {applying ? t('swapSheetApplying')
               : !picked ? t('swapSheetPickOne')
               : selected.size > 1 ? `${t('swapSheetSwapButton')} · ${selected.size}`
               : t('swapSheetSwapButton')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

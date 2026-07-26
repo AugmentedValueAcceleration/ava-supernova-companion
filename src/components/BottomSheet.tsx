@@ -14,6 +14,7 @@
 // and it closes on the backdrop, on Escape, and on its own confirm.
 
 import { useEffect, useRef } from 'react';
+import { Button } from './Button';
 
 export function BottomSheet({ title, subtitle, onClose, children, footer }: {
   title: string;
@@ -73,18 +74,31 @@ export function BottomSheet({ title, subtitle, onClose, children, footer }: {
   );
 }
 
-/** The single confirm every sheet ends with. One action, always in the same
- *  place, so the gesture is learned once. */
+/**
+ * The single confirm every sheet ends with. One action, always in the same
+ * place, so the gesture is learned once.
+ *
+ * Uses the HOUSE button rather than a hand-rolled one. Button.tsx says it
+ * outright — "the house style is NOT a solid bright-purple block" — and every
+ * sheet added this week ignored that and shipped a solid purple slab with white
+ * text. The house pill is an accent TINT with accent text, and it is what the
+ * IDE and the extension use, which is the whole point of having one.
+ */
 export function SheetConfirm({ label, onClick, disabled }: {
   label: string; onClick: () => void; disabled?: boolean;
 }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-full rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white disabled:opacity-40 disabled:bg-ava-surface disabled:text-gray-500"
-    >
+    <Button variant="primary" size="lg" block onClick={onClick} disabled={disabled}>
       {label}
-    </button>
+    </Button>
+  );
+}
+
+/** The quiet half of a two-button footer — discard, cancel, try again. */
+export function SheetCancel({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <Button variant="secondary" size="lg" block onClick={onClick}>
+      {label}
+    </Button>
   );
 }

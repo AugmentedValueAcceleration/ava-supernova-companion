@@ -9,6 +9,7 @@
 // day from the catalogue — lands in 4a-ii.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Button } from './Button';
 import { t, useLocale } from '@/lib/i18n';
 import { listPlans, getPlan, savePlan, removePlan, blankPlan, PLANS_CHANGED_EVENT } from '@/lib/health-plan-store';
 import { syncPlans, syncPlanDeletion } from '@/lib/health-plan-sync';
@@ -126,15 +127,13 @@ export function PlansView({ token }: { token?: string | null }) {
               all. Ava leads because it is the better answer for most people;
               building by hand is right there and free. */}
           <div className="mt-2.5 flex gap-2">
-            <button onClick={() => setGenerating(true)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-ava-purple/40 bg-ava-purple/10 py-2.5 text-[12px] text-ava-purple-light">
+            <Button variant="primary" size="lg" block onClick={() => setGenerating(true)}>
               <Sparkle className="w-3.5 h-3.5" />
               {t('plansAskAvaButton')}
-            </button>
-            <button onClick={() => setCreating(true)}
-              className="flex-1 rounded-lg border border-ava-border py-2.5 text-[12px] text-gray-300">
+            </Button>
+            <Button variant="secondary" size="lg" block onClick={() => setCreating(true)}>
               {t('plansBuildOwnButton')}
-            </button>
+            </Button>
           </div>
           <div className="mt-1.5 flex gap-2 text-[10px] text-gray-600">
             <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
@@ -226,12 +225,8 @@ function RepeatSheet({ result, onConfirm, onCancel }: {
         </div>
 
         <div className="shrink-0 border-t border-ava-border px-4 py-3 flex gap-2">
-          <button onClick={onCancel} className="flex-1 rounded-lg border border-ava-border py-2.5 text-sm text-gray-400">
-            {t('repeatSheetCancel')}
-          </button>
-          <button onClick={onConfirm} className="flex-1 rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white">
-            {t('repeatSheetStart')}
-          </button>
+          <Button variant="secondary" size="lg" block onClick={onCancel}>{t('repeatSheetCancel')}</Button>
+          <Button variant="primary" size="lg" block onClick={onConfirm}>{t('repeatSheetStart')}</Button>
         </div>
       </div>
     </div>

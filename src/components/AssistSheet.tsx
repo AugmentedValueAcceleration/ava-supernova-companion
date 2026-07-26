@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { healthAssistApi } from '@/lib/api';
 import { normaliseHealthProfile } from '@/lib/health-types';
+import { Button } from './Button';
 import type { HealthPlan, HealthPlanDay, HealthProfile } from '@/lib/health-types';
 
 /** Openers for the things people actually want, so nobody faces a blank box.
@@ -160,20 +161,17 @@ export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
         <div className="shrink-0 border-t border-ava-border px-4 py-3">
           {proposal ? (
             <div className="flex gap-2">
-              <button onClick={() => { setProposal(null); setInstruction(''); }}
-                className="flex-1 rounded-lg border border-ava-border py-2.5 text-sm text-gray-400">
+              <Button variant="secondary" size="lg" block onClick={() => { setProposal(null); setInstruction(''); }}>
                 {t('assistDiscard')}
-              </button>
-              <button onClick={() => { onApply(proposal.day); onClose(); }}
-                className="flex-1 rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white">
+              </Button>
+              <Button variant="primary" size="lg" block onClick={() => { onApply(proposal.day); onClose(); }}>
                 {t('assistUseThis')}
-              </button>
+              </Button>
             </div>
           ) : (
-            <button onClick={() => ask(instruction)} disabled={busy || !instruction.trim()}
-              className="w-full rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white disabled:opacity-40 disabled:bg-ava-surface disabled:text-gray-500">
+            <Button variant="primary" size="lg" block onClick={() => ask(instruction)} disabled={busy || !instruction.trim()}>
               {busy ? t('assistThinkingShort') : t('assistAsk')}
-            </button>
+            </Button>
           )}
         </div>
       </div>

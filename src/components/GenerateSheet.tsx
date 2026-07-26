@@ -26,7 +26,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { healthAssistApi } from '@/lib/api';
 import { normaliseHealthProfile } from '@/lib/health-types';
 import { computeTargets } from '@/lib/health-targets';
-import { BottomSheet, SheetConfirm } from './BottomSheet';
+import { BottomSheet, SheetConfirm, SheetCancel } from './BottomSheet';
 import type { HealthPlan, HealthPlanType, HealthProfile } from '@/lib/health-types';
 
 const TYPES: Array<[HealthPlanType, string]> = [
@@ -126,9 +126,28 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
   if (phase === 'working') {
     return (
       <BottomSheet title={t('generateWorkingTitle')} onClose={() => { /* not interruptible */ }}>
-        <div className="py-6 text-center">
-          <Sparkle className="w-6 h-6 mx-auto text-ava-purple-light animate-pulse" />
-          <div className="mt-3 text-[13px] text-gray-200">{t('generateWorkingLine')}</div>
+        <div className="py-8 text-center">
+          {/* Her face, not a generic sparkle. This is the one moment in the
+              flow where Ava is doing the work, and a stock icon makes it feel
+              like a progress bar rather than a person. The ring pulses; the
+              photograph does not, because a throbbing face is unsettling. */}
+          <div className="relative w-16 h-16 mx-auto">
+            <span className="absolute inset-0 rounded-full border-2 border-ava-purple/50 animate-ping" />
+            <div
+              className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-ava-purple flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, var(--accent, #a855f7), #6366f1)' }}
+            >
+              <img
+                src="/ava-avatar.jpeg"
+                alt="Ava"
+                className="w-full h-full object-cover"
+                // Degrades to the brand gradient rather than a hole, same as
+                // the welcome flow does.
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            </div>
+          </div>
+          <div className="mt-4 text-[13px] text-gray-200">{t('generateWorkingLine')}</div>
           <div className="mt-1.5 text-[11px] text-gray-500 leading-relaxed max-w-xs mx-auto">
             {t('generateWorkingHint')}
           </div>
@@ -157,13 +176,14 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
         title={result.title}
         subtitle={`${result.duration_days} ${t('generateDaysWord')}`}
         onClose={onClose}
+        // Two equal halves, both the house style. The old pair was a squashed
+        // outline next to a solid purple slab, which read as "the real button
+        // and the one you probably don't want" — and rejecting a plan Ava got
+        // wrong is a legitimate, equal choice.
         footer={
           <div className="flex gap-2">
-            <button onClick={() => { setResult(null); setPhase('setup'); }}
-              className="flex-1 rounded-lg border border-ava-border py-2.5 text-sm text-gray-400">
-              {t('generateAgain')}
-            </button>
-            <SheetConfirm label={t('generateKeep')} onClick={accept} />
+            <div className="flex-1"><SheetCancel label={t('generateAgain')} onClick={() => { setResult(null); setPhase('setup'); }} /></div>
+            <div className="flex-1"><SheetConfirm label={t('generateKeep')} onClick={accept} /></div>
           </div>
         }
       >
@@ -192,18 +212,58 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
             </div>
           )}
 
-          {/* A skim of the week, so accepting is not blind. */}
-          <div className="space-y-1">
-            {days.slice(0, 7).map(d => (
-              <div key={d.day_index} className="flex items-baseline gap-2 text-[11px]">
-                <span className="w-10 shrink-0 text-gray-600">{t('generateDayWord')} {d.day_index}</span>
-                <span className={`flex-1 min-w-0 truncate ${d.kind === 'rest' ? 'text-gray-500 italic' : 'text-gray-300'}`}>
-                  {d.title || (d.kind === 'rest' ? t('generateRestWord') : d.kind)}
-                </span>
-                <span className="shrink-0 text-gray-600 tabular-nums">
-                  {d.training.length > 0 && `${d.training.length}×`}
-                  {d.meals.length > 0 && ` ${d.meals.length}🍽`}
-                </span>
+          {/* THE PLAN ITSELF, not a summary of it.
+              This showed one line per day with a count — "Day 1, Full Body
+              Foundation, 6x 4" — which asks someone to accept work they have
+              not been shown. If the answer to "what am I saving?" is a number,
+              the screen has not done its job. */}
+          <div className="space-y-2">
+            {days.map(d => (
+              <div key={d.day_index} className="rounded-lg border border-ava-border bg-ava-surface px-3 py-2.5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[12px] text-white truncate">
+                    <span className="text-gray-600 mr-1.5">{t('generateDayWord')} {d.day_index}</span>
+                    {d.title || (d.kind === 'rest' ? t('generateRestWord') : '')}
+                  </span>
+                  {d.meals.length > 0 && (
+                    <span className="shrink-0 text-[10px] text-gray-500 tabular-nums">
+                      {d.meals.reduce((n, m) => n + (m.calories ?? 0), 0)} kcal
+                    </span>
+                  )}
+                </div>
+
+                {d.training.length > 0 && (
+                  <ul className="mt-1.5 space-y-0.5">
+                    {d.training.map(ex => (
+                      <li key={ex.id} className="flex items-baseline justify-between gap-2 text-[11px]">
+                        <span className="min-w-0 truncate text-gray-300">{ex.name}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-gray-600">
+                          {[ex.sets ? `${ex.sets}×${ex.reps ?? ''}` : ex.reps, ex.weight].filter(Boolean).join(' · ')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {d.meals.length > 0 && (
+                  <ul className="mt-1.5 space-y-0.5">
+                    {d.meals.map(m => (
+                      <li key={m.id} className="flex items-baseline justify-between gap-2 text-[11px]">
+                        <span className="min-w-0 truncate text-gray-300">
+                          <span className="font-mono text-[10px] text-gray-600 mr-1">{(m.slot ?? '').slice(0, 2)}</span>
+                          {m.name}
+                        </span>
+                        {m.calories != null && (
+                          <span className="shrink-0 font-mono text-[10px] text-gray-600">{Math.round(m.calories)}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {d.kind === 'rest' && d.training.length === 0 && d.meals.length === 0 && (
+                  <div className="mt-1 text-[11px] italic text-gray-600">{t('generateRestWord')}</div>
+                )}
               </div>
             ))}
           </div>

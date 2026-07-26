@@ -18,6 +18,7 @@ import { t, useLocale } from '@/lib/i18n';
 import { duplicateDay, duplicateWeek, weekCount, progressDays, daysInWeek } from '@/lib/health-plan-swap';
 import type { Progression } from '@/lib/health-plan-swap';
 import type { HealthPlan } from '@/lib/health-types';
+import { Button } from './Button';
 
 export function DuplicateSheet({ plan, fromDay, onApply, onClose }: {
   plan: HealthPlan;
@@ -189,10 +190,9 @@ export function DuplicateSheet({ plan, fromDay, onApply, onClose }: {
         </div>
 
         <div className="shrink-0 border-t border-ava-border px-4 py-3">
-          <button onClick={apply} disabled={!canApply}
-            className="w-full rounded-lg bg-ava-purple/90 py-2.5 text-sm text-white disabled:opacity-40 disabled:bg-ava-surface disabled:text-gray-500">
+          <Button variant="primary" size="lg" block onClick={apply} disabled={!canApply}>
             {!canApply ? t('duplicateSheetPickTarget') : t('duplicateSheetCopyButton')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
