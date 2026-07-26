@@ -382,6 +382,12 @@ export const thStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'ไม่มีการบันทึกใด ๆ สำหรับแผนนี้ จึงทำให้ทำซ้ำเหมือนเดิมทุกประการ บันทึกเซ็ตของคุณในครั้งหน้า และการทำซ้ำจะช่วยให้คุณก้าวไปจากสิ่งที่ทำจริง',
   'repeatSheetCancel': 'ยกเลิก',
   'repeatSheetStart': 'เริ่มเลย',
+  'weekStripBackToToday': 'กลับไปวันนี้',
+  'plansCardDayWord': 'วัน',
+  'plansCardKept': 'ทำสำเร็จ',
+  'plansCardToday': 'วันนี้:',
+  'todayRestDayTitle': 'วันพัก',
+  'planBuilderRestDayHint': 'ไม่มีตารางฝึกในวันนี้โดยตั้งใจ หากต้องการเพิ่มการฝึก ให้เปลี่ยนวันนี้เป็นการฝึกซ้อมด้านบน',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

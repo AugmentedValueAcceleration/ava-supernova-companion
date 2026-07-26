@@ -382,6 +382,12 @@ export const trStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Bu plana dair hiç kayıt yok, bu yüzden olduğu gibi tekrar eder. Bir sonraki sefer setlerini kaydet ve tekrar, gerçekten yaptıklarına göre ilerletir.',
   'repeatSheetCancel': 'İptal',
   'repeatSheetStart': 'Başlat',
+  'weekStripBackToToday': 'Bugüne Dön',
+  'plansCardDayWord': 'gün',
+  'plansCardKept': 'tutuldu',
+  'plansCardToday': 'Bugün:',
+  'todayRestDayTitle': 'Dinlenme Günü',
+  'planBuilderRestDayHint': 'Bugün program gereği antrenman yok. Eklemek isterseniz bu günü yukarıda Antrenman olarak değiştirin.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

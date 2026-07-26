@@ -382,6 +382,12 @@ export const zhCNStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': '此计划下无任何记录，因此将原样重复。下次请记录你的组数，这样重复时就能基于你实际完成的内容进行进阶。',
   'repeatSheetCancel': '取消',
   'repeatSheetStart': '开始',
+  'weekStripBackToToday': '回到今天',
+  'plansCardDayWord': '天',
+  'plansCardKept': '已遵守',
+  'plansCardToday': '今天：',
+  'todayRestDayTitle': '休息日',
+  'planBuilderRestDayHint': '今日设定为休息日。如需增加训练，请在上方将此日切换为训练日。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '无法加载 — 点击重试。',

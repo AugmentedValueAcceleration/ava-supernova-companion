@@ -382,6 +382,12 @@ export const zhTWStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': '此計劃尚未記錄任何內容，因此將完全按照原樣重複。下次請記錄你的組數，重複時將基於你實際完成的內容向上推進。',
   'repeatSheetCancel': '取消',
   'repeatSheetStart': '開始',
+  'weekStripBackToToday': '返回今天',
+  'plansCardDayWord': '天',
+  'plansCardKept': '已遵守',
+  'plansCardToday': '今天：',
+  'todayRestDayTitle': '休息日',
+  'planBuilderRestDayHint': '今日設計為休息日。若需增加訓練，請將上方此日切換為訓練。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',

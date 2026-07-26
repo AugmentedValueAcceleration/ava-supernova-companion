@@ -382,6 +382,12 @@ export const jaStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'このプランには記録がありません。そのため、前回と同じ内容で繰り返されます。次回セットを記録すれば、実際の記録から先に進めます。',
   'repeatSheetCancel': 'キャンセル',
   'repeatSheetStart': '開始',
+  'weekStripBackToToday': '今日に戻る',
+  'plansCardDayWord': '日',
+  'plansCardKept': '完了',
+  'plansCardToday': '今日：',
+  'todayRestDayTitle': '休養日',
+  'planBuilderRestDayHint': '本日は意図的にトレーニングが設定されていません。追加したい場合は、上の設定をトレーニングに変更してください。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

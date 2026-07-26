@@ -382,6 +382,12 @@ export const plStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Nic nie zostało zalogowane w ramach tego planu, dlatego powtarza się dokładnie tak samo. Następnym razem zaloguj swoje serie, a powtórzenie będzie bazowało na tym, co faktycznie wykonałeś.',
   'repeatSheetCancel': 'Anuluj',
   'repeatSheetStart': 'Rozpocznij',
+  'weekStripBackToToday': 'Wróć do dzisiaj',
+  'plansCardDayWord': 'dzień',
+  'plansCardKept': 'zrealizowane',
+  'plansCardToday': 'Dziś:',
+  'todayRestDayTitle': 'Dzień wolny',
+  'planBuilderRestDayHint': 'Dziś nie ma treningu z założenia. Jeśli chcesz dodać trening, przełącz ten dzień na Trening powyżej.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Nie udało się załadować — dotknij, aby spróbować ponownie.',

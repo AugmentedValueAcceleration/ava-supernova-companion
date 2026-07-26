@@ -382,6 +382,12 @@ export const arStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'لم يُسجّل أي شيء لهذه الخطة، لذا تتكرر تمامًا كما كانت. سجّل مجموعاتك في المرة القادمة، وستتكرر بناءً على ما فعلته فعليًا.',
   'repeatSheetCancel': 'إلغاء',
   'repeatSheetStart': 'ابدأها',
+  'weekStripBackToToday': 'العودة إلى اليوم',
+  'plansCardDayWord': 'يوم',
+  'plansCardKept': 'محقق',
+  'plansCardToday': 'اليوم:',
+  'todayRestDayTitle': 'يوم راحة',
+  'planBuilderRestDayHint': 'لا توجد تمارين مخططة لهذا اليوم. يمكنك تغيير هذا اليوم إلى تدريب من الأعلى إذا أردت إضافة بعض التمارين.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',

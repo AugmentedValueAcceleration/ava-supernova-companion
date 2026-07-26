@@ -29,6 +29,8 @@ import { CataloguePicker } from './CataloguePicker';
 import { SwapSheet } from './SwapSheet';
 import { DuplicateSheet } from './DuplicateSheet';
 import { AssistSheet } from './AssistSheet';
+import { LibraryThumb } from './LibraryThumb';
+import { useLibraryImages } from '@/lib/use-library-images';
 import type {
   HealthPlan, HealthPlanDay, HealthPlanExercise, HealthPlanMeal, ExerciseCard, RecipeCard,
   HealthProfile, ExerciseDetail, RecipeDetail,
@@ -90,6 +92,13 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   const insights: DayInsights | null = useMemo(
     () => (plan && day ? dayInsights(plan, day, profile, dateForPlanDay(plan, day.day_index)) : null),
     [plan, day, profile],
+  );
+
+  // Pictures for this day's rows. Batched into one request and cached for the
+  // session, so paging through a week does not re-ask for the same squat.
+  const images = useLibraryImages(
+    day?.training.map(e => e.ref?.slug) ?? [],
+    day?.meals.map(m => m.ref?.slug) ?? [],
   );
 
   if (!plan) {
@@ -207,11 +216,26 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
 
             {showsMeals && insights && <DayNutrition insights={insights} />}
 
-            {showsTraining && (
+            {/* A rest day is something the plan CHOSE. Saying so where the
+                exercise list would be stops it reading as an unfinished day. */}
+            {day.kind === 'rest' && day.training.length === 0 && (
+              <div className="flex items-center gap-2.5 rounded-lg border border-sky-500/20 bg-sky-500/5 px-3 py-2.5">
+                <svg className="w-4 h-4 shrink-0 text-sky-300/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                </svg>
+                <div className="min-w-0">
+                  <div className="text-[12px] text-sky-100/90">{t('todayRestDayTitle')}</div>
+                  <div className="text-[11px] text-gray-400 leading-snug">{t('planBuilderRestDayHint')}</div>
+                </div>
+              </div>
+            )}
+
+            {showsTraining && day.kind !== 'rest' && (
               <Group title={t('planBuilderTrainingSection')} onAdd={() => setPicker('exercise')} busy={adding}>
                 {day.training.length === 0
                   ? <Empty>{t('planBuilderNoExercises')}</Empty>
                   : day.training.map(ex => <ExerciseRow key={ex.id} ex={ex}
+                      image={images.exercise(ex.ref?.slug)}
                       insight={insights?.exercises.find(i => i.exercise.id === ex.id) ?? null}
                       onSwap={ex.ref?.slug ? () => setSwapping({ kind: 'exercise', row: ex }) : null}
                       onChange={patch => setDay(d => ({ ...d, training: d.training.map(x => x.id === ex.id ? { ...x, ...patch } : x) }))}
@@ -219,13 +243,14 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               </Group>
             )}
 
-            {showsTraining && insights && <Findings findings={[...insights.order, ...insights.week]} />}
+            {showsTraining && day.kind !== 'rest' && insights && <Findings findings={[...insights.order, ...insights.week]} />}
 
             {showsMeals && (
               <Group title={t('planBuilderMealsSection')} onAdd={() => setPicker('recipe')} busy={adding}>
                 {day.meals.length === 0
                   ? <Empty>{t('planBuilderNoMeals')}</Empty>
                   : day.meals.map(ml => <MealRow key={ml.id} ml={ml}
+                      image={images.recipe(ml.ref?.slug)}
                       insight={insights?.meals.find(i => i.meal.id === ml.id) ?? null}
                       onSwap={ml.ref?.slug ? () => setSwapping({ kind: 'recipe', row: ml }) : null}
                       onChange={patch => setDay(d => ({ ...d, meals: d.meals.map(x => x.id === ml.id ? { ...x, ...patch } : x) }))}
@@ -417,8 +442,8 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 const cellCls = 'bg-ava-bg border border-ava-border rounded px-2 py-1 text-[12px] text-white w-full focus:border-ava-purple focus:outline-none';
 
-function ExerciseRow({ ex, insight, onSwap, onChange, onRemove }: {
-  ex: HealthPlanExercise; insight: ExerciseInsight | null;
+function ExerciseRow({ ex, image, insight, onSwap, onChange, onRemove }: {
+  ex: HealthPlanExercise; image: string | null; insight: ExerciseInsight | null;
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanExercise>) => void; onRemove: () => void;
 }) {
@@ -430,8 +455,9 @@ function ExerciseRow({ ex, insight, onSwap, onChange, onRemove }: {
   const avoid = findings.some(f => f.severity === 'avoid');
   return (
     <div className={`rounded-lg border bg-ava-surface p-3 ${avoid ? 'border-amber-500/40' : 'border-ava-border'}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-white truncate">{ex.name}</span>
+      <div className="flex items-center gap-2.5">
+        <LibraryThumb src={image} kind="exercise" alt={ex.name} />
+        <span className="flex-1 min-w-0 text-sm text-white truncate">{ex.name}</span>
         <div className="flex items-center gap-2 shrink-0">
           {/* Only offered on a library-linked row — there is nothing to find
               alternatives to for a free-text entry. */}
@@ -465,8 +491,8 @@ function ExerciseRow({ ex, insight, onSwap, onChange, onRemove }: {
   );
 }
 
-function MealRow({ ml, insight, onSwap, onChange, onServings, onRemove }: {
-  ml: HealthPlanMeal; insight: MealInsight | null;
+function MealRow({ ml, image, insight, onSwap, onChange, onServings, onRemove }: {
+  ml: HealthPlanMeal; image: string | null; insight: MealInsight | null;
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanMeal>) => void;
   onServings: (v: number | null) => void;
@@ -478,22 +504,26 @@ function MealRow({ ml, insight, onSwap, onChange, onServings, onRemove }: {
   const offDiet = insight?.off_diet ?? [];
   return (
     <div className={`rounded-lg border bg-ava-surface p-3 ${blocked.length ? 'border-amber-500/40' : 'border-ava-border'}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-white truncate">{ml.name}</span>
+      <div className="flex items-center gap-2.5">
+        <LibraryThumb src={image} kind="recipe" alt={ml.name} />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm text-white truncate">{ml.name}</div>
+          {/* Macros come from the library, so they follow the servings. Sits
+              under the name now rather than below the whole row, so the
+              picture, the dish and its numbers read as one thing. */}
+          {ml.calories != null && (
+            <div className="text-[11px] text-gray-500 tabular-nums truncate">
+              {Math.round(ml.calories)} kcal
+              {ml.protein_g != null && ` · ${Math.round(ml.protein_g)}g ${t('planBuilderMacroProtein').toLowerCase()}`}
+              {ml.meta?.total_time_minutes != null && ` · ${ml.meta.total_time_minutes} min`}
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-2 shrink-0">
           {onSwap && <SwapButton onClick={onSwap} />}
           <button onClick={onRemove} className="text-gray-500 hover:text-red-300 text-lg leading-none">×</button>
         </div>
       </div>
-
-      {/* Per-serving macros come from the library, so they update as servings do. */}
-      {ml.calories != null && (
-        <div className="mt-1 text-[11px] text-gray-500 tabular-nums">
-          {Math.round(ml.calories)} kcal
-          {ml.protein_g != null && ` · ${Math.round(ml.protein_g)}g ${t('planBuilderMacroProtein').toLowerCase()}`}
-          {ml.meta?.total_time_minutes != null && ` · ${ml.meta.total_time_minutes} min`}
-        </div>
-      )}
 
       {(blocked.length > 0 || unverifiable.length > 0 || offDiet.length > 0 || insight?.hint) && (
         <div className="mt-2 space-y-1.5">

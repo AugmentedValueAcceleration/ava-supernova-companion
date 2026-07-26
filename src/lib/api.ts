@@ -107,6 +107,15 @@ export const healthCatalogApi = {
   // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
   // for the recipe filter dropdowns. Public.
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
+  // Pictures for a set of library slugs, in one request. A plan row carries a
+  // ref, not an image; asking per row would be thirty requests to draw a week.
+  images: (exercises: string[], recipes: string[]) => {
+    const u = new URLSearchParams();
+    if (exercises.length) u.set('exercises', exercises.join(','));
+    if (recipes.length) u.set('recipes', recipes.join(','));
+    return apiFetch(`/health/images?${u.toString()}`)
+      .then(r => r.json() as Promise<{ exercises: Record<string, string>; recipes: Record<string, string> }>);
+  },
 };
 
 // Ava helping with ONE day inside the plan builder. Charged (1 credit, 2 for a

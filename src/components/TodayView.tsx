@@ -13,15 +13,26 @@ import { loadProfile } from '@/lib/health-profile-store';
 import { loadDay, saveDay, todayIso, logId, nowHHMM } from '@/lib/health-day-store';
 import { briefApi, healthCatalogApi } from '@/lib/api';
 import { recentForBrief } from '@/lib/health-progress';
-import { deriveToday, todayMacros, refreshPlanCompletion, type TodayDerived, type TodaySession, type TodayMeal } from '@/lib/health-today';
+import { deriveToday, todayMacros, refreshPlanCompletion, weekStrip, type TodayDerived, type TodaySession, type TodayMeal } from '@/lib/health-today';
 import type { HealthProfile, HealthDailyPlan, HealthDailyLog, RecipeCard } from '@/lib/health-types';
 import { CataloguePicker } from './CataloguePicker';
+import { WeekStrip, ViewingBanner } from './WeekStrip';
+import { LibraryThumb } from './LibraryThumb';
+import { useLibraryImages } from '@/lib/use-library-images';
 
 export function TodayView({ token }: { token?: string | null }) {
   useLocale();
-  const today = todayIso();
+  // The day being VIEWED, which is usually today but need not be. This was a
+  // plain const, so there was no way to reach yesterday and a meal you forgot
+  // to tick was simply lost. Every read and write below keys off it.
+  const [today, setToday] = useState(() => todayIso());
+  const isToday = today === todayIso();
   const [profile] = useState<HealthProfile | null>(() => loadProfile());
   const [plan, setPlan] = useState<HealthDailyPlan>(() => loadDay(today));
+
+  // Switching day reloads that day's log. Without this the new date renders
+  // yesterday's entries, which is a worse bug than the one being fixed.
+  useEffect(() => { setPlan(loadDay(today)); }, [today]);
   const [briefBusy, setBriefBusy] = useState(false);
   const [briefErr, setBriefErr] = useState<string | null>(null);
   const [openMeal, setOpenMeal] = useState<TodayMeal | null>(null);
@@ -144,6 +155,7 @@ export function TodayView({ token }: { token?: string | null }) {
   // Joined at read time from the active plan + today's logs. Recomputed when
   // the day changes so ticking a meal updates the section immediately.
   const derived = useMemo(() => deriveToday(today), [today, plan]);
+  const strip = useMemo(() => weekStrip(today), [today, plan]);
 
   const readiness = useMemo(() => computeReadiness(profile, plan), [profile, plan]);
   const nutrition = useMemo(() => computeNutrition(profile, plan), [profile, plan]);
@@ -151,9 +163,20 @@ export function TodayView({ token }: { token?: string | null }) {
 
   return (
     <div className="flex-1 overflow-y-auto">
+      {/* Sticky, because it is navigation — scrolling down to log dinner should
+          not lose the way back to the day you were correcting. */}
+      <div className="sticky top-0 z-10 bg-ava-bg/95 backdrop-blur">
+        <WeekStrip days={strip} selected={today} onSelect={setToday} />
+        {!isToday && <ViewingBanner date={today} onToday={() => setToday(todayIso())} />}
+      </div>
+
       <div className="max-w-3xl mx-auto w-full px-4 py-5 pb-28">
-        <div className="text-[11px] uppercase tracking-wider text-gray-500">{longDate()}</div>
-        <h1 className="mt-1 text-xl font-light text-white">{greeting()}.</h1>
+        {/* On today the long date and greeting are right; on another day they
+            would be a lie, and the banner above already says where you are. */}
+        {isToday && <>
+          <div className="text-[11px] uppercase tracking-wider text-gray-500">{longDate()}</div>
+          <h1 className="mt-1 text-xl font-light text-white">{greeting()}.</h1>
+        </>}
 
         {profileEmpty && (
           <div className="mt-5 rounded-lg border border-ava-purple/30 bg-ava-purple/5 px-4 py-3 text-[12px] text-gray-300">
@@ -168,13 +191,19 @@ export function TodayView({ token }: { token?: string | null }) {
             ? <p className="text-[15px] leading-relaxed text-white font-light">{plan.morning_brief}</p>
             : <p className="rounded-lg border border-ava-border px-4 py-4 text-[12px] text-gray-500 italic">{t('todayNoBriefEmpty')}</p>}
           {briefErr && <p className="mt-2 text-[12px] text-red-300">{briefErr}</p>}
-          <button
-            onClick={generateBrief}
-            disabled={briefBusy || profileEmpty}
-            className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-1.5 text-[12px] text-ava-purple-light hover:bg-ava-purple/20 transition disabled:opacity-40"
-          >
-            {briefBusy ? t('todayBriefGeneratingButton') : plan.morning_brief ? t('todayBriefRewriteButton') : t('todayBriefCreateButton')}
-          </button>
+          {/* A morning brief for a day that has already happened is neither
+              useful nor free — it costs a credit to tell someone what to expect
+              from last Tuesday. Logging back is the point of viewing a past day;
+              generating is not. */}
+          {isToday && (
+            <button
+              onClick={generateBrief}
+              disabled={briefBusy || profileEmpty}
+              className="mt-3 rounded-full border border-ava-purple/40 bg-ava-purple/10 px-4 py-1.5 text-[12px] text-ava-purple-light hover:bg-ava-purple/20 transition disabled:opacity-40"
+            >
+              {briefBusy ? t('todayBriefGeneratingButton') : plan.morning_brief ? t('todayBriefRewriteButton') : t('todayBriefCreateButton')}
+            </button>
+          )}
         </section>
 
         {/* Today's plan — derived from the active plan, never copied into the
@@ -336,6 +365,13 @@ function kindLabel(kind: TodaySession['kind']): string {
 
 function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOpenMeal: (m: TodayMeal) => void }) {
   const macros = useMemo(() => todayMacros(derived), [derived]);
+  // One request for everything on the screen. This is the surface people open
+  // every morning and it was rendering a workout and a day's food as two lists
+  // of plain text, while 182 verified demonstration photographs sat unused.
+  const images = useLibraryImages(
+    derived.sessions.flatMap(s => s.exercises.map(e => e.ref?.slug)),
+    derived.meals.map(m => m.planned.ref?.slug),
+  );
   return (
     <section className="mt-7">
       <h2 className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">{t('todayPlanLabel')}</h2>
@@ -354,8 +390,9 @@ function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOp
           {s.exercises.length > 0 ? (
             <ul className="mt-3 space-y-1.5">
               {s.exercises.map(ex => (
-                <li key={ex.id} className="flex items-baseline justify-between gap-3 text-[12px]">
-                  <span className="truncate text-gray-200">{ex.name}</span>
+                <li key={ex.id} className="flex items-center gap-2.5 text-[12px]">
+                  <LibraryThumb src={images.exercise(ex.ref?.slug)} kind="exercise" alt={ex.name} />
+                  <span className="flex-1 min-w-0 truncate text-gray-200">{ex.name}</span>
                   <span className="shrink-0 font-mono text-[10px] text-gray-500">
                     {[ex.sets ? `${ex.sets}×${ex.reps ?? ''}` : ex.reps, ex.weight].filter(Boolean).join(' · ')}
                   </span>
@@ -363,7 +400,19 @@ function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOp
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-[12px] italic text-gray-500">{t('todayPlanRestHint')}</p>
+            /* A rest day is a prescription, not an absence. Rendered as a
+               positive statement with its own mark, because a blank card reads
+               as "the plan forgot about today" and quietly invites people to
+               train through the day that was meant to let them adapt. */
+            <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-sky-500/20 bg-sky-500/5 px-3 py-2.5">
+              <svg className="w-4 h-4 shrink-0 text-sky-300/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+              </svg>
+              <div className="min-w-0">
+                <div className="text-[12px] text-sky-100/90">{t('todayRestDayTitle')}</div>
+                <div className="text-[11px] text-gray-400 leading-snug">{t('todayPlanRestHint')}</div>
+              </div>
+            </div>
           )}
 
           {s.notes && <p className="mt-2.5 text-[11px] leading-relaxed text-gray-400">{s.notes}</p>}
@@ -382,8 +431,13 @@ function TodayPlanSection({ derived, onOpenMeal }: { derived: TodayDerived; onOp
           <ul className="mt-2.5 space-y-1.5">
             {derived.meals.map(m => (
               <li key={m.planned.id}>
-                <button onClick={() => onOpenMeal(m)} className="flex w-full items-baseline justify-between gap-3 text-left text-[12px]">
-                <span className="min-w-0 truncate">
+                <button onClick={() => onOpenMeal(m)} className="flex w-full items-center gap-2.5 text-left text-[12px]">
+                {/* Dimmed once dealt with, so the eye goes to what is still to
+                    come without the row disappearing. */}
+                <span className={m.status === 'pending' ? '' : 'opacity-45'}>
+                  <LibraryThumb src={images.recipe(m.planned.ref?.slug)} kind="recipe" alt={m.planned.name} />
+                </span>
+                <span className="flex-1 min-w-0 truncate">
                   <span className="font-mono text-[10px] text-gray-500">{(m.planned.slot ?? '').slice(0, 2)}</span>{' '}
                   <span className={m.status === 'pending' ? 'text-gray-200' : 'text-gray-400 line-through'}>{m.planned.name}</span>
                 </span>

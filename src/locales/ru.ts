@@ -382,6 +382,12 @@ export const ruStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'По этому плану ничего не записано, поэтому он повторяется точно так же. В следующий раз зафиксируйте свои подходы, и повторение продвинет вас дальше на основе того, что вы реально сделали.',
   'repeatSheetCancel': 'Отмена',
   'repeatSheetStart': 'Начать',
+  'weekStripBackToToday': 'Вернуться к сегодняшнему дню',
+  'plansCardDayWord': 'день',
+  'plansCardKept': 'соблюдено',
+  'plansCardToday': 'Сегодня:',
+  'todayRestDayTitle': 'День отдыха',
+  'planBuilderRestDayHint': 'Сегодня по плану нет тренировок. Переключите этот день на «Тренировка» выше, если хотите добавить.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

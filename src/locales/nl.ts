@@ -382,6 +382,12 @@ export const nlStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Er is niets geregistreerd voor dit plan, dus deze wordt exact zo herhaald. Noteer je sets de volgende keer en de herhaling zal je verder brengen dan wat je daadwerkelijk deed.',
   'repeatSheetCancel': 'Annuleren',
   'repeatSheetStart': 'Start het',
+  'weekStripBackToToday': 'Terug naar vandaag',
+  'plansCardDayWord': 'dag',
+  'plansCardKept': 'nagekomen',
+  'plansCardToday': 'Vandaag:',
+  'todayRestDayTitle': 'Rustdag',
+  'planBuilderRestDayHint': 'Vandaag is er geen training ingepland. Schakel deze dag hierboven om naar Training als je toch wilt trainen.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

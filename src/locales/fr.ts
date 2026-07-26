@@ -382,6 +382,12 @@ export const frStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Rien n\'a été noté pour ce plan, donc il se répète exactement comme avant. Notez vos séries la prochaine fois et la répétition vous fera avancer par rapport à ce que vous avez réellement fait.',
   'repeatSheetCancel': 'Annuler',
   'repeatSheetStart': 'Démarrer',
+  'weekStripBackToToday': 'Retour à aujourd\'hui',
+  'plansCardDayWord': 'jour',
+  'plansCardKept': 'respectés',
+  'plansCardToday': 'Aujourd\'hui:',
+  'todayRestDayTitle': 'Jour de repos',
+  'planBuilderRestDayHint': 'Aucun entraînement prévu aujourd\'hui par conception. Modifiez ce jour en Entraînement ci-dessus si vous souhaitez en ajouter.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Impossible de charger — touchez pour réessayer.',

@@ -382,6 +382,12 @@ export const deStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Für diesen Plan wurden keine Einträge protokolliert, daher wird er exakt so wiederholt. Erfasse beim nächsten Mal deine Sätze, und die Wiederholung setzt dort an, wo du tatsächlich geblieben bist.',
   'repeatSheetCancel': 'Abbrechen',
   'repeatSheetStart': 'Starten',
+  'weekStripBackToToday': 'Zurück zu heute',
+  'plansCardDayWord': 'Tag',
+  'plansCardKept': 'Eingehalten',
+  'plansCardToday': 'Heute:',
+  'todayRestDayTitle': 'Ruhetag',
+  'planBuilderRestDayHint': 'Heute ist bewusst kein Training eingeplant. Wechseln Sie diesen Tag oben auf Training, falls Sie doch etwas hinzufügen möchten.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

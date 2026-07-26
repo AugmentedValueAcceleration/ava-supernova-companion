@@ -382,6 +382,12 @@ export const ptStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Nada foi registrado para este plano, então ele se repete exatamente como era. Registre suas séries da próxima vez e a repetição o fará progredir com base no que você realmente fez.',
   'repeatSheetCancel': 'Cancelar',
   'repeatSheetStart': 'Iniciar',
+  'weekStripBackToToday': 'Voltar para hoje',
+  'plansCardDayWord': 'dia',
+  'plansCardKept': 'mantidos',
+  'plansCardToday': 'Hoje:',
+  'todayRestDayTitle': 'Dia de descanso',
+  'planBuilderRestDayHint': 'Sem treino hoje por planejamento. Mude este dia para Treino acima se quiser adicionar algum.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Não foi possível carregar — toque para tentar novamente.',

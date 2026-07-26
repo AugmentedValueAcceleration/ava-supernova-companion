@@ -18,6 +18,7 @@ import { PlanBuilder } from './PlanBuilder';
 import { todayIso } from '@/lib/health-day-store';
 import { listSessions } from '@/lib/gym-session-store';
 import { progressPlan, summarise } from '@/lib/health-plan-progression';
+import { planCardState } from '@/lib/health-today';
 import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
@@ -208,6 +209,62 @@ function RepeatSheet({ result, onConfirm, onCancel }: {
   );
 }
 
+/**
+ * The line under a plan's title.
+ *
+ * It used to read "type · duration · tap to build", which describes AUTHORING —
+ * something you do once — rather than DOING, which is what you come back for
+ * every day. So a library of live programmes read like a folder of documents.
+ *
+ * A plan that has started says where you are in it and how it is going; one
+ * that has not still says what it is, because that is genuinely all there is to
+ * say about a draft.
+ */
+function PlanCardLine({ plan }: { plan: HealthPlanSummary }) {
+  const state = useMemo(() => {
+    const full = getPlan(plan.id);
+    return full ? planCardState(full) : null;
+  }, [plan.id, plan.updated_at]);
+
+  const base = `${plan.type} · ${durationLabel(plan.duration_days)}`;
+
+  if (!state || state.dayIndex == null) {
+    return <div className="text-[11px] text-gray-500 mt-0.5 capitalize">{base} · {t('plansProgramsTapToBuild')}</div>;
+  }
+
+  const pct = state.adherence == null ? null : Math.round(state.adherence * 100);
+
+  return (
+    <div className="mt-0.5">
+      <div className="text-[11px] text-gray-500 capitalize">
+        {base} · {t('plansCardDayWord')} {state.dayIndex}/{state.duration}
+      </div>
+      <div className="mt-1 flex items-center gap-2">
+        {/* A thin bar rather than a number alone — "day 3 of 7" is a position,
+            and a position is easier to feel than to read. */}
+        <div className="h-1 flex-1 rounded-full bg-ava-bg overflow-hidden">
+          <div
+            className="h-full rounded-full bg-ava-purple/70"
+            style={{ width: `${Math.min(100, (state.dayIndex / Math.max(1, state.duration)) * 100)}%` }}
+          />
+        </div>
+        {pct != null && (
+          <span className={`text-[10px] tabular-nums shrink-0 ${
+            pct >= 80 ? 'text-emerald-300/80' : pct >= 50 ? 'text-gray-400' : 'text-amber-300/80'
+          }`}>
+            {pct}% {t('plansCardKept')}
+          </span>
+        )}
+      </div>
+      {state.today && (
+        <div className="mt-1 text-[11px] text-gray-400 capitalize truncate">
+          {t('plansCardToday')} {state.today}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TabBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} className={`-mb-px border-b-2 px-4 py-2 text-xs transition ${active ? 'border-ava-purple text-ava-purple-light font-semibold' : 'border-transparent text-gray-400'}`}>
@@ -234,9 +291,9 @@ function Programs({ plans, onActivate, onRepeat, onDelete, onNew, onOpen }: {
       {plans.map(p => (
         <div key={p.id} className="rounded-xl border border-ava-border bg-ava-surface p-4">
           <button onClick={() => onOpen(p.id)} className="flex items-start justify-between gap-3 w-full text-left">
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-white text-sm font-medium truncate">{p.title}</div>
-              <div className="text-[11px] text-gray-500 mt-0.5 capitalize">{p.type} · {durationLabel(p.duration_days)} · {t('plansProgramsTapToBuild')}</div>
+              <PlanCardLine plan={p} />
             </div>
             <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] capitalize ${STATUS_CLS[p.status]}`}>{statusLabel(p.status)}</span>
           </button>

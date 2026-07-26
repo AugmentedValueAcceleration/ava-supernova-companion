@@ -382,6 +382,12 @@ export const ukStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Щодо цього плану нічого не було записано, тому він повторюється точно так, як і раніше. Запишіть свої підходи наступного разу, і повторення просуне вас далі від того, що ви фактично виконали.',
   'repeatSheetCancel': 'Скасувати',
   'repeatSheetStart': 'Почати',
+  'weekStripBackToToday': 'На сьогодні',
+  'plansCardDayWord': 'день',
+  'plansCardKept': 'Виконано',
+  'plansCardToday': 'Сьогодні:',
+  'todayRestDayTitle': 'День відпочинку',
+  'planBuilderRestDayHint': 'Сьогодні тренувань не заплановано. Якщо хочете додати, перемкніть цей день на «Тренування» вище.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',

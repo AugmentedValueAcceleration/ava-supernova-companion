@@ -240,3 +240,167 @@ export function todayMacros(derived: TodayDerived): {
   }
   return { planned, actual };
 }
+
+// ─── The week strip ─────────────────────────────────────────────────────────
+//
+// Today was hardcoded to today. There was no way to look at yesterday, which
+// meant a dinner you forgot to tick was simply lost — closer to a bug than to
+// missing polish, because the whole product rests on the log meaning something.
+//
+// This is the data behind the fix: a short run of days around an anchor, each
+// with enough state to draw a dot. Deliberately CHEAP — it reads each day's
+// stored roll-up rather than deriving the full day, because drawing fourteen
+// days must not cost fourteen full joins.
+//
+// The month grid stays in Plans. These are two different jobs: the strip is
+// immediate context and a way to reach back a day; the grid is overview and
+// placement, which is a management task.
+
+export type StripState =
+  | 'none'      // nothing planned, nothing logged — an ordinary rest day off-plan
+  | 'pending'   // planned, still to come (or today, not finished yet)
+  | 'partial'   // some of it done
+  | 'done'      // finished
+  | 'missed'    // planned, the day has passed, nothing recorded
+  | 'logged';   // nothing planned, but something was logged — that still counts
+
+export interface StripDay {
+  date: string;
+  /** 0 = the anchor, negative = past, positive = future. */
+  offset: number;
+  isToday: boolean;
+  isFuture: boolean;
+  /** The active plan's day kind, when a plan covers this date. */
+  kind: HealthPlanDay['kind'] | null;
+  state: StripState;
+}
+
+/** UTC-anchored day arithmetic, matching planDayIndexFor — dividing local
+ *  milliseconds by a day drifts across a DST boundary. */
+function shiftIso(iso: string, days: number): string {
+  const base = Date.parse(`${iso}T00:00:00Z`);
+  if (Number.isNaN(base)) return iso;
+  return new Date(base + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * The days either side of `anchor`, for the strip.
+ *
+ * Defaults look backwards further than forwards on purpose: the strip's main
+ * job is reaching a day you missed, and there is nothing to log in the future.
+ */
+export function weekStrip(anchor: string, opts: { back?: number; forward?: number } = {}): StripDay[] {
+  const back = opts.back ?? 4;
+  const forward = opts.forward ?? 2;
+  const today = new Date().toISOString().slice(0, 10);
+  const plans = getAllPlans().filter(p => p.status === 'active');
+  const out: StripDay[] = [];
+
+  for (let offset = -back; offset <= forward; offset++) {
+    const date = shiftIso(anchor, offset);
+    const isFuture = date > today;
+
+    // Which active plan covers this date, and what it asks for.
+    let kind: HealthPlanDay['kind'] | null = null;
+    let planned = false;
+    let training: string | null = null;
+    let nutrition: string | null = null;
+    for (const plan of plans) {
+      const idx = planDayIndexFor(plan, date);
+      if (idx == null) continue;
+      const day = plan.days.find(d => d.day_index === idx);
+      if (!day) continue;
+      planned = true;
+      // A training day wins the label over a rest day when two plans overlap —
+      // "you train today" is the more useful thing to show.
+      if (kind == null || (kind !== 'training' && day.kind === 'training')) kind = day.kind;
+      if (day.completion?.training) training = day.completion.training;
+      if (day.completion?.nutrition) nutrition = day.completion.nutrition;
+    }
+
+    const marks = [training, nutrition].filter(Boolean) as string[];
+    const anyDone = marks.some(m => m === 'done');
+    const allDone = marks.length > 0 && marks.every(m => m === 'done');
+
+    let state: StripState;
+    if (planned) {
+      if (allDone) state = 'done';
+      else if (anyDone) state = 'partial';
+      else if (isFuture || date === today) state = 'pending';
+      else state = kind === 'rest' ? 'none' : 'missed';
+    } else {
+      // No plan — but a logged meal or a freestyle session still deserves a dot.
+      const day = loadDay(date);
+      const loggedSomething =
+        (day.log.meals?.length ?? 0) > 0 ||
+        listSessionsForDate(date).some(s => s.status === 'completed');
+      state = loggedSomething ? 'logged' : 'none';
+    }
+
+    out.push({ date, offset, isToday: date === today, isFuture, kind, state });
+  }
+  return out;
+}
+
+// ─── What a plan card should say ────────────────────────────────────────────
+//
+// The card's subtitle read "type · duration · tap to build". That describes
+// AUTHORING, which is what you do once, rather than DOING, which is what you do
+// every day — so the library of plans looked like a folder of documents rather
+// than a programme you are part-way through.
+//
+// Everything here is derived from the completion roll-ups already stored on the
+// plan, so drawing a card costs nothing beyond reading it.
+
+export interface PlanCardState {
+  /** Which day of the plan today is, when it is active and has started. */
+  dayIndex: number | null;
+  duration: number;
+  /** Days recorded as done. */
+  daysDone: number;
+  /** Days that have passed, asked for something, and recorded nothing. */
+  daysMissed: number;
+  /**
+   * Done as a share of the days that have actually ELAPSED — never of the whole
+   * plan. Judging someone on day two against a fourteen-day plan reports 93%
+   * failure for a person who has done everything asked of them so far.
+   * Null until at least one day has passed.
+   */
+  adherence: number | null;
+  /** Today's session title or day kind, when there is one. */
+  today: string | null;
+}
+
+export function planCardState(plan: HealthPlan, todayDate?: string): PlanCardState {
+  const today = todayDate ?? new Date().toISOString().slice(0, 10);
+  const dayIndex = planDayIndexFor(plan, today);
+
+  let daysDone = 0;
+  let daysMissed = 0;
+  let elapsed = 0;
+
+  for (const day of plan.days) {
+    // A day is elapsed if the plan has started and this day's date has passed.
+    const before = dayIndex != null && day.day_index < dayIndex;
+    const marks = [day.completion?.training, day.completion?.nutrition].filter(Boolean) as string[];
+    const done = marks.length > 0 && marks.every(m => m === 'done');
+
+    if (done) daysDone++;
+    if (before) {
+      elapsed++;
+      // A rest day asks for nothing, so it cannot be missed.
+      if (!done && day.kind !== 'rest') daysMissed++;
+    }
+  }
+
+  const current = dayIndex != null ? plan.days.find(d => d.day_index === dayIndex) ?? null : null;
+
+  return {
+    dayIndex,
+    duration: plan.duration_days,
+    daysDone,
+    daysMissed,
+    adherence: elapsed > 0 ? Math.max(0, (elapsed - daysMissed) / elapsed) : null,
+    today: current ? (current.title || current.kind) : null,
+  };
+}

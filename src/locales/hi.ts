@@ -382,6 +382,12 @@ export const hiStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'इस योजना के लिए कुछ भी लॉग नहीं किया गया है, इसलिए यह ठीक वैसा ही दोहराया जाता है। अगली बार अपने सेट्स लॉग करें; तब दोहराव आपको वास्तव में किए गए कार्य के आधार पर आगे बढ़ाएगा।',
   'repeatSheetCancel': 'रद्द करें',
   'repeatSheetStart': 'शुरू करें',
+  'weekStripBackToToday': 'आज पर लौटें',
+  'plansCardDayWord': 'दिन',
+  'plansCardKept': 'पालित',
+  'plansCardToday': 'आज:',
+  'todayRestDayTitle': 'विश्राम दिन',
+  'planBuilderRestDayHint': 'आज कोई प्रशिक्षण नहीं है, यह योजना के अनुसार है। यदि आप कुछ जोड़ना चाहते हैं, तो इस दिन को ऊपर \'प्रशिक्षण\' में बदलें।',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

@@ -382,6 +382,12 @@ export const esStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'No se registró nada para este plan, así que se repite exactamente igual. Registra tus series la próxima vez y la repetición te hará avanzar desde lo que realmente hiciste.',
   'repeatSheetCancel': 'Cancelar',
   'repeatSheetStart': 'Iniciarla',
+  'weekStripBackToToday': 'Volver a hoy',
+  'plansCardDayWord': 'día',
+  'plansCardKept': 'cumplido',
+  'plansCardToday': 'Hoy:',
+  'todayRestDayTitle': 'Día de descanso',
+  'planBuilderRestDayHint': 'No hay entrenamiento hoy por diseño. Cambia este día a Entrenamiento arriba si quieres agregar alguno.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'No se pudo cargar — toca para reintentar.',

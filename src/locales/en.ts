@@ -482,6 +482,18 @@ export const enStrings = {
   'repeatSheetCancel': 'Cancel',
   'repeatSheetStart': 'Start it',
 
+  // ── Week strip ────────────────────────────────────────────────────────
+  // Today used to be hardcoded to today, so a meal you forgot to tick was lost.
+  'weekStripBackToToday': 'Back to today',
+  // Plan cards say where you are in a programme, not "tap to build".
+  'plansCardDayWord': 'day',
+  'plansCardKept': 'kept',
+  'plansCardToday': 'Today:',
+  // A rest day is a prescription, not an absence — a blank card reads as
+  // "the plan forgot about today" and invites training through it.
+  'todayRestDayTitle': 'Rest day',
+  'planBuilderRestDayHint': 'No training today by design. Switch this day to Training above if you want to add some.',
+
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",
   'catalogWorkoutsTitle': 'Workouts',

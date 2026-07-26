@@ -382,6 +382,12 @@ export const viStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Không có dữ liệu nào được ghi lại cho kế hoạch này, nên nó sẽ lặp lại y hệt như cũ. Lần sau hãy ghi lại các set, và việc lặp lại sẽ giúp bạn tiến bộ hơn những gì bạn thực sự đã làm.',
   'repeatSheetCancel': 'Hủy',
   'repeatSheetStart': 'Bắt đầu',
+  'weekStripBackToToday': 'Quay lại hôm nay',
+  'plansCardDayWord': 'ngày',
+  'plansCardKept': 'đã thực hiện',
+  'plansCardToday': 'Hôm nay:',
+  'todayRestDayTitle': 'Ngày nghỉ',
+  'planBuilderRestDayHint': 'Hôm nay không có tập luyện theo thiết kế. Chuyển ngày này thành Tập luyện ở trên nếu bạn muốn thêm.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

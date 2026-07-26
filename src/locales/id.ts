@@ -382,6 +382,12 @@ export const idStrings: Record<StringKey, string> = {
   'repeatSheetNoEvidence': 'Tidak ada yang dicatat untuk rencana ini, jadi diulang persis seperti sebelumnya. Catat set Anda berikutnya dan pengulangan akan memajukan Anda dari apa yang sebenarnya Anda lakukan.',
   'repeatSheetCancel': 'Batal',
   'repeatSheetStart': 'Mulai',
+  'weekStripBackToToday': 'Kembali ke hari ini',
+  'plansCardDayWord': 'hari',
+  'plansCardKept': 'terpenuhi',
+  'plansCardToday': 'Hari ini:',
+  'todayRestDayTitle': 'Hari Istirahat',
+  'planBuilderRestDayHint': 'Tidak ada latihan hari ini sesuai rencana. Ubah hari ini menjadi Latihan di atas jika Anda ingin menambahkannya.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',
