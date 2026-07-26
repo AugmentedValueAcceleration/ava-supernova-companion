@@ -359,6 +359,28 @@ export const enStrings = {
   'plansCreateButton': 'Create plan',
 
   // ── Plan Builder ──────────────────────────────────────────────────────
+  // Shopping list — a meal plan you cannot shop for is only a suggestion.
+  'shoppingListTitle': 'Shopping list',
+  'shoppingListLooking': 'Looking up what these meals need…',
+  'shoppingListNoMeals': 'No meals in this plan yet.',
+  'shoppingListWeek': 'Week',
+  'shoppingListMeals': 'meals',
+  'shoppingListHideOptional': 'Hide optional',
+  'shoppingListReset': 'Start again',
+  'shoppingListIncomplete': 'Ingredients could not be found for these meals, so the list is short by whatever they need:',
+  'shoppingListToTaste': 'to taste',
+  'shoppingListOptional': 'optional',
+  'shoppingAisleProduce': 'Fruit & veg',
+  'shoppingAisleMeatFish': 'Meat & fish',
+  'shoppingAisleDairyEggs': 'Dairy & eggs',
+  'shoppingAisleBakery': 'Bakery',
+  'shoppingAisleCupboard': 'Store cupboard',
+  'shoppingAisleSpices': 'Herbs & spices',
+  'shoppingAisleTinsJars': 'Tins, jars & sauces',
+  'shoppingAisleOilsVinegars': 'Oils & vinegars',
+  'shoppingAisleFrozen': 'Frozen',
+  'shoppingAisleOther': 'Anything else',
+
   'planBuilderBackTitle': 'Plan',
   'planBuilderNotFound': 'Plan not found.',
   'planBuilderWeekLabel': 'Week',

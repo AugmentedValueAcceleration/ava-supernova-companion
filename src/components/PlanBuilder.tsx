@@ -30,6 +30,7 @@ import { CataloguePicker } from './CataloguePicker';
 import { SwapSheet } from './SwapSheet';
 import { DuplicateSheet } from './DuplicateSheet';
 import { AssistSheet } from './AssistSheet';
+import { ShoppingListSheet } from './ShoppingListSheet';
 import { LibraryThumb } from './LibraryThumb';
 import { ExerciseDetailView, RecipeDetailView } from './CatalogDetail';
 import { useLibraryImages } from '@/lib/use-library-images';
@@ -84,6 +85,10 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   const [viewing, setViewing] = useState<null | { kind: 'exercise' | 'recipe'; slug: string }>(null);
   const [duplicating, setDuplicating] = useState(false);
   const [assisting, setAssisting] = useState(false);
+  // The plan's whole point, for anyone following the food half of it: what to
+  // buy. Offered from the plan rather than from a day, because you shop for a
+  // week and cook for a day.
+  const [shopping, setShopping] = useState(false);
 
   // The profile is what every check is measured against. Kept live so editing
   // an injury on the profile tab updates the warnings here without a reload.
@@ -186,7 +191,25 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto w-full pb-28">
-        <BackBar onBack={onBack} title={plan.title} subtitle={`${plan.type} · ${plan.duration_days <= 1 ? '1 day' : `${Math.round(plan.duration_days / 7)} weeks`}`} />
+        <BackBar
+          onBack={onBack}
+          title={plan.title}
+          subtitle={`${plan.type} · ${plan.duration_days <= 1 ? '1 day' : `${Math.round(plan.duration_days / 7)} weeks`}`}
+          // Only when there is food to shop for. A training-only plan has no
+          // use for it and an empty button is a dead end.
+          action={plan.days.some(d => d.meals.length > 0) ? (
+            <button
+              onClick={() => setShopping(true)}
+              aria-label={t('shoppingListTitle')}
+              className="flex items-center gap-1.5 rounded-full border border-ava-border px-3 py-1.5 text-[11px] text-gray-300 active:scale-95"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12A1.125 1.125 0 0 1 19.75 21.75H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+              </svg>
+              {t('shoppingListTitle')}
+            </button>
+          ) : undefined}
+        />
 
         {/* Day navigator */}
         <div className="px-4 py-3 border-b border-ava-border">
@@ -372,6 +395,17 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
         />
       )}
 
+      {shopping && (
+        <ShoppingListSheet
+          plan={plan}
+          // The sheet fills in ingredients the plan never captured and saves
+          // them; take the filled copy so this screen is not left holding the
+          // version without them.
+          onPlanFilled={setPlanState}
+          onClose={() => setShopping(false)}
+        />
+      )}
+
       {assisting && day && (
         <AssistSheet
           plan={plan}
@@ -393,7 +427,9 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   );
 }
 
-function BackBar({ onBack, title, subtitle }: { onBack: () => void; title: string; subtitle?: string }) {
+function BackBar({ onBack, title, subtitle, action }: {
+  onBack: () => void; title: string; subtitle?: string; action?: React.ReactNode;
+}) {
   return (
     <div className="sticky top-0 z-10 bg-ava-bg/95 backdrop-blur border-b border-ava-border px-4 py-3 flex items-center gap-3">
       <button onClick={onBack} className="text-gray-300 hover:text-white"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg></button>
@@ -401,6 +437,7 @@ function BackBar({ onBack, title, subtitle }: { onBack: () => void; title: strin
         <div className="text-white text-sm font-medium truncate">{title}</div>
         {subtitle && <div className="text-[11px] text-gray-500 capitalize">{subtitle}</div>}
       </div>
+      {action && <div className="ml-auto shrink-0">{action}</div>}
     </div>
   );
 }

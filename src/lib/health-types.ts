@@ -32,6 +32,16 @@ export interface PlanExerciseMeta {
   contraindications?: ExerciseContraindication[] | null;
 }
 
+/** One ingredient line as the recipe wrote it, for the recipe's OWN default
+ *  servings. Stored unscaled on purpose: the plan's servings can change, and a
+ *  number derived at read time can never go stale the way a copied one can. */
+export interface PlanIngredient {
+  name: string;
+  quantity: number | null;
+  unit: string | null;
+  optional?: boolean;
+}
+
 export interface PlanMealMeta {
   /** main / side / breakfast / dessert / … — what the dish IS. Needed so a
    *  swap can offer a dinner in place of a dinner; without it the ranker has
@@ -48,6 +58,10 @@ export interface PlanMealMeta {
   dietary_flags?: string[] | null;
   diets?: string[] | null;
   allergens?: string[] | null;
+  /** The lines this meal needs, already narrowed to its skill level. Captured
+   *  at add time so a shopping list works in a shop with no signal — the same
+   *  reason sets and macros are captured rather than fetched. */
+  ingredients?: PlanIngredient[] | null;
 }
 
 export interface HealthPlanExercise {

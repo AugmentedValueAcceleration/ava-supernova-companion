@@ -107,6 +107,12 @@ export const healthCatalogApi = {
   // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
   // for the recipe filter dropdowns. Public.
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
+  // Ingredient lines for a set of recipes, in one request. Used to fill in
+  // plans made before ingredients were captured, and plans generated on the
+  // server, which only ever carried a slug. Written back onto the plan rows so
+  // the shopping list works in a shop with no signal.
+  ingredients: (recipes: string[]) =>
+    apiFetch(`/health/ingredients?recipes=${encodeURIComponent(recipes.join(','))}`).then(r => r.json()),
   // Pictures for a set of library slugs, in one request. A plan row carries a
   // ref, not an image; asking per row would be thirty requests to draw a week.
   images: (exercises: string[], recipes: string[]) => {

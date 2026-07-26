@@ -28,6 +28,7 @@ import { checkExercise, checkRecipe, type ExerciseCheck } from './health-safety'
 import { computeTargets, checkDayAgainstTargets, type HealthTargets } from './health-targets';
 import { checkWeekBalance, checkSessionOrder, type BalanceFinding, type BalanceDay } from './health-balance';
 import { checkCooking, cookingHint, dayTypeFor, type CookingCheck } from './health-cooking';
+import { ingredientsForLevel } from './health-shopping-list';
 
 // ── 1. Capture ──────────────────────────────────────────────────────────────
 
@@ -114,6 +115,10 @@ export function planMealFrom(
     dietary_flags: v?.dietary_flags ?? null,
     diets: v?.diets ?? null,
     allergens: detail.allergens ?? null,
+    // Narrowed to this version here rather than at read time: once the meal is
+    // in the plan the level is settled, and a shopping list should never have
+    // to reason about which of three skill levels the cook picked.
+    ingredients: ingredientsForLevel(detail.ingredients ?? [], v?.level ?? null),
   };
 
   return {
