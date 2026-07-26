@@ -434,9 +434,12 @@ export const arStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'المكتبة لا تحتوي على معلومات حوله:',
   'generateEditableHint': 'لا شيء ثابت — يمكنك التبديل بأي شيء، أو طلب من Ava تغيير يوم، بمجرد حفظه.',
   'generateAgain': 'حاول مرة أخرى',
-  'generateKeep': 'احتفظ بها',
   'plansEmptyStateHint': 'اطلب من Ava إنشاء واحدة، أو أنشئها بنفسك — كلاهما في الأعلى.',
   'mealSheetViewRecipe': 'عرض الوصفة',
+  'generateStartToday': 'ابدأها اليوم',
+  'generateSaveDraft': 'حفظ لاحقاً',
+  'planBuilderRecoverySection': 'حركة خفيفة',
+  'planBuilderRecoveryHint': 'يوم خفيف متعمد — مرونة، مشي، وتمدد بسيط. حافظ على الخفة؛ فهذا ما يجعل الأيام الصعبة ممكنة.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'تعذّر التحميل — انقر لإعادة المحاولة.',

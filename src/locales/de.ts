@@ -434,9 +434,12 @@ export const deStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'Die Bibliothek enthält keine Informationen dazu:',
   'generateEditableHint': 'Nichts ist festgelegt – tausche alles aus oder bitte Ava, einen Tag zu ändern, sobald er gespeichert ist.',
   'generateAgain': 'Nochmal versuchen',
-  'generateKeep': 'Behalten',
   'plansEmptyStateHint': 'Bitte Ava, einen zu erstellen, oder erstelle deinen eigenen – beides ganz oben.',
   'mealSheetViewRecipe': 'Rezept anzeigen',
+  'generateStartToday': 'Heute starten',
+  'generateSaveDraft': 'Für später speichern',
+  'planBuilderRecoverySection': 'Leichte Bewegung',
+  'planBuilderRecoveryHint': 'Ein bewusst leichter Tag – Mobilität, ein Spaziergang, etwas Dehnen. Behalte es locker; denn das macht die harten Tage erst möglich.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Konnte nicht laden — tippe zum Wiederholen.',

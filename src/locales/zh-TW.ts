@@ -434,9 +434,12 @@ export const zhTWStrings: Record<StringKey, string> = {
   'generateUnverifiable': '資源庫中無相關資訊：',
   'generateEditableHint': '內容並非固定 — 保存後可替換任何項目，或請 Ava 調整某一天。',
   'generateAgain': '再試一次',
-  'generateKeep': '保留',
   'plansEmptyStateHint': '請 Ava 幫你撰寫一份，或自行建立——兩者皆在上方。',
   'mealSheetViewRecipe': '查看食譜',
+  'generateStartToday': '今天就開始',
+  'generateSaveDraft': '稍後再存',
+  'planBuilderRecoverySection': '輕鬆活動',
+  'planBuilderRecoveryHint': '刻意安排一個輕鬆日——活動度、散步、伸展。保持輕鬆；這正是讓艱難日子得以順利的關鍵。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '無法載入 — 點擊重試。',

@@ -434,9 +434,12 @@ export const hiStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'लाइब्रेरी में इसके बारे में कोई जानकारी नहीं है:',
   'generateEditableHint': 'कुछ भी निश्चित नहीं है — किसी भी चीज़ को बदलें, या Ava से एक दिन बदलने के लिए कहें, एक बार सहेजने के बाद।',
   'generateAgain': 'फिर से कोशिश करें',
-  'generateKeep': 'इसे रखें',
   'plansEmptyStateHint': 'Ava से एक लिखने को कहें, या खुद बनाएं — दोनों ऊपर हैं।',
   'mealSheetViewRecipe': 'रेसिपी देखें',
+  'generateStartToday': 'आज ही शुरू करें',
+  'generateSaveDraft': 'बाद के लिए सहेजें',
+  'planBuilderRecoverySection': 'हल्की गतिविधि',
+  'planBuilderRecoveryHint': 'एक जानबूझकर आसान दिन — मोबिलिटी, टहलना, कुछ स्ट्रेचिंग। इसे हल्का रखें; यही कठिन दिनों को संभव बनाता है।',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'लोड नहीं हो सका — फिर से प्रयास करने के लिए टैप करें।',

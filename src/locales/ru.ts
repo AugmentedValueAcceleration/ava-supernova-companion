@@ -434,9 +434,12 @@ export const ruStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'В библиотеке нет информации ни по одному, ни по другому варианту:',
   'generateEditableHint': 'Ничего не зафиксировано — меняйте что угодно или попросите Ava изменить день после сохранения.',
   'generateAgain': 'Попробовать снова',
-  'generateKeep': 'Сохранить',
   'plansEmptyStateHint': 'Попросите Ava написать план или создайте свой — оба варианта сверху.',
   'mealSheetViewRecipe': 'Посмотреть рецепт',
+  'generateStartToday': 'Начать сегодня',
+  'generateSaveDraft': 'Сохранить на потом',
+  'planBuilderRecoverySection': 'Лёгкая активность',
+  'planBuilderRecoveryHint': 'Сознательно лёгкий день — мобильность, прогулка, немного растяжки. Держите всё легко; именно это и позволяет справляться с тяжёлыми днями.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не удалось загрузить — нажмите, чтобы повторить.',

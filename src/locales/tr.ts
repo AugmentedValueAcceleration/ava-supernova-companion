@@ -434,9 +434,12 @@ export const trStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'Kütüphane hakkında kesin bilgi yok:',
   'generateEditableHint': 'Hiçbir şey sabit değil — kaydedildikten sonra her şeyi değiştirebilir veya Ava\'dan bir günü değiştirmesini isteyebilirsiniz.',
   'generateAgain': 'Tekrar Dene',
-  'generateKeep': 'Böyle Kalsın',
   'plansEmptyStateHint': 'Ava\'dan birini yazmasını isteyin ya da kendiniz oluşturun — her ikisi de yukarıda.',
   'mealSheetViewRecipe': 'Tarifi Gör',
+  'generateStartToday': 'Bugün Başla',
+  'generateSaveDraft': 'Daha Sonra Kaydet',
+  'planBuilderRecoverySection': 'Hafif Hareket',
+  'planBuilderRecoveryHint': 'Bilinçli bir hafif gün — mobilite, yürüyüş, biraz esneme. Hafif tut; işte zor günlerin de işe yaramasını sağlayan budur.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Yüklenemedi — tekrar denemek için dokun.',

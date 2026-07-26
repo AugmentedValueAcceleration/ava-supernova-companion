@@ -555,6 +555,10 @@ export function progressDays(
     ...plan,
     days: plan.days.map(day => {
       if (!targets.has(day.day_index)) return day;
+      // An active-recovery day exists to be EASY. Adding a set to it is not
+      // progression, it is quietly turning the recovery day into a session —
+      // which is exactly the mistake the day was scheduled to prevent.
+      if (day.kind !== 'training') return day;
       return {
         ...day,
         training: day.training.map(ex => {

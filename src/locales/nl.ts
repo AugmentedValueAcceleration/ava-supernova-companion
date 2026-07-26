@@ -434,9 +434,12 @@ export const nlStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'De bibliotheek bevat geen informatie hierover:',
   'generateEditableHint': 'Niets is vast — wissel alles om, of vraag Ava om een dag aan te passen, zodra het is opgeslagen.',
   'generateAgain': 'Probeer opnieuw',
-  'generateKeep': 'Bewaren',
   'plansEmptyStateHint': 'Vraag Ava om er een te maken, of maak je eigen — beide vind je bovenin.',
   'mealSheetViewRecipe': 'Bekijk recept',
+  'generateStartToday': 'Start het vandaag',
+  'generateSaveDraft': 'Opslaan voor later',
+  'planBuilderRecoverySection': 'Lichte beweging',
+  'planBuilderRecoveryHint': 'Een bewuste lichte dag — mobiliteit, een wandeling, wat rekken. Houd het licht; dat is wat de zware dagen mogelijk maakt.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Kon niet laden — tik om opnieuw te proberen.',

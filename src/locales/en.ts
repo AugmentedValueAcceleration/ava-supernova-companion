@@ -547,13 +547,20 @@ export const enStrings = {
   'generateUnverifiable': 'The library holds no information either way on:',
   'generateEditableHint': 'Nothing is fixed — swap anything, or ask Ava to change a day, once it is saved.',
   'generateAgain': 'Try again',
-  'generateKeep': 'Keep it',
   // The empty state points AT the two doors above rather than carrying a third
   // button that silently meant "manual".
   'plansEmptyStateHint': 'Ask Ava to write one, or build your own — both up top.',
   // A plan row names a thing and prescribes numbers. The technique guide and
   // the recipe were sitting behind the slug the row already carried.
   'mealSheetViewRecipe': 'View recipe',
+  // Only an ACTIVE plan gets a date, and only a dated plan appears on the
+  // calendar or in Today. Saving a draft silently made the plan unfindable.
+  'generateStartToday': 'Start it today',
+  'generateSaveDraft': 'Save for later',
+  // Active recovery is not a lighter training day — it is a deliberate day of
+  // easy movement, and the builder was rendering it identically to training.
+  'planBuilderRecoverySection': 'Easy movement',
+  'planBuilderRecoveryHint': 'A deliberate easy day — mobility, a walk, some stretching. Keep it light; that is what makes the hard days work.',
 
   // ── Catalogue (browse + detail) ───────────────────────────────────────
   'catalogBrowseLoadError': "Couldn't load — tap to retry.",

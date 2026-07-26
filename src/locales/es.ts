@@ -434,9 +434,12 @@ export const esStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'La biblioteca no tiene información al respecto sobre:',
   'generateEditableHint': 'Nada es definitivo — cambia lo que quieras, o pídele a Ava que cambie un día, una vez guardado.',
   'generateAgain': 'Intentar de nuevo',
-  'generateKeep': 'Mantenerlo',
   'plansEmptyStateHint': 'Pídele a Ava que escriba una, o crea la tuya propia — ambas arriba.',
   'mealSheetViewRecipe': 'Ver receta',
+  'generateStartToday': 'Comenzar hoy',
+  'generateSaveDraft': 'Guardar para más tarde',
+  'planBuilderRecoverySection': 'Movimiento ligero',
+  'planBuilderRecoveryHint': 'Un día fácil intencional — movilidad, una caminata, algunos estiramientos. Manténgalo ligero; eso es lo que hace que los días difíciles funcionen.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'No se pudo cargar — toca para reintentar.',

@@ -434,9 +434,12 @@ export const thStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'คลังข้อมูลไม่มีข้อมูลยืนยันเกี่ยวกับ:',
   'generateEditableHint': 'ทุกอย่างปรับแก้ได้ — สลับอะไรก็ได้ หรือขอให้อาวาเปลี่ยนวัน เมื่อบันทึกแล้ว',
   'generateAgain': 'ลองอีกครั้ง',
-  'generateKeep': 'เก็บไว้',
   'plansEmptyStateHint': 'ให้ Ava ช่วยเขียนให้ หรือสร้างเองก็ได้ — ทั้งสองอย่างอยู่ด้านบน',
   'mealSheetViewRecipe': 'ดูสูตร',
+  'generateStartToday': 'เริ่มต้นวันนี้',
+  'generateSaveDraft': 'บันทึกเก็บไว้ทีหลัง',
+  'planBuilderRecoverySection': 'การเคลื่อนไหวเบาๆ',
+  'planBuilderRecoveryHint': 'วันที่ตั้งใจพักเบาลง — ความคล่องตัว การเดิน และการยืดเหยียดสักนิด ทำเบาๆ เข้าไว้ เพราะนั่นแหละคือสิ่งที่ทำให้วันที่หนักหน่วงผ่านไปได้',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'โหลดไม่ได้ — แตะเพื่อลองอีกครั้ง',

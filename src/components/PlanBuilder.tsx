@@ -257,8 +257,25 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               </div>
             )}
 
+            {/* Active recovery is NOT a lighter training day, and the builder
+                treated it as one — same heading, same section, nothing to tell
+                them apart but the word on the button. It is a deliberate day of
+                easy movement: mobility, a walk, stretching. Saying so is the
+                difference between a recovery day someone respects and one they
+                quietly turn into another session. */}
+            {day.kind === 'active_recovery' && (
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5 text-[11px] text-gray-400 leading-snug">
+                <span className="text-emerald-100/90">{t('planBuilderRecoveryKind')}</span>{' — '}
+                {t('planBuilderRecoveryHint')}
+              </div>
+            )}
+
             {showsTraining && day.kind !== 'rest' && (
-              <Group title={t('planBuilderTrainingSection')} onAdd={() => setPicker('exercise')} busy={adding}>
+              <Group
+                title={day.kind === 'active_recovery' ? t('planBuilderRecoverySection') : t('planBuilderTrainingSection')}
+                onAdd={() => setPicker('exercise')}
+                busy={adding}
+              >
                 {day.training.length === 0
                   ? <Empty>{t('planBuilderNoExercises')}</Empty>
                   // Grouped by the job each exercise does — warm up, the hard

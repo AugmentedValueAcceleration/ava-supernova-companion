@@ -434,9 +434,12 @@ export const viStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'Thư viện không có thông tin xác nhận về:',
   'generateEditableHint': 'Không có gì là cố định — hãy hoán đổi bất cứ thứ gì, hoặc yêu cầu Ava thay đổi một ngày sau khi đã lưu.',
   'generateAgain': 'Thử lại',
-  'generateKeep': 'Giữ lại',
   'plansEmptyStateHint': 'Nhờ Ava viết một bản, hoặc tự tạo — cả hai đều ở phía trên.',
   'mealSheetViewRecipe': 'Xem công thức',
+  'generateStartToday': 'Bắt đầu ngay hôm nay',
+  'generateSaveDraft': 'Lưu để sau',
+  'planBuilderRecoverySection': 'Vận động nhẹ nhàng',
+  'planBuilderRecoveryHint': 'Một ngày nhẹ nhàng có chủ đích — vận động khớp, đi bộ, vài động tác giãn cơ. Hãy giữ cường độ nhẹ; đó chính là điều giúp bạn vượt qua những ngày khó khăn.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Không tải được — chạm để thử lại.',

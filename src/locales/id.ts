@@ -434,9 +434,12 @@ export const idStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'Perpustakaan tidak memiliki informasi mengenai:',
   'generateEditableHint': 'Tidak ada yang kaku — tukar apa saja, atau minta Ava mengubah satu hari setelah disimpan.',
   'generateAgain': 'Coba Lagi',
-  'generateKeep': 'Simpan',
   'plansEmptyStateHint': 'Minta Ava membuatnya, atau buat sendiri — keduanya ada di atas.',
   'mealSheetViewRecipe': 'Lihat resep',
+  'generateStartToday': 'Mulai hari ini',
+  'generateSaveDraft': 'Simpan untuk nanti',
+  'planBuilderRecoverySection': 'Gerakan Ringan',
+  'planBuilderRecoveryHint': 'Hari santai yang disengaja — mobilitas, jalan kaki, beberapa peregangan. Jaga tetap ringan; itulah yang membuat hari-hari berat berhasil.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Tidak bisa memuat — ketuk untuk coba lagi.',

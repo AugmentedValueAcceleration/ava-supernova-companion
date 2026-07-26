@@ -434,9 +434,12 @@ export const koStrings: Record<StringKey, string> = {
   'generateUnverifiable': '라이브러리에 관련 정보가 없습니다:',
   'generateEditableHint': '고정된 내용은 없어요 — 저장 후 아무거나 바꾸거나, Ava 에게 하루를 변경해 달라고 요청할 수 있어요.',
   'generateAgain': '다시 시도',
-  'generateKeep': '이대로 유지',
   'plansEmptyStateHint': 'Ava 에게 작성해 달라고 하거나 직접 만들어 보세요 — 위쪽에 모두 있습니다.',
   'mealSheetViewRecipe': '레시피 보기',
+  'generateStartToday': '오늘 시작하기',
+  'generateSaveDraft': '나중에 저장',
+  'planBuilderRecoverySection': '가벼운 움직임',
+  'planBuilderRecoveryHint': '의도적으로 가볍게 보내는 하루 — 모빌리티, 산책, 스트레칭. 가볍게 진행하세요. 그것이 바로 힘든 날들을 견딜 수 있게 해주는 비결입니다.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '불러오지 못했습니다 — 탭하여 다시 시도하세요.',

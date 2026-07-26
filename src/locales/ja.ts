@@ -434,9 +434,12 @@ export const jaStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'ライブラリには以下の情報がないため判断できません：',
   'generateEditableHint': '内容は固定されていません — 保存後なら、何でも交換したり、Ava に日付の変更を依頼したりできます',
   'generateAgain': 'もう一度試す',
-  'generateKeep': 'このままにする',
   'plansEmptyStateHint': 'Ava に作成を依頼するか、ご自身で作成するか — どちらも上部にあります。',
   'mealSheetViewRecipe': 'レシピを見る',
+  'generateStartToday': '今日から始める',
+  'generateSaveDraft': '後で保存',
+  'planBuilderRecoverySection': '軽い運動',
+  'planBuilderRecoveryHint': '意図的に軽い日に——モビリティ、散歩、ストレッチ。軽く過ごすことが、ハードな日をこなす秘訣です。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '読み込めませんでした — タップして再試行。',

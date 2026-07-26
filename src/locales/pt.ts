@@ -434,9 +434,12 @@ export const ptStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'A biblioteca não possui informações sobre:',
   'generateEditableHint': 'Nada é fixo — troque qualquer coisa, ou peça à Ava para mudar um dia, depois de salvo.',
   'generateAgain': 'Tentar novamente',
-  'generateKeep': 'Manter',
   'plansEmptyStateHint': 'Peça à Ava para criar um, ou crie o seu próprio — ambos no topo.',
   'mealSheetViewRecipe': 'Ver receita',
+  'generateStartToday': 'Comece hoje',
+  'generateSaveDraft': 'Salvar para depois',
+  'planBuilderRecoverySection': 'Movimento Leve',
+  'planBuilderRecoveryHint': 'Um dia leve e intencional — mobilidade, uma caminhada, um pouco de alongamento. Mantenha-o leve; é isso que faz os dias difíceis funcionarem.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Não foi possível carregar — toque para tentar novamente.',

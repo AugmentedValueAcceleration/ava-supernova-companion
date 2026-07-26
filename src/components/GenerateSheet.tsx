@@ -102,7 +102,16 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
     }
   };
 
-  const accept = () => {
+  /**
+   * Keep it — and say whether it starts.
+   *
+   * This used to save a draft unconditionally, and a draft has no start date.
+   * Nothing without a date can appear on the calendar or in Today, so a plan
+   * Ava had just written was invisible everywhere except the Programs list —
+   * you got a plan and then could not find it. The choice has to be made here,
+   * because it is the only moment anyone is thinking about it.
+   */
+  const accept = (start: boolean) => {
     if (!result) return;
     onAccept({
       schema_version: 3,
@@ -111,7 +120,9 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
       title: result.title,
       goal: result.goal,
       source: 'ava',
-      status: 'draft',
+      // savePlan stamps today's date on anything activated without one, and
+      // archives any other active plan of the same type.
+      status: start ? 'active' : 'draft',
       duration_days: result.duration_days,
       start_date: null,
       profile_snapshot: null,
@@ -182,10 +193,17 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
         // outline next to a solid purple slab, which read as "the real button
         // and the one you probably don't want" — and rejecting a plan Ava got
         // wrong is a legitimate, equal choice.
+        // Starting it is the primary action, because a plan you cannot find is
+        // not a plan — and only an ACTIVE plan gets a date, which is what puts
+        // it on the calendar and in Today. Saving it for later is right there
+        // and quiet.
         footer={
-          <div className="flex gap-2">
-            <div className="flex-1"><SheetCancel label={t('generateAgain')} onClick={() => { setResult(null); setPhase('setup'); }} /></div>
-            <div className="flex-1"><SheetConfirm label={t('generateKeep')} onClick={accept} /></div>
+          <div className="space-y-2">
+            <SheetConfirm label={t('generateStartToday')} onClick={() => accept(true)} />
+            <div className="flex gap-2">
+              <div className="flex-1"><SheetCancel label={t('generateAgain')} onClick={() => { setResult(null); setPhase('setup'); }} /></div>
+              <div className="flex-1"><SheetCancel label={t('generateSaveDraft')} onClick={() => accept(false)} /></div>
+            </div>
           </div>
         }
       >

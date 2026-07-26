@@ -434,9 +434,12 @@ export const ukStrings: Record<StringKey, string> = {
   'generateUnverifiable': 'Бібліотека не містить жодної інформації щодо:',
   'generateEditableHint': 'Нічого не фіксовано — міняйте будь-що або попросіть Ava змінити день після збереження.',
   'generateAgain': 'Спробувати ще раз',
-  'generateKeep': 'Зберегти',
   'plansEmptyStateHint': 'Попросіть Ava написати один, або створіть власний — обидва зверху.',
   'mealSheetViewRecipe': 'Переглянути рецепт',
+  'generateStartToday': 'Розпочати сьогодні',
+  'generateSaveDraft': 'Зберегти на потім',
+  'planBuilderRecoverySection': 'Легкий рух',
+  'planBuilderRecoveryHint': 'Свідомо легкий день — мобільність, прогулянка, трохи розтяжки. Залишайте все легким; саме це допомагає впоратися з важкими днями.',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': 'Не вдалося завантажити — торкніться, щоб повторити.',

@@ -434,9 +434,12 @@ export const zhCNStrings: Record<StringKey, string> = {
   'generateUnverifiable': '库中对此暂无信息：',
   'generateEditableHint': '内容并非固定 — 保存后，可交换任意内容，或让 Ava 修改某一天。',
   'generateAgain': '重试',
-  'generateKeep': '保留',
   'plansEmptyStateHint': '请 Ava 生成一个，或自己创建——两者都在顶部。',
   'mealSheetViewRecipe': '查看食谱',
+  'generateStartToday': '今天开始',
+  'generateSaveDraft': '稍后保存',
+  'planBuilderRecoverySection': '轻松活动',
+  'planBuilderRecoveryHint': '刻意安排的轻松日——活动关节、散步、拉伸。保持轻松；这才是让艰苦日子能够坚持下去的关键。',
 
   // Catalogue (browse + detail)
   'catalogBrowseLoadError': '无法加载 — 点击重试。',
