@@ -15,7 +15,7 @@
 //   3. It is honest about the wait. This takes the better part of a minute, so
 //      the screen says so rather than showing a spinner and hoping.
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { healthAssistApi } from '@/lib/api';
 import { normaliseHealthProfile } from '@/lib/health-types';
@@ -48,6 +48,14 @@ export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [proposal, setProposal] = useState<Proposal | null>(null);
+
+  // A reload mid-generation loses paid-for work as surely as a dismiss does.
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [busy]);
 
   const type = plan.type === 'combined' ? 'combined' : plan.type === 'meal' ? 'meal' : 'fitness';
   const prompts = PROMPTS.filter(p => p.forType.includes(type));
@@ -84,17 +92,23 @@ export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
+    // Same rule as whole-plan generation: this call is CHARGED and server-side,
+    // so dismissing it mid-flight does not cancel anything — it only throws away
+    // what was already paid for. While it runs the backdrop, the grab handle and
+    // the close button all go.
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={busy ? undefined : onClose}>
       <div className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[88vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">
-          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />
-          <div className="flex items-baseline justify-between gap-3">
+          {!busy && <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />}
+          <div className={`flex items-baseline justify-between gap-3 ${busy ? 'mt-1' : ''}`}>
             <div>
               <div className="text-[10px] uppercase tracking-wider text-gray-500">{t('assistTitle')}</div>
               <div className="text-white text-sm font-medium">{t('assistDayWord')} {day.day_index}</div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">{t('assistClose')}</button>
+            {!busy && (
+              <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">{t('assistClose')}</button>
+            )}
           </div>
         </div>
 

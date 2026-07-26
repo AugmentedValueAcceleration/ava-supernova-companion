@@ -149,19 +149,25 @@ export function SwapSheet({ plan, kind, row, dayIndex, profile, onApply, onClose
   const multi = occurrences.length > 1;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
+    // Not charged, but a swap in flight is still a WRITE to the plan: it
+    // fetches the replacement then rewrites every selected occurrence.
+    // Dismissing between those two leaves you unsure whether the change landed,
+    // which is its own small harm.
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={applying ? undefined : onClose}>
       <div
         className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[85vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">
-          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />
-          <div className="flex items-baseline justify-between gap-3">
+          {!applying && <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />}
+          <div className={`flex items-baseline justify-between gap-3 ${applying ? 'mt-1' : ''}`}>
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-wider text-gray-500">{t('swapSheetTitle')}</div>
               <div className="text-white text-sm font-medium truncate">{row.name}</div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-white text-sm shrink-0">{t('swapSheetCancel')}</button>
+            {!applying && (
+              <button onClick={onClose} className="text-gray-500 hover:text-white text-sm shrink-0">{t('swapSheetCancel')}</button>
+            )}
           </div>
         </div>
 

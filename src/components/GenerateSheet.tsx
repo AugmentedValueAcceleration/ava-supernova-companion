@@ -125,7 +125,9 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
   // ── Working ───────────────────────────────────────────────────────────────
   if (phase === 'working') {
     return (
-      <BottomSheet title={t('generateWorkingTitle')} onClose={() => { /* not interruptible */ }}>
+      // busy: generation is charged and server-side, so dismissing does not
+      // cancel it — it only loses what was paid for.
+      <BottomSheet title={t('generateWorkingTitle')} busy onClose={() => { /* not dismissible */ }}>
         <div className="py-8 text-center">
           {/* Her face, not a generic sparkle. This is the one moment in the
               flow where Ava is doing the work, and a stock icon makes it feel

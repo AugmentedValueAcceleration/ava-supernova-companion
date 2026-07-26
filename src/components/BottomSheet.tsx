@@ -16,17 +16,30 @@
 import { useEffect, useRef } from 'react';
 import { Button } from './Button';
 
-export function BottomSheet({ title, subtitle, onClose, children, footer }: {
+export function BottomSheet({ title, subtitle, onClose, children, footer, busy = false }: {
   title: string;
   subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  /**
+   * Work is in flight that cannot be taken back.
+   *
+   * Generation is charged and server-side: dismissing halfway through does not
+   * cancel it, it just loses the thing that was paid for. So while it runs the
+   * sheet genuinely cannot be dismissed — and, just as importantly, stops
+   * LOOKING dismissible. Passing a no-op onClose is not enough: the drag handle
+   * still invites a swipe and the backdrop still invites a tap, and a control
+   * that silently does nothing reads as broken rather than as deliberate.
+   */
+  busy?: boolean;
 }) {
   const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    // Escape must not close it mid-flight either — it is the fastest way to
+    // throw away a plan you have just paid for.
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !busy) onClose(); };
     window.addEventListener('keydown', onKey);
 
     // Focus the first field so the keyboard opens on the thing you came to
@@ -45,18 +58,32 @@ export function BottomSheet({ title, subtitle, onClose, children, footer }: {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
     };
-  }, [onClose]);
+  }, [onClose, busy]);
+
+  // A reload or a back-swipe mid-generation loses paid-for work just as surely
+  // as a dismiss does. The browser shows its own wording; all we can do is ask.
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [busy]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60"
+      onClick={busy ? undefined : onClose}
+    >
       <div
         ref={panel}
         onClick={e => e.stopPropagation()}
         className="bg-ava-bg border-t border-ava-border rounded-t-2xl max-h-[85vh] flex flex-col"
       >
         <div className="shrink-0 px-4 pt-3 pb-2 border-b border-ava-border">
-          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />
-          <div className="text-white text-sm font-medium">{title}</div>
+          {/* No grab handle while busy — it is the affordance that says
+              "swipe me away", and it must not say that when it is not true. */}
+          {!busy && <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ava-border" />}
+          <div className={`text-white text-sm font-medium ${busy ? 'mt-1' : ''}`}>{title}</div>
           {subtitle && <div className="text-[11px] text-gray-500 mt-0.5">{subtitle}</div>}
         </div>
 
