@@ -2,17 +2,31 @@
 
 // ─── Health Profile (Phase 3) ───────────────────────────────────────────────
 //
-// The body stats / goal / sleep target the Today dashboard plans around.
-// Local-first, synced across surfaces via health-profile-store. Constraint
-// fields (allergens, dietary, equipment) round-trip but aren't edited here yet
-// — they need the taxonomy pickers (a later refinement).
+// Everything generation actually plans against: body, goal, sleep, kitchen,
+// training and constraints. Local-first, synced across surfaces via
+// health-profile-store.
+//
+// Constraints, training and kitchen used to round-trip without an editor —
+// they existed on the type, synced, and fed the server's pool filtering, but
+// there was nowhere to type them in. So they were always null, and everything
+// downstream quietly assumed one person, unlimited evenings and no allergies.
+// A companion-only user got the least safe version of the health features,
+// because the extension was the only place those fields could be set.
+//
+// Allergens, diets, injuries and kit come from the library's own taxonomies,
+// so the words stored here are the same words the pool filters on.
+//
+// Still missing, deliberately: baseline lifts and weight history (both are
+// repeating sub-forms, not fields) and cost_tier.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { t, useLocale } from '@/lib/i18n';
 import { loadProfile, saveProfile, syncProfile } from '@/lib/health-profile-store';
 import { CustomSelect } from './CustomSelect';
 import { DateField } from './DateField';
-import { emptyHealthProfile, type HealthProfile, type HealthGoal } from '@/lib/health-types';
+import { healthCatalogApi } from '@/lib/api';
+import { emptyHealthProfile, type HealthProfile, type HealthGoal, type CookingLevel, type TrainingExperience, type Weekday } from '@/lib/health-types';
+import type { StringKey } from '@/locales/en';
 
 function goalLabel(g: HealthGoal): string {
   switch (g) {
@@ -55,7 +69,52 @@ export function ProfileView({ token }: { token?: string | null }) {
   const setSleep = (patch: Partial<HealthProfile['schedule']['sleep_target']>) =>
     setProfile(p => ({ ...p, schedule: { ...p.schedule, sleep_target: { ...p.schedule.sleep_target, ...patch } } }));
 
+  // The sections that actually drive generation. Optional on the type because
+  // core, the extension and the IDE predate them, so every setter fills in a
+  // whole object rather than patching one that may not be there.
+  const setConstraints = (patch: Partial<HealthProfile['constraints']>) =>
+    setProfile(p => ({ ...p, constraints: { ...p.constraints, ...patch } }));
+  const setTraining = (patch: Partial<NonNullable<HealthProfile['training']>>) =>
+    setProfile(p => ({
+      ...p,
+      training: {
+        experience: null, days_per_week: null, training_days: [], baseline_lifts: [],
+        ...(p.training ?? {}), ...patch,
+      },
+    }));
+  const setKitchen = (patch: Partial<NonNullable<HealthProfile['kitchen']>>) =>
+    setProfile(p => ({
+      ...p,
+      kitchen: {
+        level: null, minutes_weekday: null, minutes_weekend: null,
+        household_size: null, cost_tier: null,
+        ...(p.kitchen ?? {}), ...patch,
+      },
+    }));
+
   const num = (v: string): number | null => { const n = Number(v); return v.trim() && Number.isFinite(n) ? n : null; };
+
+  // Allergens, diets, injuries and kit come from the library's own taxonomies
+  // rather than a hard-coded list, so the words a profile stores are the same
+  // words the pool filters on. Failure is silent: the rest of the profile
+  // still edits, those pickers simply have nothing to offer.
+  const [tax, setTax] = useState<Taxonomies>({ allergens: [], diets: [], contraindications: [], equipment: [] });
+  useEffect(() => {
+    let live = true;
+    healthCatalogApi.taxonomies()
+      .then((r: Partial<Taxonomies>) => {
+        if (!live) return;
+        setTax({
+          allergens: r.allergens ?? [], diets: r.diets ?? [],
+          contraindications: r.contraindications ?? [], equipment: r.equipment ?? [],
+        });
+      })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
+
+  const toggle = (list: string[], value: string): string[] =>
+    list.includes(value) ? list.filter(v => v !== value) : [...list, value];
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -116,10 +175,194 @@ export function ProfileView({ token }: { token?: string | null }) {
             </div>
           </Section>
 
+          {/* ── Kitchen ───────────────────────────────────────────────────
+              Household size drives servings and therefore every quantity on a
+              shopping list; the two time budgets are what decides whether a
+              Tuesday is over its head. All of it existed on the type, was
+              synced, and fed generation — with nowhere to type it in, so it
+              was always null and everything downstream quietly assumed one
+              person with unlimited evenings. */}
+          <Section title={t('profileKitchenSection')}>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={t('profileHouseholdLabel')}>
+                <CustomSelect
+                  value={profile.kitchen?.household_size != null ? String(profile.kitchen.household_size) : ''}
+                  onChange={v => setKitchen({ household_size: v ? Number(v) : null })}
+                  options={[{ value: '', label: '—' }, ...[1, 2, 3, 4, 5, 6, 7, 8].map(n => ({ value: String(n), label: String(n) }))]}
+                />
+              </Field>
+              <Field label={t('profileCookingLevelLabel')}>
+                <CustomSelect
+                  value={profile.kitchen?.level ?? ''}
+                  onChange={v => setKitchen({ level: (v || null) as CookingLevel | null })}
+                  options={[
+                    { value: '', label: '—' },
+                    { value: 'beginner', label: t('profileLevelBeginner') },
+                    { value: 'intermediate', label: t('profileLevelIntermediate') },
+                    { value: 'expert', label: t('profileLevelExpert') },
+                  ]}
+                />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={t('profileMinutesWeekdayLabel')}>
+                <input inputMode="numeric" value={profile.kitchen?.minutes_weekday ?? ''}
+                  onChange={e => setKitchen({ minutes_weekday: num(e.target.value) })}
+                  placeholder="20" className={inputCls} />
+              </Field>
+              <Field label={t('profileMinutesWeekendLabel')}>
+                <input inputMode="numeric" value={profile.kitchen?.minutes_weekend ?? ''}
+                  onChange={e => setKitchen({ minutes_weekend: num(e.target.value) })}
+                  placeholder="60" className={inputCls} />
+              </Field>
+            </div>
+          </Section>
+
+          {/* ── Training ──────────────────────────────────────────────────
+              Which days, not just how many: there was a training window per
+              day but nothing saying Mon/Wed/Fri, and you cannot shape a week
+              without it. */}
+          <Section title={t('profileTrainingSection')}>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={t('profileExperienceLabel')}>
+                <CustomSelect
+                  value={profile.training?.experience ?? ''}
+                  onChange={v => setTraining({ experience: (v || null) as TrainingExperience | null })}
+                  options={[
+                    { value: '', label: '—' },
+                    { value: 'beginner', label: t('profileLevelBeginner') },
+                    { value: 'intermediate', label: t('profileLevelIntermediate') },
+                    { value: 'advanced', label: t('profileLevelAdvanced') },
+                  ]}
+                />
+              </Field>
+              <Field label={t('profileDaysPerWeekLabel')}>
+                <CustomSelect
+                  value={profile.training?.days_per_week != null ? String(profile.training.days_per_week) : ''}
+                  onChange={v => setTraining({ days_per_week: v ? Number(v) : null })}
+                  options={[{ value: '', label: '—' }, ...[1, 2, 3, 4, 5, 6, 7].map(n => ({ value: String(n), label: String(n) }))]}
+                />
+              </Field>
+            </div>
+            <Field label={t('profileTrainingDaysLabel')}>
+              <div className="flex gap-1.5">
+                {WEEKDAYS.map(d => {
+                  const on = (profile.training?.training_days ?? []).includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setTraining({ training_days: toggle(profile.training?.training_days ?? [], d) as Weekday[] })}
+                      className={`flex-1 rounded-lg border py-2 text-[11px] capitalize transition ${
+                        on ? 'border-ava-purple bg-ava-purple/10 text-ava-purple-light' : 'border-ava-border text-gray-400'
+                      }`}
+                    >
+                      {t(`profileDay_${d}` as StringKey)}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
+          </Section>
+
+          {/* ── Constraints ───────────────────────────────────────────────
+              The safety half. An allergen here removes recipes from the pool
+              server-side, so it never reaches a plan — which is why this can
+              never have been a text box. Empty means "not specified", never
+              "none", so nothing is filtered on a blank. */}
+          <Section title={t('profileConstraintsSection')}>
+            <ChipField
+              label={t('profileAllergensLabel')}
+              hint={t('profileAllergensHint')}
+              options={tax.allergens.map(a => ({ value: a.slug, label: a.name }))}
+              selected={profile.constraints.allergens ?? []}
+              onToggle={v => setConstraints({ allergens: toggle(profile.constraints.allergens ?? [], v) })}
+            />
+            <ChipField
+              label={t('profileDietsLabel')}
+              options={tax.diets.map(d => ({ value: d.slug, label: d.name }))}
+              selected={profile.constraints.dietary ?? []}
+              onToggle={v => setConstraints({ dietary: toggle(profile.constraints.dietary ?? [], v) })}
+            />
+            <ChipField
+              label={t('profileInjuriesLabel')}
+              hint={t('profileInjuriesHint')}
+              options={tax.contraindications.map(c => ({ value: c.slug, label: c.name }))}
+              selected={profile.constraints.injuries ?? []}
+              onToggle={v => setConstraints({ injuries: toggle(profile.constraints.injuries ?? [], v) })}
+            />
+            <ChipField
+              label={t('profileEquipmentLabel')}
+              hint={t('profileEquipmentHint')}
+              // Stored by NAME, not slug: the exercise check compares the
+              // profile against each exercise's equipment names. Storing a
+              // slug here would silently match nothing.
+              options={tax.equipment.map(e => ({ value: e.name, label: e.name }))}
+              selected={profile.constraints.equipment_available ?? []}
+              onToggle={v => setConstraints({ equipment_available: toggle(profile.constraints.equipment_available ?? [], v) })}
+            />
+          </Section>
+
           <button onClick={save} className="w-full rounded-full bg-ava-purple py-3 text-sm font-semibold text-white hover:bg-ava-purple-dark transition">
             {saved ? t('profileSaveButtonSaved') : t('profileSaveButtonDefault')}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface TaxItem { slug: string; name: string }
+interface Taxonomies {
+  allergens: TaxItem[];
+  diets: TaxItem[];
+  contraindications: TaxItem[];
+  equipment: TaxItem[];
+}
+
+const WEEKDAYS: Weekday[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+/**
+ * A set of things you pick several of.
+ *
+ * Chips rather than a multi-select, because on a phone the whole point is
+ * seeing what is already on without opening anything — and because an allergen
+ * you cannot see you have selected is an allergen you cannot trust.
+ *
+ * Renders nothing when the library gave us no options: an empty box labelled
+ * "Allergens" reads as "you have none", which is the opposite of the truth.
+ */
+function ChipField({ label, hint, options, selected, onToggle }: {
+  label: string;
+  hint?: string;
+  options: { value: string; label: string }[];
+  selected: string[];
+  onToggle: (value: string) => void;
+}) {
+  if (!options.length) return null;
+  return (
+    <div>
+      <span className="block text-xs text-gray-400 mb-1">{label}</span>
+      {hint && <span className="block text-[10px] text-gray-600 mb-1.5">{hint}</span>}
+      <div className="flex flex-wrap gap-1.5">
+        {options.map(o => {
+          const on = selected.includes(o.value);
+          return (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => onToggle(o.value)}
+              aria-pressed={on}
+              className={`rounded-full border px-2.5 py-1 text-[11px] capitalize transition ${
+                on
+                  ? 'border-ava-purple bg-ava-purple/15 text-ava-purple-light'
+                  : 'border-ava-border text-gray-400 active:scale-95'
+              }`}
+            >
+              {o.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

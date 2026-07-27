@@ -38,6 +38,8 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
 
   // Cross-language cognates — identical word in the flagged language(s)
   'prepPortions',                    // portions — the same word in French
+  'profileTrainingSection',          // Training — the word itself in de/nl
+  'profileLevelExpert',              // Expert — the word itself in fr/nl
   'shoppingListWeek',                // Week — "week" is the Dutch word
   'shoppingListOptional',            // optional — "optional" is German too
   'todayTrainingTile',               // Training

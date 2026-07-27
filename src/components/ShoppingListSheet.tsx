@@ -27,6 +27,7 @@ import {
 import { fillMissingIngredientsMany } from '@/lib/health-shopping-fill';
 import { todayIso } from '@/lib/health-day-store';
 import { savePlan } from '@/lib/health-plan-store';
+import { loadProfile } from '@/lib/health-profile-store';
 import { AISLE_ORDER, type Aisle } from '@/lib/health-aisles';
 import type { HealthPlan } from '@/lib/health-types';
 
@@ -126,6 +127,9 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
   const [attempt, setAttempt] = useState(0);
   const [week, setWeek] = useState(0);
   const [hideOptional, setHideOptional] = useState(false);
+  // How many people are eating. Read once — a shop is a moment, and a profile
+  // edited mid-list should not silently rewrite quantities you already ticked.
+  const [household] = useState<number | null>(() => loadProfile()?.kitchen?.household_size ?? null);
 
   // A week's ticks belong to that week, not to a plan: the same onion is a
   // different errand next Tuesday. A plan's ticks stay keyed to the plan, so
@@ -174,8 +178,8 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
   }, [working, week, planWeeks, single, bounds]);
 
   const list = useMemo(
-    () => buildShoppingListAcross(sources, { excludeOptional: hideOptional }),
-    [sources, hideOptional],
+    () => buildShoppingListAcross(sources, { excludeOptional: hideOptional, household }),
+    [sources, hideOptional, household],
   );
 
   const toggle = useCallback((key: string) => {

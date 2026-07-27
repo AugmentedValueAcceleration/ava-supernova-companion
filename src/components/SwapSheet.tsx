@@ -135,7 +135,12 @@ export function SwapSheet({ plan, kind, row, dayIndex, profile, onApply, onClose
         const res = await healthCatalogApi.recipe(picked.slug);
         const detail = res?.recipe as RecipeDetail | undefined;
         if (!detail) throw new Error('no detail');
-        const replacement = planMealFrom(detail, { level: profile?.kitchen?.level ?? null });
+        // A swap inherits the servings already on the row: whoever set it to
+        // two had a reason, and a swap changes the dish, not the appetite.
+        const replacement = planMealFrom(detail, {
+          level: profile?.kitchen?.level ?? null,
+          servings: (row as HealthPlanMeal).servings || undefined,
+        });
         onApply(applyMealSwap(plan, selected, replacement));
       }
       onClose();

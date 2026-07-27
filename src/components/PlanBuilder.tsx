@@ -185,6 +185,11 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
       try {
         const res = await healthCatalogApi.recipe(r.slug);
         const detail = res?.recipe as RecipeDetail | undefined;
+        // Servings is what YOU eat, not what the household cooks: planMealFrom
+        // scales macros by it, so setting it to a household of four would
+        // multiply the day's calories by four against a target meant for one
+        // person. Household belongs to the shopping list, which is the only
+        // place it means "how much food to buy".
         row = detail ? planMealFrom(detail, { level: profile?.kitchen?.level ?? null }) : null;
       } catch { row = null; }
       row ??= planMealFrom({ slug: r.slug, name: r.name, versions: [] } as unknown as RecipeDetail);

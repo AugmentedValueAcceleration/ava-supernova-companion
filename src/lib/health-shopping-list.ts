@@ -150,9 +150,14 @@ function tidy(n: number): number {
   return Math.round(n * 4) / 4;
 }
 
+// Kilos and litres round to a tenth, not to a quarter like everything else:
+// quarter-steps are 250g apart, which turned an honest 1.2 kg into 1.25 kg.
+// A quarter of a clove is sensible; a quarter of a kilo is not.
+const tenth = (n: number) => Math.round(n * 10) / 10;
+
 function renderWeight(grams: number): ShoppingAmount {
   return grams >= 1000
-    ? { qty: tidy(grams / 1000), unit: 'kg' }
+    ? { qty: tenth(grams / 1000), unit: 'kg' }
     : { qty: tidy(grams), unit: 'g' };
 }
 
@@ -164,7 +169,7 @@ function renderWeight(grams: number): ShoppingAmount {
  * which is also how the recipe wrote them.
  */
 function renderVolume(ml: number): ShoppingAmount {
-  if (ml >= 1000) return { qty: tidy(ml / 1000), unit: 'l' };
+  if (ml >= 1000) return { qty: tenth(ml / 1000), unit: 'l' };
   if (ml >= 60) return { qty: tidy(ml), unit: 'ml' };
   // Spoons all the way to 60ml, and teaspoons well past one tablespoon: a
   // total of 20ml is four teaspoons, which is a thing you can measure, where
@@ -245,6 +250,21 @@ export interface ShoppingListOptions {
   /** Leave out lines the recipe marked optional. Off by default: the cook
    *  decides what to skip, not the list. */
   excludeOptional?: boolean;
+  /**
+   * How many people are eating, from the profile.
+   *
+   * This is the ONLY place household size is applied, and it took a wrong turn
+   * to establish that. The obvious move is to default a meal's `servings` to
+   * the household — but `servings` is what YOU eat, and the macros stored on
+   * the row are scaled by it. A household of four would have multiplied every
+   * day's calories by four against a target meant for one person, and every
+   * "under your target" check would have been wrong.
+   *
+   * So the plan stays per-person and the shopping list — the one surface that
+   * genuinely means "how much food to buy" — multiplies at the end. Null or 1
+   * changes nothing, which is exactly what an unset profile should do.
+   */
+  household?: number | null;
 }
 
 /**
@@ -303,7 +323,9 @@ function buildFrom(
         continue;
       }
 
-      const scale = servingScale(meal);
+      // Per-person scaling from the plan, then the household on top. Kept as
+      // one multiplication so no rounding happens between them.
+      const scale = servingScale(meal) * Math.max(1, opts.household ?? 1);
       for (const line of lines) {
         if (opts.excludeOptional && line.optional) continue;
         const key = normaliseIngredientName(line.name);
