@@ -107,6 +107,23 @@ export const healthCatalogApi = {
   // Lookup taxonomies (collections / diets / dietary_flags / cuisines / …)
   // for the recipe filter dropdowns. Public.
   taxonomies: () => apiFetch('/health/taxonomies').then(r => r.json()),
+  // The curated starter shelf — professionally built plans, free to begin.
+  // Public and anon: requiring a login in front of the one feature designed to
+  // prove the product before anyone commits would defeat it.
+  curatedPlans: (p: { goal?: string | null; level?: string | null } = {}) => {
+    const u = new URLSearchParams();
+    if (p.goal) u.set('goal', p.goal);
+    if (p.level) u.set('level', p.level);
+    const q = u.toString();
+    return apiFetch(`/health/curated-plans${q ? `?${q}` : ''}`).then(r => r.json());
+  },
+  curatedPlan: (id: string) =>
+    apiFetch(`/health/curated-plans?id=${encodeURIComponent(id)}`).then(r => r.json()),
+  // Fire-and-forget: the only signal we get about which starters work. Never
+  // allowed to fail a start.
+  curatedPlanStarted: (id: string) =>
+    apiFetch('/health/curated-plans/started', { method: 'POST', body: JSON.stringify({ id }) })
+      .then(r => r.json()).catch(() => ({ ok: false })),
   // Ingredient lines for a set of recipes, in one request. Used to fill in
   // plans made before ingredients were captured, and plans generated on the
   // server, which only ever carried a slug. Written back onto the plan rows so

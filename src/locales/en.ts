@@ -596,6 +596,27 @@ export const enStrings = {
   // ── Two doors: ask Ava, or build it yourself ──────────────────────────
   // There used to be one button, "New", which meant manual — so there was no
   // separation between the two, because there was no visible choice at all.
+  // Starter plans — the cold-start door. Free, professionally built.
+  'startersTitle': 'Starter plans',
+  'startersSubtitle': 'Professionally built. Free to begin.',
+  'startersDoorButton': 'Start from a plan',
+  'startersDoorHint': 'A good week, ready to go — no credits, nothing to build',
+  'startersLoading': 'Loading plans…',
+  'startersFailed': 'Could not reach the plan library. Try again in a moment.',
+  'startersEmpty': 'No starter plans published yet.',
+  'startersStartButton': 'Start this plan',
+  'startersStarting': 'Starting…',
+  'startersSingleSession': 'Single session',
+  'startersOneWeek': '1 week',
+  'startersDays': 'days',
+  'startersDay': 'Day',
+  'startersRest': 'Rest',
+  'startersSessions': 'sessions',
+  'startersRestDays': 'rest days',
+  'startersMinutes': 'min a session',
+  'startersExercises': 'exercises',
+  'startersEquipment': 'What you need',
+
   'plansAskAvaButton': 'Ask Ava',
   'plansBuildOwnButton': 'Build my own',
   'plansAskAvaHint': 'She writes the whole thing',

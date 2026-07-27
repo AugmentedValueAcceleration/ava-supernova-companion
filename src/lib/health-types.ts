@@ -6,7 +6,10 @@
 // with no @ava/core dependency.
 
 export type HealthPlanType = 'fitness' | 'meal' | 'combined';
-export type HealthPlanSource = 'manual' | 'ava';
+/** Where a plan came from. 'curated' is a professionally built starter taken
+ *  from the shelf — a different claim from one Ava wrote for this person, and
+ *  the card should not present them identically. */
+export type HealthPlanSource = 'manual' | 'ava' | 'curated';
 export type HealthPlanStatus = 'draft' | 'active' | 'completed' | 'archived';
 
 /**

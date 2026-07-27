@@ -24,6 +24,7 @@ import { GenerateSheet, Sparkle } from './GenerateSheet';
 import { LibraryThumb } from './LibraryThumb';
 import { useLibraryImages } from '@/lib/use-library-images';
 import { ShoppingListSheet } from './ShoppingListSheet';
+import { StartersSheet } from './StartersSheet';
 import type { ProgressionResult } from '@/lib/health-plan-progression';
 
 const TYPES: [HealthPlanType, string][] = [['fitness', 'Fitness'], ['meal', 'Meal'], ['combined', 'Combined']];
@@ -76,6 +77,8 @@ export function PlansView({ token }: { token?: string | null }) {
   const [repeating, setRepeating] = useState<ProgressionResult | null>(null);
   // Shopping for a WEEK rather than for a plan — see the note by the button.
   const [shoppingWeek, setShoppingWeek] = useState(false);
+  // Starter plans — the cold-start door.
+  const [browsing, setBrowsing] = useState(false);
 
   const refresh = useCallback(() => setPlans(listPlans()), []);
   useEffect(() => {
@@ -131,24 +134,58 @@ export function PlansView({ token }: { token?: string | null }) {
       <div className={`max-w-3xl mx-auto w-full flex flex-col min-h-0 ${fixedHeight ? 'flex-1 pb-2' : 'pb-28'}`}>
         <div className="px-4 py-3 border-b border-ava-border">
           <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
-          {/* TWO DOORS, both visible. There used to be one button, "New", which
-              meant manual — so there was no separation between building a plan
-              yourself and asking Ava, because there was no visible choice at
-              all. Ava leads because it is the better answer for most people;
-              building by hand is right there and free. */}
-          <div className="mt-2.5 flex gap-2">
-            <Button variant="primary" size="lg" block onClick={() => setGenerating(true)}>
-              <Sparkle className="w-3.5 h-3.5" />
-              {t('plansAskAvaButton')}
-            </Button>
-            <Button variant="secondary" size="lg" block onClick={() => setCreating(true)}>
-              {t('plansBuildOwnButton')}
-            </Button>
-          </div>
-          <div className="mt-1.5 flex gap-2 text-[10px] text-gray-600">
-            <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
-            <span className="flex-1 text-center">{t('plansBuildOwnHint')}</span>
-          </div>
+          {/* THREE DOORS, and the order changes with what you already have.
+              With no plans at all, a curated starter is the right first move:
+              Ask Ava spends credits and Build my own spends an evening, while
+              a professionally built week costs neither and works today. Once
+              somebody HAS plans, a starter is the least interesting of the
+              three, so it steps back to a quiet line beneath. Ordering by
+              usefulness rather than by a fixed layout. */}
+          {plans.length === 0 ? (
+            <>
+              <div className="mt-2.5">
+                <Button variant="primary" size="lg" block onClick={() => setBrowsing(true)}>
+                  {t('startersDoorButton')}
+                </Button>
+              </div>
+              <div className="mt-1.5 text-center text-[10px] text-gray-600">{t('startersDoorHint')}</div>
+              <div className="mt-2.5 flex gap-2">
+                <Button variant="secondary" size="lg" block onClick={() => setGenerating(true)}>
+                  <Sparkle className="w-3.5 h-3.5" />
+                  {t('plansAskAvaButton')}
+                </Button>
+                <Button variant="secondary" size="lg" block onClick={() => setCreating(true)}>
+                  {t('plansBuildOwnButton')}
+                </Button>
+              </div>
+              <div className="mt-1.5 flex gap-2 text-[10px] text-gray-600">
+                <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
+                <span className="flex-1 text-center">{t('plansBuildOwnHint')}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-2.5 flex gap-2">
+                <Button variant="primary" size="lg" block onClick={() => setGenerating(true)}>
+                  <Sparkle className="w-3.5 h-3.5" />
+                  {t('plansAskAvaButton')}
+                </Button>
+                <Button variant="secondary" size="lg" block onClick={() => setCreating(true)}>
+                  {t('plansBuildOwnButton')}
+                </Button>
+              </div>
+              <div className="mt-1.5 flex gap-2 text-[10px] text-gray-600">
+                <span className="flex-1 text-center">{t('plansAskAvaHint')}</span>
+                <span className="flex-1 text-center">{t('plansBuildOwnHint')}</span>
+              </div>
+              <button
+                onClick={() => setBrowsing(true)}
+                className="mt-2.5 w-full rounded-lg border border-ava-border py-2 text-[11px] text-gray-400 active:scale-[0.99]"
+              >
+                {t('startersDoorButton')}
+              </button>
+            </>
+          )}
           {/* One shop, not one per plan. Activation only archives other active
               plans of the SAME type, so a meal plan and a combined plan can
               both be live across the same seven days — and the per-plan list,
@@ -178,6 +215,18 @@ export function PlansView({ token }: { token?: string | null }) {
               <Calendar plans={plans} onOpenDay={(id, day) => setOpen({ id, day })} onActivate={activate} />
             </div>}
       </div>
+
+      {browsing && (
+        <StartersSheet
+          onStarted={(plan) => {
+            setBrowsing(false);
+            refresh();
+            syncPlans(token).catch(() => {});
+            setOpen({ id: plan.id, day: 1 });
+          }}
+          onClose={() => setBrowsing(false)}
+        />
+      )}
 
       {shoppingWeek && (
         <ShoppingListSheet

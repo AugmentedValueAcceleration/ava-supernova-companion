@@ -40,6 +40,7 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'prepPortions',                    // portions — the same word in French
   'profileTrainingSection',          // Training — the word itself in de/nl
   'profileLevelExpert',              // Expert — the word itself in fr/nl
+  'startersOneWeek',                 // 1 week — the Dutch phrasing too
   'shoppingListWeek',                // Week — "week" is the Dutch word
   'shoppingListOptional',            // optional — "optional" is German too
   'todayTrainingTile',               // Training
