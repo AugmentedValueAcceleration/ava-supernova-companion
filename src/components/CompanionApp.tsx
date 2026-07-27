@@ -104,6 +104,8 @@ export default function CompanionApp({
   const [mobileView, setMobileView] = useState<MobileView>('chat');
   // Which bottom-nav sheet is open: the ✦ Wellbeing quick-actions, the More menu, or none.
   const [navSheet, setNavSheet] = useState<null | 'wellbeing' | 'more'>(null);
+  // The same two menus on desktop, where they hang off the top nav instead.
+  const [deskMenu, setDeskMenu] = useState<null | 'wellbeing' | 'more'>(null);
   // Drives the open animation — the sheet scales up from the ✦ button (bottom-centre).
   const [sheetIn, setSheetIn] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -541,30 +543,53 @@ export default function CompanionApp({
           </button>
         </div>
 
-        {/* Center: Desktop navigation */}
+        {/* Center: Desktop navigation.
+
+            The SAME five entries as the mobile bottom nav — Chat, Tasks,
+            Wellbeing, Journal, More — because they are one product and a
+            window that happens to be wide should not be a different app.
+            Desktop used to list six flat items with no Wellbeing at all, so
+            everything behind it (Today, the Gym, Plans, Recipes, Workouts)
+            was simply unreachable on a desktop-width screen. Memory,
+            Personality, Support and Settings now sit under More, exactly as
+            they do on the phone, and both menus read from the same two arrays
+            the mobile sheets use so the two can never drift apart. */}
         <nav className="hidden md:flex items-center gap-1 bg-ava-surface rounded-xl p-1" aria-label="Main navigation">
-          {([
-            { key: 'chat' as MobileView, label: t('chat'), icon: <ChatIcon /> },
-            { key: 'tasks' as MobileView, label: t('tasks'), icon: <TasksIconSm /> },
-            { key: 'memory' as MobileView, label: t('memory'), icon: <MemoryIconSm /> },
-            { key: 'journal' as MobileView, label: t('journal'), icon: <JournalIconSm /> },
-            { key: 'personality' as MobileView, label: t('personality'), icon: <PersonalityIconSm /> },
-            { key: 'settings' as MobileView, label: t('settings'), icon: <SettingsIconSm /> },
-          ]).map(item => (
-            <button
-              key={item.key}
-              onClick={() => item.key === 'tasks' ? handleTaskNav() : setMobileView(item.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
-                mobileView === item.key
-                  ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple'
-                  : 'border-transparent text-gray-400 hover:text-white hover:bg-ava-surface-hover'
-              }`}
-              aria-current={mobileView === item.key ? 'page' : undefined}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          ))}
+          <DeskNavButton
+            label={t('chat')} icon={<ChatIcon />}
+            active={mobileView === 'chat'} onClick={() => { setDeskMenu(null); setMobileView('chat'); }}
+          />
+          <DeskNavButton
+            label={t('tasks')} icon={<TasksIconSm />}
+            active={mobileView === 'tasks'} onClick={() => { setDeskMenu(null); handleTaskNav(); }}
+          />
+
+          <DeskNavMenu
+            label={t('navWellbeing')}
+            icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>}
+            open={deskMenu === 'wellbeing'}
+            active={WELLBEING_VIEWS.includes(mobileView as WellbeingView)}
+            onToggle={() => setDeskMenu(deskMenu === 'wellbeing' ? null : 'wellbeing')}
+            items={WELLBEING_TILES.map(x => ({ view: x.view as MobileView, label: t(x.labelKey), icon: x.icon }))}
+            current={mobileView}
+            onPick={(v) => { setDeskMenu(null); setMobileView(v); }}
+          />
+
+          <DeskNavButton
+            label={t('journal')} icon={<JournalIconSm />}
+            active={mobileView === 'journal'} onClick={() => { setDeskMenu(null); setMobileView('journal'); }}
+          />
+
+          <DeskNavMenu
+            label={t('navMore')}
+            icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>}
+            open={deskMenu === 'more'}
+            active={MORE_VIEWS.includes(mobileView)}
+            onToggle={() => setDeskMenu(deskMenu === 'more' ? null : 'more')}
+            items={MORE_ITEMS.map(x => ({ view: x.view, label: t(x.labelKey), icon: x.icon }))}
+            current={mobileView}
+            onPick={(v) => { setDeskMenu(null); setMobileView(v); }}
+          />
         </nav>
 
         {/* Right: Credit balance + Model selector + Sign In. On narrow
@@ -1145,7 +1170,7 @@ export default function CompanionApp({
         <ThumbButton
           icon={<WellbeingNavIcon />}
           label={t('navWellbeing')}
-          active={navSheet === 'wellbeing' || ['today', 'gym', 'plans', 'recipes', 'workouts'].includes(mobileView)}
+          active={navSheet === 'wellbeing' || WELLBEING_VIEWS.includes(mobileView as WellbeingView)}
           onClick={() => setNavSheet(navSheet === 'wellbeing' ? null : 'wellbeing')}
           hero
         />
@@ -1158,7 +1183,7 @@ export default function CompanionApp({
         <ThumbButton
           icon={<MoreIcon />}
           label={t('navMore')}
-          active={navSheet === 'more' || ['memory', 'personality', 'support', 'settings', 'docs', 'news'].includes(mobileView)}
+          active={navSheet === 'more' || MORE_VIEWS.includes(mobileView)}
           onClick={() => setNavSheet(navSheet === 'more' ? null : 'more')}
         />
       </nav>
@@ -1388,6 +1413,94 @@ function MoreIcon() {
   return <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>;
 }
 
+/* ------------------------------------------------ desktop nav ----------- */
+
+/** A plain destination in the top nav. */
+function DeskNavButton({ label, icon, active, onClick }: {
+  label: string; icon: React.ReactNode; active: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
+        active
+          ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple'
+          : 'border-transparent text-gray-400 hover:text-white hover:bg-ava-surface-hover'
+      }`}
+      aria-current={active ? 'page' : undefined}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+/**
+ * A top-nav entry that opens a menu — the desktop form of the two bottom-nav
+ * sheets. Same destinations, same order, same source arrays.
+ *
+ * The click-catcher behind the panel is the whole viewport, so the menu closes
+ * on any click elsewhere without needing a document listener that would also
+ * have to be torn down. Sits below the panel and above everything else.
+ */
+function DeskNavMenu({ label, icon, open, active, onToggle, items, current, onPick }: {
+  label: string;
+  icon: React.ReactNode;
+  open: boolean;
+  active: boolean;
+  onToggle: () => void;
+  items: { view: MobileView; label: string; icon: React.ReactNode }[];
+  current: MobileView;
+  onPick: (v: MobileView) => void;
+}) {
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
+          active || open
+            ? 'border-ava-purple/25 bg-ava-purple/15 text-ava-purple'
+            : 'border-transparent text-gray-400 hover:text-white hover:bg-ava-surface-hover'
+        }`}
+      >
+        {icon}
+        <span>{label}</span>
+        <svg className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={onToggle} />
+          <div
+            role="menu"
+            className="absolute left-0 top-full mt-1.5 z-40 min-w-[190px] rounded-xl border border-ava-purple/25 bg-ava-surface py-1.5 shadow-xl"
+          >
+            {items.map(item => (
+              <button
+                key={item.view}
+                role="menuitem"
+                onClick={() => onPick(item.view)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
+                  current === item.view
+                    ? 'text-ava-purple bg-ava-purple/10'
+                    : 'text-gray-300 hover:text-white hover:bg-ava-surface-hover'
+                }`}
+              >
+                <span className="shrink-0 [&>svg]:w-4 [&>svg]:h-4">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // Wellbeing quick-action sheet tiles + More menu items.
 const WELLBEING_TILES: { view: WellbeingView; labelKey: StringKey; icon: React.ReactNode }[] = [
   { view: 'today',    labelKey: 'wellbeingTabToday',     icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg> },
@@ -1403,6 +1516,13 @@ const MORE_ITEMS: { view: MobileView; labelKey: StringKey; icon: React.ReactNode
   { view: 'support',     labelKey: 'support',     icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg> },
   { view: 'settings',    labelKey: 'settings',    icon: <SettingsIconSm /> },
 ];
+
+/** Which views light up each menu. Derived from the arrays above rather than
+ *  hand-listed, so adding a destination cannot leave its parent looking
+ *  inactive while you are standing in it. `docs` and `news` are reached from
+ *  inside other screens rather than the nav, and hang off More. */
+const WELLBEING_VIEWS: WellbeingView[] = WELLBEING_TILES.map(x => x.view);
+const MORE_VIEWS: MobileView[] = [...MORE_ITEMS.map(x => x.view), 'docs', 'news'];
 
 // Icons
 function ChatIcon() {
