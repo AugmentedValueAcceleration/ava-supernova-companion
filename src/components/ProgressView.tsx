@@ -26,7 +26,7 @@ export function ProgressView() {
   if (!p.has_any_data) {
     return (
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto w-full px-4 py-5 pb-28">
+        <div className="max-w-3xl md:max-w-none mx-auto w-full px-4 py-5 pb-28">
           <div className="grid grid-cols-3 gap-2.5 opacity-50">
             <Stat label={t('progressAdherence')} value="—" />
             <Stat label={t('progressStreak')} value="0" hint={t('progressDays')} />
@@ -60,7 +60,7 @@ export function ProgressView() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl mx-auto w-full px-4 py-5 pb-28">
+      <div className="max-w-3xl md:max-w-none mx-auto w-full px-4 py-5 pb-28">
 
         {/* Headline figures. A null shows as an em dash, never 0% — "we have
             not seen you train yet" and "you did nothing" are different. */}

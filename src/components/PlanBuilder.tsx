@@ -199,7 +199,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl mx-auto w-full pb-28">
+      <div className="max-w-3xl md:max-w-none mx-auto w-full pb-28">
         <BackBar
           onBack={onBack}
           title={plan.title}
@@ -576,7 +576,6 @@ function ExerciseRow({ ex, image, insight, onView, onSwap, onChange, onRemove }:
   onSwap: (() => void) | null;
   onChange: (p: Partial<HealthPlanExercise>) => void; onRemove: () => void;
 }) {
-  const numOrNull = (s: string) => { const n = Number(s); return s.trim() && Number.isFinite(n) ? n : null; };
   const findings = insight?.check.findings ?? [];
   const missing = insight?.check.missing_equipment ?? [];
   // 'avoid' means the library says not with this condition. Border it so it is
@@ -625,10 +624,34 @@ function ExerciseRow({ ex, image, insight, onView, onSwap, onChange, onRemove }:
       )}
 
       <div className="mt-2 grid grid-cols-4 gap-2">
-        <Cell label={t('planBuilderExerciseSetsLabel')}><input inputMode="numeric" value={ex.sets ?? ''} onChange={e => onChange({ sets: numOrNull(e.target.value) })} className={cellCls} /></Cell>
-        <Cell label={t('planBuilderExerciseRepsLabel')}><input value={ex.reps ?? ''} onChange={e => onChange({ reps: e.target.value || null })} className={cellCls} /></Cell>
-        <Cell label={t('planBuilderExerciseWeightLabel')}><input value={ex.weight ?? ''} onChange={e => onChange({ weight: e.target.value || null })} className={cellCls} /></Cell>
-        <Cell label={t('planBuilderExerciseRestLabel')}><input inputMode="numeric" value={ex.rest_seconds ?? ''} onChange={e => onChange({ rest_seconds: numOrNull(e.target.value) })} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderExerciseSetsLabel')}>
+          <CustomSelect
+            value={ex.sets != null ? String(ex.sets) : ''}
+            onChange={v => onChange({ sets: v ? Number(v) : null })}
+            options={withCurrent(SETS_OPTIONS, ex.sets != null ? String(ex.sets) : '')}
+          />
+        </Cell>
+        <Cell label={t('planBuilderExerciseRepsLabel')}>
+          <CustomSelect
+            value={ex.reps ?? ''}
+            onChange={v => onChange({ reps: v || null })}
+            options={withCurrent(REPS_OPTIONS, ex.reps ?? '')}
+          />
+        </Cell>
+        <Cell label={t('planBuilderExerciseWeightLabel')}>
+          <CustomSelect
+            value={ex.weight ?? ''}
+            onChange={v => onChange({ weight: v || null })}
+            options={withCurrent(WEIGHT_OPTIONS, ex.weight ?? '')}
+          />
+        </Cell>
+        <Cell label={t('planBuilderExerciseRestLabel')}>
+          <CustomSelect
+            value={ex.rest_seconds != null ? String(ex.rest_seconds) : ''}
+            onChange={v => onChange({ rest_seconds: v ? Number(v) : null })}
+            options={withCurrent(REST_OPTIONS, ex.rest_seconds != null ? String(ex.rest_seconds) : '')}
+          />
+        </Cell>
       </div>
     </div>
   );
@@ -728,6 +751,48 @@ function SwapButton({ onClick }: { onClick: () => void }) {
       </svg>
     </button>
   );
+}
+
+
+/* ── Prescription pickers ──────────────────────────────────────────────────
+ *
+ * Sets, reps, weight and rest were free-text boxes. Typing "3" into a numeric
+ * field on a phone is four taps and a keyboard covering half the screen, for
+ * a value that is almost always one of six.
+ *
+ * THE RULE THESE MUST NOT BREAK: a picker may never silently destroy a value
+ * it has no option for. Ava writes real prescriptions — "10-12 per arm",
+ * "light to moderate dumbbell", "30-45s" — and a naive dropdown would render
+ * those as blank and overwrite them the moment anything else on the row was
+ * touched. So the current value is always injected as an option if it is not
+ * already in the list, and it stays selected until somebody deliberately
+ * changes it.
+ */
+const SETS_OPTIONS = ['1', '2', '3', '4', '5', '6', '8', '10'].map(v => ({ value: v, label: v }));
+
+const REPS_OPTIONS = [
+  '3-5', '5', '6-8', '8-10', '8-12', '10-12', '12-15', '15-20', '20+',
+  'AMRAP', '20s', '30s', '45s', '60s', '90s',
+].map(v => ({ value: v, label: v }));
+
+/** Deliberately descriptive rather than numeric. A curated plan is written for
+ *  strangers, so "moderate dumbbell" travels where "12.5kg" does not — and
+ *  someone's own numbers still survive via withCurrent. */
+const WEIGHT_OPTIONS = [
+  'bodyweight', 'light', 'light to moderate', 'moderate', 'moderate to heavy',
+  'heavy', 'band', 'assisted',
+].map(v => ({ value: v, label: v }));
+
+const REST_OPTIONS = ['0', '15', '30', '45', '60', '75', '90', '120', '150', '180'].map(v => ({
+  value: v, label: v === '0' ? 'none' : `${v}s`,
+}));
+
+/** The list, plus a blank, plus whatever is already set if the list has no
+ *  home for it. This is the whole safety of the change. */
+function withCurrent(options: { value: string; label: string }[], current: string) {
+  const base = [{ value: '', label: '—' }, ...options];
+  if (!current || base.some(o => o.value === current)) return base;
+  return [...base, { value: current, label: current }];
 }
 
 function Cell({ label, children }: { label: string; children: React.ReactNode }) {

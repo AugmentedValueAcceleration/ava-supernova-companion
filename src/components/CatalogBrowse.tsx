@@ -93,7 +93,7 @@ function CatalogBrowse<T extends { id: string }>({
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl mx-auto w-full pb-28">
+      <div className="max-w-3xl md:max-w-none mx-auto w-full pb-28">
         <div className="px-4 py-3 border-b border-ava-border sticky top-0 bg-ava-bg/95 backdrop-blur z-10">
           <h2 className="font-semibold text-white text-lg mb-3">{title}</h2>
           {/* Search */}

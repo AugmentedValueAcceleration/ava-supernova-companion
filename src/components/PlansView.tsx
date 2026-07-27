@@ -131,7 +131,7 @@ export function PlansView({ token }: { token?: string | null }) {
 
   return (
     <div className={`flex-1 flex flex-col min-h-0 ${fixedHeight ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-      <div className={`max-w-3xl mx-auto w-full flex flex-col min-h-0 ${fixedHeight ? 'flex-1 pb-2' : 'pb-28'}`}>
+      <div className={`max-w-3xl md:max-w-none mx-auto w-full flex flex-col min-h-0 ${fixedHeight ? 'flex-1 pb-2' : 'pb-28'}`}>
         <div className="px-4 py-3 border-b border-ava-border">
           <h2 className="font-semibold text-white text-lg">{t('plansHeading')}</h2>
           {/* THREE DOORS, and the order changes with what you already have.

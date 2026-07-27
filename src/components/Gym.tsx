@@ -273,7 +273,7 @@ export function GymView() {
 
   return (
     <div className="flex-1 overflow-hidden relative">
-      <div className="max-w-3xl mx-auto w-full px-4 py-4 h-full flex flex-col">
+      <div className="max-w-3xl md:max-w-none mx-auto w-full px-4 py-4 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-baseline justify-between">
           <div>

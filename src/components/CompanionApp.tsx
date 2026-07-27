@@ -1082,7 +1082,7 @@ export default function CompanionApp({
             </>
           ) : mobileView === 'tasks' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto w-full">
+              <div className="max-w-3xl md:max-w-none mx-auto w-full">
                 <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
                   <h2 className="font-semibold text-white text-lg">{t('tasks')}</h2>
                   {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
@@ -1092,7 +1092,7 @@ export default function CompanionApp({
             </div>
           ) : mobileView === 'journal' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto w-full">
+              <div className="max-w-3xl md:max-w-none mx-auto w-full">
                 <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
                   <h2 className="font-semibold text-white text-lg">{t('journal')}</h2>
                   {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
@@ -1102,7 +1102,7 @@ export default function CompanionApp({
             </div>
           ) : mobileView === 'memory' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto w-full">
+              <div className="max-w-3xl md:max-w-none mx-auto w-full">
                 <div className="px-4 py-3 border-b border-ava-border flex items-center justify-between">
                   <h2 className="font-semibold text-white text-lg">{t('memory')}</h2>
                   {isGuest && <span className="text-[10px] text-gray-500">{t('localOnly')}</span>}
@@ -1112,7 +1112,7 @@ export default function CompanionApp({
             </div>
           ) : mobileView === 'personality' ? (
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto w-full">
+              <div className="max-w-3xl md:max-w-none mx-auto w-full">
                 <PersonalityDesigner />
               </div>
             </div>

@@ -185,7 +185,7 @@ export function TodayView({ token }: { token?: string | null }) {
         {!isToday && <ViewingBanner date={today} onToday={() => setToday(todayIso())} />}
       </div>
 
-      <div className="max-w-3xl mx-auto w-full px-4 py-5 pb-28">
+      <div className="max-w-3xl md:max-w-none mx-auto w-full px-4 py-5 pb-28">
         {/* On today the long date and greeting are right; on another day they
             would be a lie, and the banner above already says where you are. */}
         {isToday && <>
