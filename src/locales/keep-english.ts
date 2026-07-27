@@ -37,6 +37,7 @@ export const KEEP_ENGLISH: ReadonlySet<StringKey> = new Set<StringKey>([
   'todayLogWaterReset',              // reset
 
   // Cross-language cognates — identical word in the flagged language(s)
+  'prepPortions',                    // portions — the same word in French
   'shoppingListWeek',                // Week — "week" is the Dutch word
   'shoppingListOptional',            // optional — "optional" is German too
   'todayTrainingTile',               // Training

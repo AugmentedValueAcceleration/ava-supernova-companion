@@ -31,6 +31,7 @@ import { SwapSheet } from './SwapSheet';
 import { DuplicateSheet } from './DuplicateSheet';
 import { AssistSheet } from './AssistSheet';
 import { ShoppingListSheet } from './ShoppingListSheet';
+import { PrepSheet } from './PrepSheet';
 import { LibraryThumb } from './LibraryThumb';
 import { ExerciseDetailView, RecipeDetailView } from './CatalogDetail';
 import { useLibraryImages } from '@/lib/use-library-images';
@@ -89,6 +90,9 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
   // buy. Offered from the plan rather than from a day, because you shop for a
   // week and cook for a day.
   const [shopping, setShopping] = useState(false);
+  // What the week costs in evenings — the heavy days, what needs starting the
+  // night before, and where cooking once would cover three meals.
+  const [prepping, setPrepping] = useState(false);
 
   // The profile is what every check is measured against. Kept live so editing
   // an injury on the profile tab updates the warnings here without a reload.
@@ -198,6 +202,17 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
           // Only when there is food to shop for. A training-only plan has no
           // use for it and an empty button is a dead end.
           action={plan.days.some(d => d.meals.length > 0) ? (
+            <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setPrepping(true)}
+              aria-label={t('prepTitle')}
+              className="flex items-center gap-1.5 rounded-full border border-ava-border px-3 py-1.5 text-[11px] text-gray-300 active:scale-95"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {t('prepTitle')}
+            </button>
             <button
               onClick={() => setShopping(true)}
               aria-label={t('shoppingListTitle')}
@@ -208,6 +223,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
               </svg>
               {t('shoppingListTitle')}
             </button>
+            </div>
           ) : undefined}
         />
 
@@ -393,6 +409,10 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
           onApply={next => setPlanState(savePlan(next))}
           onClose={() => setDuplicating(false)}
         />
+      )}
+
+      {prepping && (
+        <PrepSheet plan={plan} profile={profile} onClose={() => setPrepping(false)} />
       )}
 
       {shopping && (

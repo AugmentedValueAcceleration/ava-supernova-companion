@@ -359,6 +359,22 @@ export const enStrings = {
   'plansCreateButton': 'Create plan',
 
   // ── Plan Builder ──────────────────────────────────────────────────────
+  // Prep plan — what the week costs you in evenings.
+  'prepTitle': 'Prep plan',
+  'prepNothingToCook': 'Nothing to cook in this plan yet.',
+  'prepAcrossThePlan': 'of cooking across the plan',
+  'prepCookOnce': 'Cook once, eat again',
+  'prepSaves': 'saves',
+  'prepByDay': 'Where the work lands',
+  'prepCookOnDay': 'Cook on day',
+  'prepPortions': 'portions',
+  'prepCovers': 'covers',
+  'prepDayWord': 'Day',
+  'prepDaysWord': 'days',
+  'prepKeeps': 'Keeps',
+  'prepStartAhead': 'Start ahead',
+  'prepNightBefore': 'the night before',
+
   // Shopping list — a meal plan you cannot shop for is only a suggestion.
   'shoppingListTitle': 'Shopping list',
   'shoppingListLooking': 'Looking up what these meals need…',
