@@ -63,6 +63,24 @@ function writeTicks(planId: string, ticks: Set<string>): void {
   try { localStorage.setItem(tickKey(planId), JSON.stringify([...ticks])); } catch { /* private mode */ }
 }
 
+/* --------------------------------------------------------------- collapse - */
+// Which aisles are folded away. Remembered for the same reason ticks are: a
+// shop happens over time, and an aisle you closed because you had everything
+// in it should stay closed when you come back to the list.
+
+const foldKey = (scope: string) => `ava-shopping-folded-${scope}`;
+
+function readFolded(scope: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(foldKey(scope));
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch { return new Set(); }
+}
+
+function writeFolded(scope: string, folded: Set<string>): void {
+  try { localStorage.setItem(foldKey(scope), JSON.stringify([...folded])); } catch { /* private mode */ }
+}
+
 /* ------------------------------------------------------------------ sheet - */
 
 /**
@@ -101,7 +119,11 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
   const bounds = useMemo(() => shiftWeek(weekBounds(todayIso()), week), [week]);
   const tickScope = single ? single.id : `week-${bounds.from}`;
   const [ticks, setTicks] = useState<Set<string>>(() => readTicks(tickScope));
-  useEffect(() => { setTicks(readTicks(tickScope)); }, [tickScope]);
+  const [folded, setFolded] = useState<Set<string>>(() => readFolded(tickScope));
+  useEffect(() => {
+    setTicks(readTicks(tickScope));
+    setFolded(readFolded(tickScope));
+  }, [tickScope]);
 
   const planWeeks = single ? Math.max(1, Math.ceil((single.duration_days || 1) / 7)) : 0;
 
@@ -154,6 +176,15 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
   const clear = useCallback(() => {
     setTicks(new Set());
     writeTicks(tickScope, new Set());
+  }, [tickScope]);
+
+  const fold = useCallback((aisle: string) => {
+    setFolded(prev => {
+      const next = new Set(prev);
+      if (next.has(aisle)) next.delete(aisle); else next.add(aisle);
+      writeFolded(tickScope, next);
+      return next;
+    });
   }, [tickScope]);
 
   const got = list.groups.flatMap(g => g.items).filter(i => ticks.has(i.key)).length;
@@ -226,18 +257,45 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
           />
 
           <div className="space-y-4">
-            {list.groups.map(group => (
-              <section key={group.aisle}>
-                <div className="mb-1.5 text-[10px] uppercase tracking-wider text-gray-500">
-                  {aisleLabel(group.aisle)}
-                </div>
-                <ul className="space-y-0.5">
-                  {group.items.map(item => (
-                    <Row key={item.key} item={item} ticked={ticks.has(item.key)} onToggle={() => toggle(item.key)} />
-                  ))}
-                </ul>
-              </section>
-            ))}
+            {list.groups.map(group => {
+              const done = group.items.filter(i => ticks.has(i.key)).length;
+              const shut = folded.has(group.aisle);
+              return (
+                <section key={group.aisle}>
+                  {/* The whole header is the target — a 10px chevron is not
+                      something to aim at one-handed in a supermarket. */}
+                  <button
+                    onClick={() => fold(group.aisle)}
+                    aria-expanded={!shut}
+                    className="w-full flex items-center gap-1.5 mb-1.5 text-left active:opacity-60"
+                  >
+                    <svg
+                      className={`w-3 h-3 shrink-0 text-gray-500 transition-transform ${shut ? '' : 'rotate-90'}`}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500">
+                      {aisleLabel(group.aisle)}
+                    </span>
+                    {/* Kept on the header so a folded aisle still says where
+                        you are in it, instead of going quiet. */}
+                    <span className={`ml-auto text-[10px] ${
+                      done === group.items.length ? 'text-emerald-400/70' : 'text-gray-600'
+                    }`}>
+                      {done}/{group.items.length}
+                    </span>
+                  </button>
+                  {!shut && (
+                    <ul className="space-y-0.5">
+                      {group.items.map(item => (
+                        <Row key={item.key} item={item} ticked={ticks.has(item.key)} onToggle={() => toggle(item.key)} />
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              );
+            })}
           </div>
         </>
       )}
