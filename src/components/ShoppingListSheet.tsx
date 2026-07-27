@@ -27,7 +27,7 @@ import {
 import { fillMissingIngredientsMany } from '@/lib/health-shopping-fill';
 import { todayIso } from '@/lib/health-day-store';
 import { savePlan } from '@/lib/health-plan-store';
-import type { Aisle } from '@/lib/health-aisles';
+import { AISLE_ORDER, type Aisle } from '@/lib/health-aisles';
 import type { HealthPlan } from '@/lib/health-types';
 
 function aisleLabel(a: Aisle): string {
@@ -70,12 +70,26 @@ function writeTicks(planId: string, ticks: Set<string>): void {
 
 const foldKey = (scope: string) => `ava-shopping-folded-${scope}`;
 
-function readFolded(scope: string): Set<string> {
+/**
+ * Everything starts folded.
+ *
+ * A week across several plans runs to thirty-odd rows, and opening onto all of
+ * them is a wall. Folded, the aisle headers and their counts are a summary you
+ * can read at a glance — and you open the one you are standing in.
+ *
+ * Returns null when nothing has been stored yet, so "never touched" can be
+ * told apart from "deliberately opened everything". Without that distinction
+ * the default would fight the user: unfold every aisle, come back, and it
+ * would helpfully fold them all again.
+ */
+function readFolded(scope: string): Set<string> | null {
   try {
     const raw = localStorage.getItem(foldKey(scope));
-    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
-  } catch { return new Set(); }
+    return raw ? new Set(JSON.parse(raw) as string[]) : null;
+  } catch { return null; }
 }
+
+const allFolded = () => new Set<string>(AISLE_ORDER);
 
 function writeFolded(scope: string, folded: Set<string>): void {
   try { localStorage.setItem(foldKey(scope), JSON.stringify([...folded])); } catch { /* private mode */ }
@@ -119,10 +133,10 @@ export function ShoppingListSheet({ source, onClose, onPlanFilled }: {
   const bounds = useMemo(() => shiftWeek(weekBounds(todayIso()), week), [week]);
   const tickScope = single ? single.id : `week-${bounds.from}`;
   const [ticks, setTicks] = useState<Set<string>>(() => readTicks(tickScope));
-  const [folded, setFolded] = useState<Set<string>>(() => readFolded(tickScope));
+  const [folded, setFolded] = useState<Set<string>>(() => readFolded(tickScope) ?? allFolded());
   useEffect(() => {
     setTicks(readTicks(tickScope));
-    setFolded(readFolded(tickScope));
+    setFolded(readFolded(tickScope) ?? allFolded());
   }, [tickScope]);
 
   const planWeeks = single ? Math.max(1, Math.ceil((single.duration_days || 1) / 7)) : 0;
