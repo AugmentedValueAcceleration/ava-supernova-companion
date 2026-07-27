@@ -3,6 +3,7 @@ import { readLocalTasks, applyTaskLocal } from './companion-task-store';
 import { readLocalMemories, applyMemoryLocal } from './companion-memory-store';
 import { readRecentJournal } from './companion-journal-store';
 import { readPlansForContext } from './health-plan-store';
+import { getActiveProviderKey } from '@/components/SettingsView';
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
 
@@ -164,7 +165,7 @@ export const healthAssistApi = {
     fetch(`${API_BASE}/health/generate/plan`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, ...currentModelAndKey() }),
     }).then(async r => {
       const body = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(body?.error || `Request failed (${r.status})`);
@@ -190,7 +191,7 @@ export const healthAssistApi = {
     fetch(`${API_BASE}/health/generate/day`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, ...currentModelAndKey() }),
     }).then(async r => {
       const body = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(body?.error || `Request failed (${r.status})`);
@@ -297,6 +298,43 @@ export function getProviderSource(): ProviderSource {
   if (typeof localStorage === 'undefined') return 'platform';
   return localStorage.getItem('ava-companion-provider-source') === 'byok' ? 'byok' : 'platform';
 }
+
+/**
+ * The model this person has chosen, and their own key if they have one.
+ *
+ * Generation used to send neither. The server therefore hardwired Qwen and
+ * accepted a BYOK key only if it was a Qwen key — so somebody on DeepSeek or
+ * Kimi had their plan written on the platform's Qwen key AND was charged
+ * credits for it, silently. Their own key means their own bill; this is what
+ * lets the server know there is one.
+ *
+ * Read here rather than passed down from every caller, the same way apiFetch
+ * already reads data mode, device id and language. Returns nothing rather than
+ * guessing when the picker has not been touched, so the server keeps its own
+ * default.
+ */
+export function currentModelAndKey(): { model?: string; providerApiKey?: string } {
+  if (typeof window === 'undefined') return {};
+  let model: string | undefined;
+  try {
+    const stored = localStorage.getItem('ava-companion-model');
+    // 'auto' is a fleet, not a model id — the server cannot resolve it, so let
+    // it fall through to its own default rather than sending a value that
+    // would resolve to the wrong provider.
+    if (stored && stored !== 'auto') model = stored;
+  } catch { /* private mode */ }
+
+  let providerApiKey: string | undefined;
+  try {
+    if (getProviderSource() === 'byok' && model) {
+      const key = getActiveProviderKey(model);
+      if (key) providerApiKey = key;
+    }
+  } catch { /* settings unavailable — fall back to the account key */ }
+
+  return { ...(model ? { model } : {}), ...(providerApiKey ? { providerApiKey } : {}) };
+}
+
 
 export function setProviderSource(src: ProviderSource): void {
   if (typeof localStorage === 'undefined') return;
