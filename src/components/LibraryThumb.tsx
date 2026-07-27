@@ -29,7 +29,7 @@ export function LibraryThumb({ src, kind, alt, size = 'sm' }: {
   // A URL that 404s should fall back to the placeholder, not leave a broken
   // image. Keyed on src so changing the row resets it.
   const [failed, setFailed] = useState(false);
-  const box = `${SIZES[size]} shrink-0 overflow-hidden bg-ava-bg border border-ava-border`;
+  const box = `${SIZES[size]} shrink-0 overflow-hidden rounded-lg bg-ava-bg border border-ava-border`;
 
   if (!src || failed) {
     return (

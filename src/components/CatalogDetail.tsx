@@ -36,10 +36,12 @@ function DetailShell({ onBack, image, title, subtitle, children }: {
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           {t('catalogDetailBackButton')}
         </button>
-        <div className="aspect-video bg-black/30 flex items-center justify-center">
-          {image
-            ? <img src={image} alt={title} className="w-full h-full object-cover" />
-            : <span className="text-ava-purple-light/40 text-4xl">✦</span>}
+        <div className="px-4 pt-3">
+          <div className="aspect-video overflow-hidden rounded-2xl border border-ava-border bg-black/30 flex items-center justify-center">
+            {image
+              ? <img src={image} alt={title} className="w-full h-full object-cover" />
+              : <span className="text-ava-purple-light/40 text-4xl">✦</span>}
+          </div>
         </div>
         <div className="px-4 pt-4">
           <h2 className="text-xl font-semibold text-white">{title}</h2>

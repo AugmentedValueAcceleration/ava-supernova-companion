@@ -567,7 +567,6 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <div className="rounded-lg border border-ava-border px-3 py-3 text-[12px] text-gray-500 italic">{children}</div>;
 }
 
-const cellCls = 'bg-ava-bg border border-ava-border rounded px-2 py-1 text-[12px] text-white w-full focus:border-ava-purple focus:outline-none';
 
 function ExerciseRow({ ex, image, insight, onView, onSwap, onChange, onRemove }: {
   ex: HealthPlanExercise; image: string | null; insight: ExerciseInsight | null;
@@ -669,7 +668,6 @@ function MealRow({ ml, image, running, target, insight, onView, onSwap, onChange
   onServings: (v: number | null) => void;
   onRemove: () => void;
 }) {
-  const numOrNull = (s: string) => { const n = Number(s); return s.trim() && Number.isFinite(n) ? n : null; };
   const blocked = insight?.blocked_allergens ?? [];
   const unverifiable = insight?.unverifiable ?? [];
   const offDiet = insight?.off_diet ?? [];
@@ -734,7 +732,13 @@ function MealRow({ ml, image, running, target, insight, onView, onSwap, onChange
           options={MEAL_SLOTS.map(s => ({ value: s, label: mealSlotLabel(s) }))}
           className="w-32 shrink-0"
         />
-        <Cell label={t('planBuilderMealServingsLabel')}><input inputMode="decimal" value={ml.servings ?? ''} onChange={e => onServings(numOrNull(e.target.value))} className={cellCls} /></Cell>
+        <Cell label={t('planBuilderMealServingsLabel')}>
+          <CustomSelect
+            value={ml.servings != null ? String(ml.servings) : ''}
+            onChange={v => onServings(v ? Number(v) : null)}
+            options={withCurrent(SERVINGS_OPTIONS, ml.servings != null ? String(ml.servings) : '')}
+          />
+        </Cell>
       </div>
     </div>
   );
@@ -782,6 +786,10 @@ const WEIGHT_OPTIONS = [
   'bodyweight', 'light', 'light to moderate', 'moderate', 'moderate to heavy',
   'heavy', 'band', 'assisted',
 ].map(v => ({ value: v, label: v }));
+
+const SERVINGS_OPTIONS = ['0.5', '1', '1.5', '2', '2.5', '3', '4', '5', '6', '8'].map(v => ({
+  value: v, label: v,
+}));
 
 const REST_OPTIONS = ['0', '15', '30', '45', '60', '75', '90', '120', '150', '180'].map(v => ({
   value: v, label: v === '0' ? 'none' : `${v}s`,
