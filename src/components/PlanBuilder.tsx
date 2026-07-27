@@ -199,7 +199,7 @@ export function PlanBuilder({ planId, token, onBack, initialDay }: { planId: str
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl md:max-w-none mx-auto w-full pb-28">
+      <div className="max-w-3xl md:max-w-4xl mx-auto w-full pb-28">
         <BackBar
           onBack={onBack}
           title={plan.title}

@@ -118,7 +118,7 @@ export function ProfileView({ token }: { token?: string | null }) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl md:max-w-none mx-auto w-full pb-28">
+      <div className="max-w-3xl md:max-w-4xl mx-auto w-full pb-28">
         <div className="px-4 py-3 border-b border-ava-border">
           <h2 className="font-semibold text-white text-lg">{t('profileHeading')}</h2>
           <p className="text-xs text-gray-500 mt-0.5">{t('profileDescription')}</p>

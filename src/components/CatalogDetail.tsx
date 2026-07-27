@@ -31,7 +31,7 @@ function DetailShell({ onBack, image, title, subtitle, children }: {
 }) {
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl md:max-w-none mx-auto w-full pb-28">
+      <div className="max-w-3xl md:max-w-4xl mx-auto w-full pb-28">
         <button onClick={onBack} className="sticky top-0 z-10 flex items-center gap-2 w-full px-4 py-3 bg-ava-bg/95 backdrop-blur text-sm text-gray-300 hover:text-white">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           {t('catalogDetailBackButton')}
