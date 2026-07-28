@@ -93,6 +93,13 @@ export function GenerateSheet({ token, profile, onAccept, onClose }: {
         duration_days: duration,
         goal: goal.trim() || null,
         profile: profile ? normaliseHealthProfile(profile) : undefined,
+        // Which weekday each generated day lands on, so a 20-minute Tuesday
+        // gets a 20-minute meal. Today is the honest guess: savePlan stamps
+        // today on anything activated without a date, and that is the path
+        // almost every plan takes. Held as a draft and started later, the
+        // labels shift — a real limit, and still better than clamping every
+        // day of the week to the tightest ceiling in it.
+        start_date: new Date().toISOString().slice(0, 10),
       });
       setResult(res);
       setPhase('done');

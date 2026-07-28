@@ -33,6 +33,15 @@ const PROMPTS: Array<{ key: string; forType: Array<'fitness' | 'meal' | 'combine
   { key: 'quicker',  forType: ['meal', 'combined'],            text: () => t('assistPromptQuicker') },
 ];
 
+/** The calendar date a plan day falls on, or null for a plan that has not
+ *  started. Day 1 IS the start date; day_index is 1-based. */
+function dayDate(plan: HealthPlan, day: HealthPlanDay): string | null {
+  if (!plan.start_date) return null;
+  const start = Date.parse(`${plan.start_date}T00:00:00Z`);
+  if (Number.isNaN(start)) return null;
+  return new Date(start + (day.day_index - 1) * 86_400_000).toISOString().slice(0, 10);
+}
+
 interface Proposal { day: HealthPlanDay; note: string; credits: number; unverifiable: string[] }
 
 export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
@@ -77,6 +86,10 @@ export function AssistSheet({ plan, day, token, profile, onApply, onClose }: {
         day,
         week,
         instruction: trimmed,
+        // Exact, not assumed: an active plan has a start date and this day has
+        // an index, so the weekday — and therefore how long they have to cook
+        // on it — is arithmetic. A draft has no date and sends none.
+        date: dayDate(plan, day) ?? undefined,
       });
       setProposal({
         day: res.day as HealthPlanDay,

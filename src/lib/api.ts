@@ -161,6 +161,11 @@ export const healthAssistApi = {
     title?: string;
     goal?: string | null;
     profile?: unknown;
+    /** The day the plan is expected to begin, ISO. Without it the server
+     *  cannot tell which weekday "day 3" is, so per-meal cooking ceilings
+     *  collapse to the tightest one in the week rather than the real one for
+     *  that day. */
+    start_date?: string;
   }) =>
     fetch(`${API_BASE}/health/generate/plan`, {
       method: 'POST',
@@ -187,6 +192,9 @@ export const healthAssistApi = {
     day: unknown;
     week?: unknown[];
     instruction: string;
+    /** The calendar date this day actually falls on, ISO — plan start plus
+     *  day_index. Exact, not assumed: an active plan knows both. */
+    date?: string;
   }) =>
     fetch(`${API_BASE}/health/generate/day`, {
       method: 'POST',
