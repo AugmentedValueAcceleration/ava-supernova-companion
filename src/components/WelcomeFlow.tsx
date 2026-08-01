@@ -90,7 +90,7 @@ export default function WelcomeFlow({ userName, onComplete }: Props) {
     localStorage.setItem('ava-companion-consent-accepted', timestamp);
     const key = localStorage.getItem('ava-companion-api-key');
     if (key) {
-      fetch('https://ava-supernova.com/api/consent', {
+      fetch('https://avasupernova.com/api/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}`, 'X-Ava-Platform': 'companion' },
         body: JSON.stringify({ platform: 'companion', appVersion: '1.0.0', acceptedAt: timestamp, termsVersion: '1.0', privacyVersion: '1.0' }),
@@ -194,9 +194,9 @@ function ConsentStep({ checked, onCheck }: { checked: boolean; onCheck: (v: bool
       </div>
 
       <div className="flex justify-center gap-4 text-xs">
-        <a href="https://ava-supernova.com/terms" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">{t('termsOfService')}</a>
+        <a href="https://avasupernova.com/terms" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">{t('termsOfService')}</a>
         <span className="text-gray-600">|</span>
-        <a href="https://ava-supernova.com/privacy" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">{t('privacyPolicy')}</a>
+        <a href="https://avasupernova.com/privacy" target="_blank" rel="noopener" className="text-ava-purple hover:text-ava-purple-light transition">{t('privacyPolicy')}</a>
       </div>
 
       <label className={`flex items-start gap-3 rounded-xl p-3 cursor-pointer transition border ${checked ? 'border-ava-purple bg-ava-purple/10' : 'border-ava-border bg-ava-surface'}`}>

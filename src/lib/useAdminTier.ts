@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_AVA_API_URL || 'https://ava-supernova.com';
+const API_BASE = process.env.NEXT_PUBLIC_AVA_API_URL || 'https://avasupernova.com';
 
 export interface AdminTierState {
   isAdmin: boolean;

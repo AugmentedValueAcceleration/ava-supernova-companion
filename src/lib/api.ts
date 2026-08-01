@@ -5,7 +5,7 @@ import { readRecentJournal } from './companion-journal-store';
 import { readPlansForContext } from './health-plan-store';
 import { getActiveProviderKey } from '@/components/SettingsView';
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://ava-supernova.com/api';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://avasupernova.com/api';
 
 /** Append `?locale=xx` for non-English, matching how the IDE + extension fetch
  *  the catalogue. The health catalogue translates on demand and caches

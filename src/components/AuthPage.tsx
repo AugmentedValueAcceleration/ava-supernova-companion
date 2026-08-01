@@ -18,7 +18,7 @@
 import { useEffect, useState } from 'react';
 import { API_BASE } from '@/lib/api';
 
-const WEB_ORIGIN = API_BASE.replace('/api', ''); // https://ava-supernova.com
+const WEB_ORIGIN = API_BASE.replace('/api', ''); // https://avasupernova.com
 
 interface AuthPageProps {
   /** Called when the user successfully connects via OAuth or API key */

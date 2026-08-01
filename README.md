@@ -52,7 +52,7 @@ Opens on http://localhost:3001
 ## Links
 
 - **Extension** — [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=augmentedvalueacceleration.ava-supernova)
-- **Website** — [ava-supernova.com](https://ava-supernova.com)
+- **Website** — [avasupernova.com](https://avasupernova.com)
 - **GitHub** — [AugmentedValueAcceleration](https://github.com/AugmentedValueAcceleration)
 - **YouTube** — [youtube.com/@SyntaxSauce](https://youtube.com/@SyntaxSauce)
 

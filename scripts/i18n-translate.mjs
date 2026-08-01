@@ -49,7 +49,7 @@ if (!CRED && !DRY_RUN) {
 const COMPLETION_URL = args['base-url']
   ? `${args['base-url'].replace(/\/$/, '')}/chat/completions`
   : (CRED?.kind === 'platform'
-      ? 'https://ava-supernova.com/api/chat'
+      ? 'https://avasupernova.com/api/chat'
       : 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions');
 
 function resolveCredential() {

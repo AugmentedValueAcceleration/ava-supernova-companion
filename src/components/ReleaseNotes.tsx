@@ -25,7 +25,7 @@ export default function ReleaseNotes({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     const fetchReleases = async () => {
       try {
-        const res = await fetch('https://ava-supernova.com/api/releases');
+        const res = await fetch('https://avasupernova.com/api/releases');
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         setReleases(data.releases || data || []);

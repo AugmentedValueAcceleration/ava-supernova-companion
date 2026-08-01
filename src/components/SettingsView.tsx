@@ -267,7 +267,7 @@ export default function SettingsView({
                 {t('signIn')}
               </Button>
               <a
-                href="https://ava-supernova.com/pricing"
+                href="https://avasupernova.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full text-center text-xs text-ava-purple-light hover:underline"
@@ -300,7 +300,7 @@ export default function SettingsView({
               <BillingSection apiKey={apiKey} session={session} />
 
               <a
-                href="https://ava-supernova.com/pricing"
+                href="https://avasupernova.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium py-2.5 rounded-xl text-sm text-center hover:from-purple-700 hover:to-purple-600 transition"
@@ -643,13 +643,13 @@ export default function SettingsView({
                 value={<span className="text-[10px] uppercase tracking-wider text-gray-500">{t('comingSoon')}</span>}
               />
             </div>
-            <a href="https://ava-supernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+            <a href="https://avasupernova.com" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label={t('website')} value={<ChevronRight />} />
             </a>
-            <a href="https://ava-supernova.com/terms" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+            <a href="https://avasupernova.com/terms" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label={t('termsOfService')} value={<ChevronRight />} />
             </a>
-            <a href="https://ava-supernova.com/privacy" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
+            <a href="https://avasupernova.com/privacy" target="_blank" rel="noopener noreferrer" className="block p-4 hover:bg-ava-surface-hover transition">
               <Row label={t('privacyPolicy')} value={<ChevronRight />} />
             </a>
           </div>

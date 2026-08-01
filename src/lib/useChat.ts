@@ -38,7 +38,7 @@ function getFriendlyError(message?: string): string {
   // which is why it read as no real feedback. Now that the wallet toggle
   // exists, API Key mode is the instant fallback that doesn't cost credits.
   if (msg.includes('credit') || msg.includes('allowance') || msg.includes('top-up') || msg.includes('token limit') || msg.includes('limit reached'))
-    return "You're out of credits this month. Top up or upgrade at ava-supernova.com/pricing — or switch to API Key in the model picker to keep going on your own key.";
+    return "You're out of credits this month. Top up or upgrade at avasupernova.com/pricing — or switch to API Key in the model picker to keep going on your own key.";
 
   if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many'))
     return "You're sending messages a bit fast — give it a moment and try again.";

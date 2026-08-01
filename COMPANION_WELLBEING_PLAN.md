@@ -28,7 +28,7 @@ Out of scope:
 | Store contract | `core/src/health/store.ts` | `HealthPlanStore` interface — each surface implements its own |
 | Catalogue + brief | platform `/api/health/*` | exercises, recipes, taxonomies, morning-brief, profile/sync — already live |
 | Companion persistence | `lib/data-mode.ts` | `DataMode` local/cloud/both, **defaults cloud**; `X-Ava-Data-Mode` header |
-| Companion ↔ backend | `lib/api.ts` | `API_BASE = ava-supernova.com/api`; `/companion/chat` for chat |
+| Companion ↔ backend | `lib/api.ts` | `API_BASE = avasupernova.com/api`; `/companion/chat` for chat |
 
 **The companion will need its own `HealthPlanStore` implementation** (like the extension's `health-plan-store-impl.ts`), backed by localStorage + cloud sync per `DataMode`.
 
