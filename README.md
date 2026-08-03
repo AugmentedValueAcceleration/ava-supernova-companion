@@ -1,5 +1,38 @@
 # Ava Supernova — Companion
 
+> ## ⚠️ The source has moved
+>
+> **The companion now lives on the main site at [avasupernova.com/companion](https://avasupernova.com/companion).**
+>
+> Its source moved into the platform repo on 2026-08-03 — `packages/web/src/companion/`
+> — and this repository no longer carries a copy. That is deliberate: two copies
+> of 122 files is a drift risk, and holding both meant changes landing in one and
+> not the other.
+>
+> **Nothing was lost.** Every file is in this repository's git history, and the
+> version now shipping is strictly newer.
+>
+> ### Why the move
+>
+> The extension and IDE are for people who write software. The companion had
+> everything else — chat, tasks, journal, memory, the health planning — and the
+> only way to get it was installing an app. The website sold four products and
+> delivered none of them. `/companion` closes that.
+>
+> ### What this repository is for now
+>
+> The build scaffolding stays because this is where the **native mobile app**
+> starts when that work begins. At that point the shared views get extracted
+> back out as a package both surfaces consume — a boundary worth drawing when
+> there are genuinely two consumers, and not before.
+>
+> ### If you are looking for the code
+>
+> `packages/web/src/companion/{components,lib,locales,onboarding}` in the
+> platform repo.
+
+---
+
 Your AI partner, everywhere you go.
 
 The companion app for Ava Supernova. Same memory, same context, same brain — on any device. Chat with Ava on the bus. Check your tasks. Review your journal. Design her personality. All synced with the VS Code extension.
