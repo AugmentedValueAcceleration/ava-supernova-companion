@@ -2,11 +2,12 @@
   "name": "ava-companion",
   "version": "0.6.0",
   "private": true,
+  "_retired": "The companion moved into packages/web at /companion on 2026-08-03 and this package's src/ was removed with it. What is left is config, the README and COMPANION_WELLBEING_PLAN.md — kept on purpose as a record of intent, not as running code. dev/build/start pointed at a Next app that no longer exists, so `next build` failed with 'Couldn't find any pages or app directory' and took every recursive workspace build down with it. They are no-ops that explain themselves rather than deletions, so anyone running them gets told where the code went.",
   "scripts": {
-    "dev": "next dev --port 3001",
-    "build": "next build",
-    "start": "next start --port 3001",
-    "lint": "next lint",
+    "dev": "node -e \"console.log('ava-companion is retired — the companion lives in packages/web at /companion since 2026-08-03. Run the web package instead.')\"",
+    "build": "node -e \"console.log('ava-companion: nothing to build — source retired 2026-08-03, see _retired in package.json.')\"",
+    "start": "node -e \"console.log('ava-companion is retired — run packages/web and open /companion.')\"",
+    "lint": "node -e \"console.log('ava-companion: no source to lint.')\"",
     "i18n:check": "node scripts/i18n-check.mjs",
     "i18n:translate": "node scripts/i18n-translate.mjs"
   },
